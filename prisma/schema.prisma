@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,20 +10,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+// ============================================================
+// Admin user — single tenant for now (you)
+// ============================================================
+model AdminUser {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  password  String   // hashed with bcrypt
+  role      String   @default("admin") // "admin" | "owner"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// ============================================================
+// Categories — Handmade Decor, Book Nooks, etc.
+// ============================================================
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique // e.g. "ceramics", "book-nooks"
+  name        String    // display name e.g. "Ceramics & Vessels"
+  subtitle    String?   // small eyebrow e.g. "Earth & Form"
+  description String?
+  image       String?   // cover image path
+  categoryType String   @default("decor") // "decor" | "booknook"
+  sortOrder   Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ============================================================
+// Products — individual pieces
+// ============================================================
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  categorySlug  String
+  category      Category @relation(fields: [categorySlug], references: [slug])
+  description   String
+  // Base price in USD — converted at runtime by currency selector
+  priceUSD      Float
+  // Inventory / status
+  tag           String?  // "New" | "Limited" | "Signature" | "Bestseller" | null
+  isPublished   Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  image         String
+  // Optional additional metadata
+  material      String?
+  dimensions    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([categorySlug])
+}
+
+// ============================================================
+// Orders — captured when a customer checks out via Stripe
+// ============================================================
+model Order {
+  id            String   @id @default(cuid())
+  email         String
+  fullName      String
+  country       String   // ISO country code, e.g. "US"
+  currency      String   // e.g. "USD"
+  totalAmount   Float    // in the currency the customer paid
+  status        String   @default("pending") // "pending" | "paid" | "shipped" | "cancelled"
+  stripeSession String?  // Stripe Checkout Session ID
+  itemsJson     String   // JSON string of cart items
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

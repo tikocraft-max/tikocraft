@@ -6,7 +6,8 @@ import Hero from "../hero";
 import Marquee from "../marquee";
 import SectionHeading from "../section-heading";
 import { useRouter } from "@/lib/router";
-import { collections, products } from "@/lib/content";
+import { useCatalog } from "@/lib/use-catalog";
+import { useCurrency } from "@/lib/currency";
 import {
   staggerContainer,
   scaleIn,
@@ -17,7 +18,9 @@ import {
 
 export default function HomePage() {
   const { navigate } = useRouter();
-  const featuredCollections = collections.slice(0, 4);
+  const { categories, products } = useCatalog();
+  const { formatPrice } = useCurrency();
+  const featuredCollections = categories.slice(0, 4);
   const decorProducts = products.filter((p) => p.categoryType === "decor").slice(0, 3);
   const booknookProducts = products.filter((p) => p.categoryType === "booknook").slice(0, 3);
 
@@ -212,7 +215,7 @@ export default function HomePage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
           >
             {decorProducts.map((product) => (
-              <ProductPreviewCard key={product.id} product={product} onClick={() => navigate("products")} />
+              <ProductPreviewCard key={product.id} product={product} onClick={() => navigate("products")} formatPrice={formatPrice} />
             ))}
           </motion.div>
         </div>
@@ -266,7 +269,7 @@ export default function HomePage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
           >
             {booknookProducts.map((product) => (
-              <BookNookPreviewCard key={product.id} product={product} onClick={() => navigate("products", "booknooks")} />
+              <BookNookPreviewCard key={product.id} product={product} onClick={() => navigate("products", "booknooks")} formatPrice={formatPrice} />
             ))}
           </motion.div>
         </div>
@@ -391,9 +394,11 @@ export default function HomePage() {
 function ProductPreviewCard({
   product,
   onClick,
+  formatPrice,
 }: {
-  product: (typeof products)[number];
+  product: import("@/lib/use-catalog").CatalogProduct;
   onClick: () => void;
+  formatPrice: (usd: number) => string;
 }) {
   return (
     <motion.button
@@ -425,7 +430,7 @@ function ProductPreviewCard({
           </h3>
         </div>
         <span className="font-display text-xl text-brown-800 shrink-0 mt-6">
-          {product.price}
+          {formatPrice(product.priceUSD)}
         </span>
       </div>
       <div className="mt-5 h-px bg-brown-200 transition-all duration-500 group-hover:bg-brown-700" />
@@ -436,9 +441,11 @@ function ProductPreviewCard({
 function BookNookPreviewCard({
   product,
   onClick,
+  formatPrice,
 }: {
-  product: (typeof products)[number];
+  product: import("@/lib/use-catalog").CatalogProduct;
   onClick: () => void;
+  formatPrice: (usd: number) => string;
 }) {
   return (
     <motion.button
@@ -471,7 +478,7 @@ function BookNookPreviewCard({
           </h3>
         </div>
         <span className="font-display text-xl text-beige shrink-0 mt-6">
-          {product.price}
+          {formatPrice(product.priceUSD)}
         </span>
       </div>
       <div className="mt-5 h-px bg-brown-700 transition-all duration-500 group-hover:bg-beige" />

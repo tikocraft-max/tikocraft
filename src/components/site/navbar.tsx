@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { navItems } from "@/lib/content";
 import { useRouter } from "@/lib/router";
 import { slideDown } from "@/lib/animations";
+import CurrencySelector from "./currency-selector";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -106,8 +107,12 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* CTA + Mobile toggle */}
-          <div className="flex items-center gap-4">
+          {/* CTA + Currency + Mobile toggle */}
+          <div className="flex items-center gap-4 lg:gap-6">
+            <div className="hidden sm:block">
+              <CurrencySelector variant={onLightBg || scrolled ? "light" : "dark"} />
+            </div>
+
             <button
               onClick={() => handleNavClick("contact")}
               className={`hidden lg:inline-flex font-body text-[11px] tracking-luxe-sm uppercase px-5 py-2.5 border transition-all duration-500 ${

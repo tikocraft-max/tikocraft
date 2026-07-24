@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { RouterProvider, useRouter } from "@/lib/router";
+import { CurrencyProvider } from "@/lib/currency";
 import Navbar from "@/components/site/navbar";
 import Footer from "@/components/site/footer";
 import HomePage from "@/components/site/pages/home-page";
@@ -64,8 +65,10 @@ function renderPage(page: PageId) {
 
 export default function Home() {
   return (
-    <RouterProvider>
-      <CurrentPage />
-    </RouterProvider>
+    <CurrencyProvider>
+      <RouterProvider>
+        <CurrentPage />
+      </RouterProvider>
+    </CurrencyProvider>
   );
 }

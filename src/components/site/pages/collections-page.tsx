@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { collections } from "@/lib/content";
 import SectionHeading from "../section-heading";
 import { useRouter } from "@/lib/router";
+import { useCatalog } from "@/lib/use-catalog";
 import {
   staggerContainer,
   scaleIn,
@@ -15,8 +15,9 @@ import {
 
 export default function CollectionsPage() {
   const { navigate } = useRouter();
-  const decorCollections = collections.filter((c) => c.category === "decor");
-  const booknookCollection = collections.find((c) => c.category === "booknook");
+  const { categories } = useCatalog();
+  const decorCollections = categories.filter((c) => c.category === "decor");
+  const booknookCollection = categories.find((c) => c.category === "booknook");
 
   return (
     <div className="pt-32 md:pt-40 bg-cream min-h-screen">

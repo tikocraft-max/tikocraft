@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo, useEffect } from "react";
-import { products } from "@/lib/content";
+import { useState, useEffect, useMemo } from "react";
+import { useCatalog } from "@/lib/use-catalog";
+import { useCurrency } from "@/lib/currency";
 import SectionHeading from "../section-heading";
 import { useRouter } from "@/lib/router";
 import {
@@ -10,10 +11,10 @@ import {
   fadeUp,
   viewportOnce,
 } from "@/lib/animations";
+import type { CatalogProduct } from "@/lib/use-catalog";
 
 type FilterType = "all" | "decor" | "booknook";
 
-// Derive the initial filter from the URL param on first mount
 function deriveInitialFilter(param: string | null): FilterType {
   if (param === "booknooks") return "booknook";
   if (param === "decor") return "decor";
@@ -22,16 +23,13 @@ function deriveInitialFilter(param: string | null): FilterType {
 
 export default function ProductsPage() {
   const { pageParam } = useRouter();
-  // Initialise filter from URL param once; user can change it after
+  const { products } = useCatalog();
+  const { formatPrice } = useCurrency();
   const [filter, setFilter] = useState<FilterType>(() => deriveInitialFilter(pageParam));
 
-  // When the URL param changes externally (e.g. nav click), update the filter.
-  // We use an effect with a guard to avoid the cascading-render lint by
-  // wrapping the setState in a microtask.
   useEffect(() => {
     const next = deriveInitialFilter(pageParam);
     if (next !== filter) {
-      // defer to avoid synchronous setState in effect
       Promise.resolve().then(() => setFilter(next));
     }
   }, [pageParam, filter]);
@@ -39,7 +37,7 @@ export default function ProductsPage() {
   const filteredProducts = useMemo(() => {
     if (filter === "all") return products;
     return products.filter((p) => p.categoryType === filter);
-  }, [filter]);
+  }, [filter, products]);
 
   const isDark = filter === "booknook" || filter === "all";
 
@@ -160,7 +158,7 @@ export default function ProductsPage() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
             >
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} isDark={isDark} />
+                <ProductCard key={product.id} product={product} isDark={isDark} formatPrice={formatPrice} />
               ))}
             </motion.div>
           </AnimatePresence>
@@ -173,9 +171,11 @@ export default function ProductsPage() {
 function ProductCard({
   product,
   isDark,
+  formatPrice,
 }: {
-  product: (typeof products)[number];
+  product: CatalogProduct;
   isDark: boolean;
+  formatPrice: (usd: number) => string;
 }) {
   return (
     <motion.article variants={fadeUp} className="group cursor-pointer">
@@ -246,7 +246,7 @@ function ProductCard({
             isDark ? "text-beige" : "text-brown-800"
           }`}
         >
-          {product.price}
+          {formatPrice(product.priceUSD)}
         </span>
       </div>
       <div
