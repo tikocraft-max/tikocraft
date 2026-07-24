@@ -3,31 +3,13 @@ import { cookies } from "next/headers";
 import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
-
-// Auto-seed admin user if missing (Vercel cold-start safe)
-async function ensureAdminSeeded() {
-  try {
-    const count = await db.adminUser.count();
-    if (count > 0) return;
-    const hashed = await bcrypt.hash("tikocraft2026", 10);
-    await db.adminUser.create({
-      data: {
-        email: "admin@tikocraft.studio",
-        name: "Tikocraft Admin",
-        password: hashed,
-        role: "owner",
-      },
-    });
-    console.log("[auth/login] Auto-seeded admin user");
-  } catch (err) {
-    console.error("[auth/login] Auto-seed failed:", err);
-  }
-}
+import { ensureSeeded } from "../../catalog/route";
 
 // POST /api/auth/login — email + password, sets a session cookie
 export async function POST(req: NextRequest) {
   try {
-    await ensureAdminSeeded();
+    // Ensure DB is seeded (cold-start safe)
+    await ensureSeeded();
 
     const { email, password } = await req.json();
     if (!email || !password) {

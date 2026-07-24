@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import { z } from "zod";
+import { ensureSeeded } from "../catalog/route";
 
 // Helper — checks if the current request is from a logged-in admin
 async function requireAdmin() {
@@ -28,6 +29,7 @@ async function requireAdmin() {
 // ============================================================
 export async function GET(req: NextRequest) {
   try {
+    await ensureSeeded();
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
     const publishedOnly = searchParams.get("published") !== "false";

@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import { z } from "zod";
+import { ensureSeeded } from "../catalog/route";
 
 // GET /api/categories — list all categories (public)
 export async function GET() {
   try {
+    await ensureSeeded();
     const categories = await db.category.findMany({
       orderBy: { sortOrder: "asc" },
       include: {

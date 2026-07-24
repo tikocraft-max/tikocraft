@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { ensureSeeded } from "../../catalog/route";
 
 // GET /api/auth/session — returns current admin user or null
 export async function GET() {
+  // Ensure DB is seeded (cold-start safe)
+  await ensureSeeded();
+
   const cookieStore = await cookies();
   const session = cookieStore.get("tikocraft-admin-session");
   const email = cookieStore.get("tikocraft-admin-email");
