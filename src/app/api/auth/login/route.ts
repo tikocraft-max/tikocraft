@@ -1,12 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { cookies } from "next/headers";
-import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
+import { db } from "@/lib/db";
+import bcrypt from "bcryptjs";
+
+// Auto-seed admin user if missing (Vercel cold-start safe)
+async function ensureAdminSeeded() {
+  try {
+    const count = await db.adminUser.count();
+    if (count > 0) return;
+    const hashed = await bcrypt.hash("tikocraft2026", 10);
+    await db.adminUser.create({
+      data: {
+        email: "admin@tikocraft.studio",
+        name: "Tikocraft Admin",
+        password: hashed,
+        role: "owner",
+      },
+    });
+    console.log("[auth/login] Auto-seeded admin user");
+  } catch (err) {
+    console.error("[auth/login] Auto-seed failed:", err);
+  }
+}
 
 // POST /api/auth/login — email + password, sets a session cookie
 export async function POST(req: NextRequest) {
   try {
+    await ensureAdminSeeded();
+
     const { email, password } = await req.json();
     if (!email || !password) {
       return NextResponse.json(
@@ -33,19 +55,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Simple session token — for production, use NextAuth or JWT signed secret
     const token = randomBytes(32).toString("hex");
-    // Store the session token in a cookie + in-memory (we'll validate by cookie presence
-    // for this simple admin panel)
     const cookieStore = await cookies();
     cookieStore.set("tikocraft-admin-session", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
-    // Also store the admin email so we can identify the user later
     cookieStore.set("tikocraft-admin-email", admin.email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
