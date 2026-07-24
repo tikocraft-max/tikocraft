@@ -1,0 +1,247 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   Tikocraft — Luxury Home Decor Theme
+   Palette: Brown / Beige / White / Cream
+   ============================================ */
+
+@font-face {
+  font-family: "Singsong";
+  src: url("/fonts/Singsong.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Singsong";
+  src: url("/fonts/Singsong.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme inline {
+  /* Color tokens mapped to CSS variables */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  /* Brand palette */
+  --color-cream: #FAF6F0;
+  --color-cream-deep: #F2E9DC;
+  --color-beige: #E8D5B7;
+  --color-beige-light: #F5E6D3;
+  --color-beige-deep: #D4B896;
+  --color-sand: #C9A876;
+  --color-brown-50: #F5EFE7;
+  --color-brown-100: #E8D9C5;
+  --color-brown-200: #D4B896;
+  --color-brown-300: #B8946A;
+  --color-brown-400: #9A7548;
+  --color-brown-500: #7A5A34;
+  --color-brown-600: #5C3A21;
+  --color-brown-700: #4A2E1A;
+  --color-brown-800: #3A2414;
+  --color-brown-900: #2A1810;
+
+  /* Shadcn compatibility tokens */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.25rem;
+  /* Light luxury palette */
+  --background: #FAF6F0;
+  --foreground: #2A1810;
+  --card: #FFFFFF;
+  --card-foreground: #2A1810;
+  --popover: #FFFFFF;
+  --popover-foreground: #2A1810;
+  --primary: #5C3A21;
+  --primary-foreground: #FAF6F0;
+  --secondary: #E8D5B7;
+  --secondary-foreground: #5C3A21;
+  --muted: #F2E9DC;
+  --muted-foreground: #7A5A34;
+  --accent: #C9A876;
+  --accent-foreground: #FFFFFF;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #E8D5B7;
+  --input: #E8D5B7;
+  --ring: #B8946A;
+  --chart-1: #5C3A21;
+  --chart-2: #C9A876;
+  --chart-3: #E8D5B7;
+  --chart-4: #7A5A34;
+  --chart-5: #D4B896;
+  --sidebar: #FAF6F0;
+  --sidebar-foreground: #2A1810;
+  --sidebar-primary: #5C3A21;
+  --sidebar-primary-foreground: #FAF6F0;
+  --sidebar-accent: #E8D5B7;
+  --sidebar-accent-foreground: #5C3A21;
+  --sidebar-border: #E8D5B7;
+  --sidebar-ring: #B8946A;
+}
+
+.dark {
+  --background: #2A1810;
+  --foreground: #FAF6F0;
+  --card: #3A2414;
+  --card-foreground: #FAF6F0;
+  --popover: #3A2414;
+  --popover-foreground: #FAF6F0;
+  --primary: #E8D5B7;
+  --primary-foreground: #2A1810;
+  --secondary: #4A2E1A;
+  --secondary-foreground: #FAF6F0;
+  --muted: #4A2E1A;
+  --muted-foreground: #D4B896;
+  --accent: #C9A876;
+  --accent-foreground: #2A1810;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #4A2E1A;
+  --input: #4A2E1A;
+  --ring: #B8946A;
+  --chart-1: #E8D5B7;
+  --chart-2: #C9A876;
+  --chart-3: #D4B896;
+  --chart-4: #B8946A;
+  --chart-5: #7A5A34;
+  --sidebar: #3A2414;
+  --sidebar-foreground: #FAF6F0;
+  --sidebar-primary: #E8D5B7;
+  --sidebar-primary-foreground: #2A1810;
+  --sidebar-accent: #4A2E1A;
+  --sidebar-accent-foreground: #FAF6F0;
+  --sidebar-border: #4A2E1A;
+  --sidebar-ring: #B8946A;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "kern", "liga", "calt";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background-color: #C9A876;
+    color: #2A1810;
+  }
+}
+
+/* ============================================
+   Custom utility classes for Tikocraft
+   ============================================ */
+
+@layer utilities {
+  .font-display {
+    font-family: "Singsong", var(--font-display), "Cormorant Garamond", Georgia, serif;
+  }
+  .font-body {
+    font-family: var(--font-body), "Inter", system-ui, sans-serif;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .tracking-luxe {
+    letter-spacing: 0.2em;
+  }
+  .tracking-luxe-sm {
+    letter-spacing: 0.12em;
+  }
+
+  /* Decorative divider line */
+  .luxe-divider {
+    position: relative;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      #B8946A 30%,
+      #B8946A 70%,
+      transparent
+    );
+  }
+}
+
+/* ============================================
+   Custom scrollbar
+   ============================================ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF6F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #B8946A;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7A5A34;
+}
+
+/* ============================================
+   Smooth scrolling
+   ============================================ */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Subtle film grain texture for luxury feel */
+.grain-overlay {
+  position: relative;
+}
+.grain-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
