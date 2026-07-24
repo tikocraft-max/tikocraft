@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { ensureSeeded } from "../catalog/route";
+import { ensureSeeded } from "@/lib/seed";
 
 // GET /api/categories — list all categories (public)
 export async function GET() {

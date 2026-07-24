@@ -31,12 +31,28 @@ export const metadata: Metadata = {
     "modern craft",
   ],
   authors: [{ name: "Tikocraft" }],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180" },
+    ],
+  },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "Tikocraft — Handcrafted Home Decor",
     description:
       "Artisan objects for modern living. Discover our collections of ceramics, textiles, lighting and furniture.",
     siteName: "Tikocraft",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tikocraft — Handcrafted Home Decor",
+    description: "Artisan objects for modern living.",
   },
 };
 

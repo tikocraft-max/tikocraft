@@ -9,10 +9,14 @@ import {
   createSessionToken,
   getClientIp,
 } from "@/lib/security";
+import { ensureSeeded } from "@/lib/seed";
 
 // POST /api/auth/login — secure login with rate limiting + signed session
 export async function POST(req: NextRequest) {
   try {
+    // Ensure DB schema + admin user exist (cold-start safe on Vercel)
+    await ensureSeeded();
+
     const ip = getClientIp(req);
 
     // 1. Rate limit check — block IPs with too many failures
@@ -72,9 +76,6 @@ export async function POST(req: NextRequest) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
-
-    // Don't store email in a separate cookie — the signed token already
-    // contains it (encoded), so we can verify identity without leaking.
 
     return NextResponse.json({
       ok: true,

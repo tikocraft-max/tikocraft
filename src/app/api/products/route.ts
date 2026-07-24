@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { ensureSeeded } from "../catalog/route";
+import { ensureSeeded } from "@/lib/seed";
 import { verifySessionToken } from "@/lib/security";
 
 // Helper — checks if the current request is from a logged-in admin
