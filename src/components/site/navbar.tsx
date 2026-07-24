@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingBag } from "lucide-react";
 import { navItems } from "@/lib/content";
 import { useRouter } from "@/lib/router";
 import { slideDown } from "@/lib/animations";
+import { useCart } from "@/lib/cart";
 import CurrencySelector from "./currency-selector";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { currentPage, navigate } = useRouter();
+  const cartItems = useCart((s) => s.items);
+  const openCart = useCart((s) => s.openCart);
+  const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -107,11 +111,32 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* CTA + Currency + Mobile toggle */}
-          <div className="flex items-center gap-4 lg:gap-6">
+          {/* CTA + Currency + Cart + Mobile toggle */}
+          <div className="flex items-center gap-4 lg:gap-5">
             <div className="hidden sm:block">
               <CurrencySelector variant={onLightBg || scrolled ? "light" : "dark"} />
             </div>
+
+            {/* Cart icon */}
+            <button
+              onClick={openCart}
+              className={`relative p-2 transition-colors ${
+                scrolled ? "text-brown-800 hover:text-brown-600" : "text-cream hover:text-beige"
+              }`}
+              aria-label={`Open cart (${cartCount} items)`}
+            >
+              <ShoppingBag className="h-5 w-5" strokeWidth={1.4} />
+              {cartCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                  className="absolute -top-1 -right-1 bg-brown-800 text-cream font-body text-[10px] font-medium leading-none rounded-full h-4 min-w-4 px-1 flex items-center justify-center"
+                >
+                  {cartCount > 99 ? "99+" : cartCount}
+                </motion.span>
+              )}
+            </button>
 
             <button
               onClick={() => handleNavClick("contact")}

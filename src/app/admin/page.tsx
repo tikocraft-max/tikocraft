@@ -17,6 +17,7 @@ import {
   Save,
   Search,
   ExternalLink,
+  Star,
 } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { toast } from "sonner";
@@ -47,6 +48,8 @@ interface Product {
   isPublished: boolean;
   sortOrder: number;
   image: string;
+  images: string | null; // JSON string of array
+  videoUrl: string | null;
   material: string | null;
   dimensions: string | null;
   category?: Category;
@@ -546,6 +549,17 @@ function ProductForm({
   onSave: (data: Partial<Product>, isNew: boolean) => void;
 }) {
   const isNew = !product;
+  // Parse existing images from JSON string
+  const existingImages: string[] = (() => {
+    if (!product?.images) return [];
+    try {
+      const parsed = JSON.parse(product.images);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  })();
+
   const [form, setForm] = useState({
     name: product?.name || "",
     slug: product?.slug || "",
@@ -554,12 +568,15 @@ function ProductForm({
     priceUSD: product?.priceUSD || 0,
     tag: product?.tag || "",
     image: product?.image || "/images/product-1.png",
+    images: existingImages, // array of image URLs
+    videoUrl: product?.videoUrl || "",
     material: product?.material || "",
     dimensions: product?.dimensions || "",
     isPublished: product?.isPublished ?? true,
     sortOrder: product?.sortOrder ?? 0,
   });
   const [saving, setSaving] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -576,10 +593,32 @@ function ProductForm({
         tag: form.tag || null,
         material: form.material || null,
         dimensions: form.dimensions || null,
+        images: form.images, // array — API converts to JSON
+        videoUrl: form.videoUrl || null,
       },
       isNew
     );
     setSaving(false);
+  };
+
+  // Image gallery management
+  const addImage = () => {
+    const url = newImageUrl.trim();
+    if (!url) return;
+    if (form.images.includes(url)) {
+      toast.error("This image is already in the gallery");
+      return;
+    }
+    setForm((f) => ({ ...f, images: [...f.images, url] }));
+    setNewImageUrl("");
+  };
+
+  const removeImage = (url: string) => {
+    setForm((f) => ({ ...f, images: f.images.filter((i) => i !== url) }));
+  };
+
+  const setMainImage = (url: string) => {
+    setForm((f) => ({ ...f, image: url }));
   };
 
   // Auto-generate slug from name
@@ -620,22 +659,105 @@ function ProductForm({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Image preview */}
+          {/* Main image preview */}
           <div className="flex gap-4">
             <div className="w-24 h-24 bg-beige-light overflow-hidden shrink-0">
               <img src={form.image} alt="Preview" className="h-full w-full object-cover" />
             </div>
             <div className="flex-1">
-              <Label>Image path</Label>
+              <Label>Main image path * (shown on cards + as default)</Label>
               <Input
                 value={form.image}
                 onChange={(v) => setForm({ ...form, image: v })}
                 placeholder="/images/product-1.png"
               />
               <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
-                Use an image from /public/images/. Upload new images there to use them.
+                Use an image from /public/images/. This is the main photo shown on product cards and as the first image in the gallery.
               </p>
             </div>
+          </div>
+
+          {/* Additional image gallery */}
+          <div>
+            <Label>Additional gallery images (optional)</Label>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addImage();
+                  }
+                }}
+                placeholder="/images/product-1-detail.png or https://…"
+                className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
+              />
+              <button
+                type="button"
+                onClick={addImage}
+                className="inline-flex items-center gap-1 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add
+              </button>
+            </div>
+            <p className="font-body text-[10px] text-brown-500 mb-3 font-light">
+              Add multiple images to show in the product gallery. The main image (above) is automatically the first gallery image.
+            </p>
+
+            {/* Gallery thumbnails */}
+            {form.images.length > 0 && (
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                {/* Main image shown first */}
+                <div className="relative aspect-square bg-beige-light overflow-hidden border-2 border-brown-800">
+                  <img src={form.image} alt="Main" className="h-full w-full object-cover" />
+                  <div className="absolute bottom-0 left-0 right-0 bg-brown-800 text-cream text-[8px] tracking-luxe uppercase text-center py-0.5">
+                    Main
+                  </div>
+                </div>
+                {/* Additional images */}
+                {form.images
+                  .filter((img) => img !== form.image)
+                  .map((img, i) => (
+                    <div key={i} className="relative aspect-square bg-beige-light overflow-hidden group">
+                      <img src={img} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
+                      {/* Set as main button */}
+                      <button
+                        type="button"
+                        onClick={() => setMainImage(img)}
+                        className="absolute top-1 left-1 bg-cream/90 text-brown-800 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Set as main image"
+                      >
+                        <Star className="h-3 w-3" strokeWidth={1.5} />
+                      </button>
+                      {/* Remove button */}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(img)}
+                        className="absolute top-1 right-1 bg-red-600 text-cream p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove image"
+                      >
+                        <X className="h-3 w-3" strokeWidth={1.8} />
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Video URL */}
+          <div>
+            <Label>Video URL (optional — YouTube, Vimeo, or MP4)</Label>
+            <Input
+              value={form.videoUrl}
+              onChange={(v) => setForm({ ...form, videoUrl: v })}
+              placeholder="https://www.youtube.com/watch?v=…"
+            />
+            <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
+              Paste a YouTube, Vimeo, or direct MP4 link. A "Watch Video" button will appear on the product page.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

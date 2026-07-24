@@ -49,6 +49,8 @@ const updateSchema = z.object({
   priceUSD: z.number().positive().optional(),
   tag: z.string().nullable().optional(),
   image: z.string().min(1).optional(),
+  images: z.array(z.string()).nullable().optional(),
+  videoUrl: z.string().nullable().optional(),
   material: z.string().nullable().optional(),
   dimensions: z.string().nullable().optional(),
   isPublished: z.boolean().optional(),
@@ -79,9 +81,16 @@ export async function PATCH(
       );
     }
 
+    const { images, ...rest } = parsed.data;
+    const updateData: Record<string, unknown> = { ...rest };
+    // Convert images array to JSON string for storage
+    if (images !== undefined) {
+      updateData.images = images && images.length > 0 ? JSON.stringify(images) : null;
+    }
+
     const product = await db.product.update({
       where: { slug },
-      data: parsed.data,
+      data: updateData,
     });
     return NextResponse.json({ product });
   } catch (err) {

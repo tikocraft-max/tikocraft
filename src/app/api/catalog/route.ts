@@ -34,21 +34,37 @@ export async function GET() {
         items: `${c._count.products} ${c._count.products === 1 ? "piece" : "pieces"}`,
         category: c.categoryType as "decor" | "booknook",
       })),
-      products: products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        category: p.category?.name || p.categorySlug,
-        categorySlug: p.categorySlug,
-        categoryType: p.category?.categoryType as "decor" | "booknook",
-        price: p.priceUSD,
-        priceUSD: p.priceUSD,
-        image: p.image,
-        description: p.description,
-        tag: p.tag,
-        material: p.material,
-        dimensions: p.dimensions,
-      })),
+      products: products.map((p) => {
+        // Parse images JSON (or fall back to [image])
+        let images: string[] = [p.image];
+        if (p.images) {
+          try {
+            const parsed = JSON.parse(p.images);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              images = parsed;
+            }
+          } catch {
+            // fall back to [image]
+          }
+        }
+        return {
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          category: p.category?.name || p.categorySlug,
+          categorySlug: p.categorySlug,
+          categoryType: p.category?.categoryType as "decor" | "booknook",
+          price: p.priceUSD,
+          priceUSD: p.priceUSD,
+          image: p.image,
+          images,
+          videoUrl: p.videoUrl,
+          description: p.description,
+          tag: p.tag,
+          material: p.material,
+          dimensions: p.dimensions,
+        };
+      }),
     });
   } catch (err) {
     console.error("GET /api/catalog error", err);

@@ -198,7 +198,8 @@ export type PageId =
   | "products"
   | "atelier"
   | "showroom"
-  | "contact";
+  | "contact"
+  | "product";
 
 export const navItems: NavItem[] = [
   { label: "Home", href: "home", page: "home" },

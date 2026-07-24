@@ -68,6 +68,8 @@ const productSchema = z.object({
   priceUSD: z.number().positive(),
   tag: z.string().nullable().optional(),
   image: z.string().min(1),
+  images: z.array(z.string()).nullable().optional(),
+  videoUrl: z.string().nullable().optional(),
   material: z.string().nullable().optional(),
   dimensions: z.string().nullable().optional(),
   isPublished: z.boolean().optional(),
@@ -93,9 +95,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const { images, videoUrl, ...rest } = parsed.data;
     const product = await db.product.create({
       data: {
-        ...parsed.data,
+        ...rest,
+        images: images && images.length > 0 ? JSON.stringify(images) : null,
+        videoUrl: videoUrl ?? null,
         tag: parsed.data.tag ?? null,
         material: parsed.data.material ?? null,
         dimensions: parsed.data.dimensions ?? null,

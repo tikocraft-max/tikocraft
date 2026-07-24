@@ -2,16 +2,19 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
+import { ShoppingBag, Plus } from "lucide-react";
 import { useCatalog } from "@/lib/use-catalog";
 import { useCurrency } from "@/lib/currency";
-import SectionHeading from "../section-heading";
 import { useRouter } from "@/lib/router";
+import { useCart } from "@/lib/cart";
+import SectionHeading from "../section-heading";
 import {
   staggerContainer,
   fadeUp,
   viewportOnce,
 } from "@/lib/animations";
 import type { CatalogProduct } from "@/lib/use-catalog";
+import { toast } from "sonner";
 
 type FilterType = "all" | "decor" | "booknook";
 
@@ -22,7 +25,7 @@ function deriveInitialFilter(param: string | null): FilterType {
 }
 
 export default function ProductsPage() {
-  const { pageParam } = useRouter();
+  const { pageParam, navigate } = useRouter();
   const { products } = useCatalog();
   const { formatPrice } = useCurrency();
   const [filter, setFilter] = useState<FilterType>(() => deriveInitialFilter(pageParam));
@@ -90,7 +93,8 @@ export default function ProductsPage() {
               }`}
             >
               A rotating selection of finished pieces and book nook kits from
-              the atelier — each one signed, dated, and ready to ship.
+              the atelier — each one signed, dated, and ready to ship. Click any
+              piece for full details, images, and video.
             </motion.p>
           </motion.div>
 
@@ -158,7 +162,13 @@ export default function ProductsPage() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
             >
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} isDark={isDark} formatPrice={formatPrice} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isDark={isDark}
+                  formatPrice={formatPrice}
+                  onNavigate={() => navigate("product", product.slug)}
+                />
               ))}
             </motion.div>
           </AnimatePresence>
@@ -172,13 +182,32 @@ function ProductCard({
   product,
   isDark,
   formatPrice,
+  onNavigate,
 }: {
   product: CatalogProduct;
   isDark: boolean;
   formatPrice: (usd: number) => string;
+  onNavigate: () => void;
 }) {
+  const addItem = useCart((s) => s.addItem);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addItem({
+      slug: product.slug,
+      name: product.name,
+      image: product.image,
+      priceUSD: product.priceUSD,
+    });
+    toast.success(`${product.name} added to cart`);
+  };
+
   return (
-    <motion.article variants={fadeUp} className="group cursor-pointer">
+    <motion.article
+      variants={fadeUp}
+      className="group cursor-pointer"
+      onClick={onNavigate}
+    >
       <div
         className={`relative aspect-square overflow-hidden mb-6 ${
           isDark ? "bg-brown-800" : "bg-beige-light"
@@ -202,16 +231,36 @@ function ProductCard({
             </span>
           </div>
         )}
-        {/* Quick view button on hover */}
-        <div className="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+        {/* Video indicator */}
+        {product.videoUrl && (
+          <div className="absolute top-4 right-4">
+            <span className="inline-flex items-center gap-1 font-body text-[9px] tracking-luxe-sm uppercase bg-cream/90 text-brown-800 px-2 py-1">
+              <span className="inline-block w-1.5 h-1.5 bg-red-600 rounded-full" />
+              Video
+            </span>
+          </div>
+        )}
+        {/* Quick view + add to cart buttons on hover */}
+        <div className="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 flex gap-2">
           <button
-            className={`w-full backdrop-blur-sm py-3 font-body text-[11px] tracking-luxe-sm uppercase transition-colors ${
-              isDark
-                ? "bg-cream/95 text-brown-900 hover:bg-cream"
-                : "bg-cream/95 text-brown-900 hover:bg-cream"
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate();
+            }}
+            className={`flex-1 backdrop-blur-sm py-3 font-body text-[10px] tracking-luxe-sm uppercase transition-colors ${
+              isDark ? "bg-cream/95 text-brown-900 hover:bg-cream" : "bg-cream/95 text-brown-900 hover:bg-cream"
             }`}
           >
-            Quick View
+            View Details
+          </button>
+          <button
+            onClick={handleAddToCart}
+            className={`backdrop-blur-sm p-3 transition-colors ${
+              isDark ? "bg-brown-900/80 text-cream hover:bg-brown-900" : "bg-brown-800/90 text-cream hover:bg-brown-800"
+            }`}
+            aria-label="Add to cart"
+          >
+            <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>

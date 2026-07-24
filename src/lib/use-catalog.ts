@@ -26,6 +26,8 @@ export interface CatalogProduct {
   price: number; // USD
   priceUSD: number;
   image: string;
+  images: string[]; // gallery images (includes main image as first)
+  videoUrl: string | null; // optional video URL (YouTube/Vimeo/MP4)
   description: string;
   tag: string | null;
   material: string | null;
@@ -61,6 +63,8 @@ const fallbackData: CatalogData = {
     price: Number(p.price.replace(/[^0-9.]/g, "")),
     priceUSD: Number(p.price.replace(/[^0-9.]/g, "")),
     image: p.image,
+    images: [p.image],
+    videoUrl: null,
     description: p.description,
     tag: p.tag ?? null,
     material: null,

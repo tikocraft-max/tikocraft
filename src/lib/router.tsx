@@ -26,6 +26,7 @@ const VALID_PAGES: PageId[] = [
   "atelier",
   "showroom",
   "contact",
+  "product",
 ];
 
 function readHashState(): { page: PageId; param: string | null } {

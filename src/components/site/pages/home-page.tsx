@@ -215,7 +215,7 @@ export default function HomePage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
           >
             {decorProducts.map((product) => (
-              <ProductPreviewCard key={product.id} product={product} onClick={() => navigate("products")} formatPrice={formatPrice} />
+              <ProductPreviewCard key={product.id} product={product} onClick={() => navigate("product", product.slug)} formatPrice={formatPrice} />
             ))}
           </motion.div>
         </div>
@@ -269,7 +269,7 @@ export default function HomePage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
           >
             {booknookProducts.map((product) => (
-              <BookNookPreviewCard key={product.id} product={product} onClick={() => navigate("products", "booknooks")} formatPrice={formatPrice} />
+              <BookNookPreviewCard key={product.id} product={product} onClick={() => navigate("product", product.slug)} formatPrice={formatPrice} />
             ))}
           </motion.div>
         </div>

@@ -5,9 +5,11 @@ import { RouterProvider, useRouter } from "@/lib/router";
 import { CurrencyProvider } from "@/lib/currency";
 import Navbar from "@/components/site/navbar";
 import Footer from "@/components/site/footer";
+import CartDrawer from "@/components/site/cart-drawer";
 import HomePage from "@/components/site/pages/home-page";
 import CollectionsPage from "@/components/site/pages/collections-page";
 import ProductsPage from "@/components/site/pages/products-page";
+import ProductDetailPage from "@/components/site/pages/product-detail-page";
 import AtelierPage from "@/components/site/pages/atelier-page";
 import ShowroomPage from "@/components/site/pages/showroom-page";
 import ContactPage from "@/components/site/pages/contact-page";
@@ -16,9 +18,6 @@ import type { PageId } from "@/lib/content";
 
 function CurrentPage() {
   const { currentPage, pageParam } = useRouter();
-
-  // Determine whether footer should sit on a dark background
-  const isDarkPage = currentPage === "showroom" || currentPage === "contact";
 
   return (
     <div className="relative min-h-screen flex flex-col bg-cream">
@@ -34,17 +33,18 @@ function CurrentPage() {
             exit="exit"
             className="relative"
           >
-            {renderPage(currentPage)}
+            {renderPage(currentPage, pageParam)}
           </motion.div>
         </AnimatePresence>
       </main>
 
       <Footer />
+      <CartDrawer />
     </div>
   );
 }
 
-function renderPage(page: PageId) {
+function renderPage(page: PageId, param: string | null) {
   switch (page) {
     case "home":
       return <HomePage />;
@@ -52,6 +52,8 @@ function renderPage(page: PageId) {
       return <CollectionsPage />;
     case "products":
       return <ProductsPage />;
+    case "product":
+      return param ? <ProductDetailPage slug={param} /> : <ProductsPage />;
     case "atelier":
       return <AtelierPage />;
     case "showroom":

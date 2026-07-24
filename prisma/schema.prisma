@@ -56,7 +56,12 @@ model Product {
   tag           String?  // "New" | "Limited" | "Signature" | "Bestseller" | null
   isPublished   Boolean  @default(true)
   sortOrder     Int      @default(0)
+  // Main image (shown on cards + as default in gallery)
   image         String
+  // Additional gallery images (JSON array of paths/URLs)
+  images        String?  // JSON: ["/images/p1-a.png", "/images/p1-b.png", ...]
+  // Optional video URL (YouTube, Vimeo, or direct MP4)
+  videoUrl      String?
   // Optional additional metadata
   material      String?
   dimensions    String?

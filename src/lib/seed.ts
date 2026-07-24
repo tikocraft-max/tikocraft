@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS "Product" (
     "isPublished" BOOLEAN NOT NULL DEFAULT true,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "image" TEXT NOT NULL,
+    "images" TEXT,
+    "videoUrl" TEXT,
     "material" TEXT,
     "dimensions" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -75,9 +77,33 @@ CREATE TABLE IF NOT EXISTS "Order" (
 );
 `;
 
+// For existing DBs that don't have the new images/videoUrl columns,
+// add them via ALTER TABLE (idempotent — checks if column exists first)
+async function addMissingColumns() {
+  try {
+    // Check if 'images' column exists
+    const result = await db.$queryRawUnsafe(
+      `SELECT name FROM pragma_table_info("Product") WHERE name IN ("images", "videoUrl")`
+    ) as Array<{ name: string }>;
+    const existing = result.map((r) => r.name);
+    if (!existing.includes("images")) {
+      await db.$executeRawUnsafe(`ALTER TABLE "Product" ADD COLUMN "images" TEXT`);
+      console.log("[db] Added 'images' column to Product");
+    }
+    if (!existing.includes("videoUrl")) {
+      await db.$executeRawUnsafe(`ALTER TABLE "Product" ADD COLUMN "videoUrl" TEXT`);
+      console.log("[db] Added 'videoUrl' column to Product");
+    }
+  } catch (err) {
+    // Column might already exist or table doesn't exist yet — ignore
+  }
+}
+
 async function ensureSchemaExists(): Promise<boolean> {
   try {
     await db.category.count();
+    // Schema exists — but add any missing columns (for upgrades)
+    await addMissingColumns();
     return true;
   } catch {
     try {
@@ -164,6 +190,12 @@ const SEED_PRODUCTS = [
     priceUSD: 186,
     tag: "New",
     image: "/images/product-1.png",
+    images: JSON.stringify([
+      "/images/product-1.png",
+      "/images/atelier-1.png",
+      "/images/collection-ceramics.png",
+    ]),
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     material: "Stoneware, matte glaze",
     dimensions: "Ø 18 × H 32 cm",
     sortOrder: 1,
@@ -177,6 +209,11 @@ const SEED_PRODUCTS = [
     priceUSD: 124,
     tag: null,
     image: "/images/product-2.png",
+    images: JSON.stringify([
+      "/images/product-2.png",
+      "/images/collection-textiles.png",
+    ]),
+    videoUrl: null,
     material: "Seagrass, leather",
     dimensions: "Ø 32 × H 28 cm",
     sortOrder: 2,
@@ -190,6 +227,11 @@ const SEED_PRODUCTS = [
     priceUSD: 248,
     tag: "Limited",
     image: "/images/product-3.png",
+    images: JSON.stringify([
+      "/images/product-3.png",
+      "/images/collection-furniture.png",
+    ]),
+    videoUrl: null,
     material: "Figured walnut",
     dimensions: "Ø 30 × H 12 cm",
     sortOrder: 3,
@@ -203,6 +245,11 @@ const SEED_PRODUCTS = [
     priceUSD: 168,
     tag: null,
     image: "/images/product-4.png",
+    images: JSON.stringify([
+      "/images/product-4.png",
+      "/images/texture-1.png",
+    ]),
+    videoUrl: null,
     material: "Belgian linen",
     dimensions: "130 × 180 cm",
     sortOrder: 4,
@@ -216,6 +263,11 @@ const SEED_PRODUCTS = [
     priceUSD: 215,
     tag: null,
     image: "/images/product-5.png",
+    images: JSON.stringify([
+      "/images/product-5.png",
+      "/images/collection-lighting.png",
+    ]),
+    videoUrl: null,
     material: "Sand-cast bronze",
     dimensions: "Ø 10 × H 24 cm",
     sortOrder: 5,
@@ -229,6 +281,11 @@ const SEED_PRODUCTS = [
     priceUSD: 320,
     tag: "Signature",
     image: "/images/product-6.png",
+    images: JSON.stringify([
+      "/images/product-6.png",
+      "/images/collection-ceramics.png",
+    ]),
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     material: "Hand-built ceramic",
     dimensions: "H 36 cm",
     sortOrder: 6,
@@ -242,6 +299,12 @@ const SEED_PRODUCTS = [
     priceUSD: 142,
     tag: "Bestseller",
     image: "/images/booknook-1.png",
+    images: JSON.stringify([
+      "/images/booknook-1.png",
+      "/images/booknook-hero.png",
+      "/images/booknook-process.png",
+    ]),
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     material: "Birch plywood, LED, paint",
     dimensions: "21 × 11 × 30 cm",
     sortOrder: 7,
@@ -255,6 +318,11 @@ const SEED_PRODUCTS = [
     priceUSD: 158,
     tag: "New",
     image: "/images/booknook-2.png",
+    images: JSON.stringify([
+      "/images/booknook-2.png",
+      "/images/booknook-hero.png",
+    ]),
+    videoUrl: null,
     material: "Birch plywood, LED, paint",
     dimensions: "21 × 11 × 30 cm",
     sortOrder: 8,
@@ -268,6 +336,11 @@ const SEED_PRODUCTS = [
     priceUSD: 174,
     tag: "Limited",
     image: "/images/booknook-3.png",
+    images: JSON.stringify([
+      "/images/booknook-3.png",
+      "/images/booknook-hero.png",
+    ]),
+    videoUrl: null,
     material: "Birch plywood, LED, paint",
     dimensions: "21 × 11 × 30 cm",
     sortOrder: 9,
@@ -281,6 +354,11 @@ const SEED_PRODUCTS = [
     priceUSD: 148,
     tag: null,
     image: "/images/booknook-4.png",
+    images: JSON.stringify([
+      "/images/booknook-4.png",
+      "/images/booknook-hero.png",
+    ]),
+    videoUrl: null,
     material: "Birch plywood, LED, paint",
     dimensions: "21 × 11 × 30 cm",
     sortOrder: 10,
