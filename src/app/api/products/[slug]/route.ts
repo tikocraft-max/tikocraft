@@ -2,15 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import { z } from "zod";
+import { verifySessionToken } from "@/lib/security";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
-  const session = cookieStore.get("tikocraft-admin-session");
-  const email = cookieStore.get("tikocraft-admin-email");
-  if (!session?.value || !email?.value) return null;
+  const token = cookieStore.get("tikocraft-admin-session");
+  if (!token?.value) return null;
+  const { email, valid } = verifySessionToken(token.value);
+  if (!valid || !email) return null;
   try {
     return await db.adminUser.findUnique({
-      where: { email: email.value },
+      where: { email },
       select: { email: true, name: true, role: true },
     });
   } catch {

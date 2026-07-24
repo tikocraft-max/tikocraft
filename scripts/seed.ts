@@ -1,35 +1,46 @@
 // Seed script — populates the database with categories + products
-// matching what's currently in src/lib/content.ts, plus creates the
-// default admin user.
+// and creates the admin user with strong credentials.
 //
 // Usage: bun run scripts/seed.ts
+//
+// Run after switching to a real Postgres database (Vercel Postgres,
+// Neon, Supabase, etc.) — SQLite on Vercel serverless is ephemeral.
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
 
+// ============================================================
+// ADMIN CREDENTIALS — change these to your own
+// ============================================================
+const ADMIN_EMAIL = "tikocraft.com@gmail.com";
+const ADMIN_PASSWORD = "147Aa1471:/";
+const ADMIN_NAME = "Tikocraft Owner";
+
 async function main() {
   console.log("🌱 Seeding database...");
 
   // ------------------------------------------------------------
-  // 1. Admin user — email: admin@tikocraft.studio, password: tikocraft2026
+  // 1. Admin user — bcrypt-hashed, 12 rounds for extra security
   // ------------------------------------------------------------
-  const adminEmail = "admin@tikocraft.studio";
-  const adminPassword = "tikocraft2026";
-  const hashed = await bcrypt.hash(adminPassword, 10);
+  const hashed = await bcrypt.hash(ADMIN_PASSWORD, 12);
 
   await db.adminUser.upsert({
-    where: { email: adminEmail },
-    update: { password: hashed },
+    where: { email: ADMIN_EMAIL },
+    update: {
+      password: hashed,
+      name: ADMIN_NAME,
+      role: "owner",
+    },
     create: {
-      email: adminEmail,
-      name: "Tikocraft Admin",
+      email: ADMIN_EMAIL,
+      name: ADMIN_NAME,
       password: hashed,
       role: "owner",
     },
   });
-  console.log(`  ✓ Admin user: ${adminEmail} (password: ${adminPassword})`);
+  console.log(`  ✓ Admin user: ${ADMIN_EMAIL}`);
 
   // ------------------------------------------------------------
   // 2. Categories
@@ -178,7 +189,6 @@ async function main() {
       dimensions: "H 36 cm",
       sortOrder: 6,
     },
-    // Book Nooks
     {
       name: "Rue des Livres — Parisian Alley",
       slug: "rue-des-livres-parisian-alley",
@@ -243,8 +253,8 @@ async function main() {
   }
 
   console.log("\n✅ Seed complete.");
-  console.log(`   Admin login: ${adminEmail} / ${adminPassword}`);
-  console.log("   Visit /admin to sign in.");
+  console.log(`   Admin login: ${ADMIN_EMAIL}`);
+  console.log("   (Password is configured but not printed here for security.)");
 }
 
 main()

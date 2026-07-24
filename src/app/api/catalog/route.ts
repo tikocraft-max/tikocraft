@@ -3,99 +3,9 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 // ============================================================
-// Auto-seed: on cold start, create schema if missing + seed data
-// (Vercel serverless — /tmp DB is fresh on each cold start)
+// Seed data (shared with scripts/seed.ts — keep in sync)
 // ============================================================
 
-const CREATE_TABLES_SQL = `
-CREATE TABLE IF NOT EXISTS "AdminUser" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "name" TEXT,
-    "password" TEXT NOT NULL,
-    "role" TEXT NOT NULL DEFAULT 'admin',
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "AdminUser_email_key" UNIQUE ("email"),
-    CONSTRAINT "AdminUser_pkey" PRIMARY KEY ("id")
-);
-
-CREATE TABLE IF NOT EXISTS "Category" (
-    "id" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "subtitle" TEXT,
-    "description" TEXT,
-    "image" TEXT,
-    "categoryType" TEXT NOT NULL DEFAULT 'decor',
-    "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Category_slug_key" UNIQUE ("slug"),
-    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
-);
-
-CREATE TABLE IF NOT EXISTS "Product" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "categorySlug" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "priceUSD" REAL NOT NULL,
-    "tag" TEXT,
-    "isPublished" BOOLEAN NOT NULL DEFAULT true,
-    "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    "image" TEXT NOT NULL,
-    "material" TEXT,
-    "dimensions" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Product_slug_key" UNIQUE ("slug"),
-    CONSTRAINT "Product_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "Product_categorySlug_fkey" FOREIGN KEY ("categorySlug") REFERENCES "Category" ("slug") ON UPDATE NO ACTION ON DELETE RESTRICT
-);
-
-CREATE INDEX IF NOT EXISTS "Product_categorySlug_idx" ON "Product"("categorySlug");
-
-CREATE TABLE IF NOT EXISTS "Order" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "fullName" TEXT NOT NULL,
-    "country" TEXT NOT NULL,
-    "currency" TEXT NOT NULL,
-    "totalAmount" REAL NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'pending',
-    "stripeSession" TEXT,
-    "itemsJson" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
-);
-`;
-
-async function ensureSchemaExists() {
-  try {
-    // Try a count first — if it works, schema exists
-    await db.category.count();
-    return true;
-  } catch {
-    // Schema doesn't exist — create it
-    try {
-      // Split on semicolons and execute each statement
-      const statements = CREATE_TABLES_SQL.split(";").filter((s) => s.trim());
-      for (const stmt of statements) {
-        await db.$executeRawUnsafe(stmt);
-      }
-      console.log("[db] Schema created on cold start");
-      return true;
-    } catch (err) {
-      console.error("[db] Schema creation failed:", err);
-      return false;
-    }
-  }
-}
-
-// Seed data
 const SEED_CATEGORIES = [
   {
     slug: "ceramics",
@@ -282,32 +192,122 @@ const SEED_PRODUCTS = [
   },
 ];
 
-// Exported so other routes can call it on cold start
+// ============================================================
+// Auto-seed: on cold start, create schema if missing + seed data
+// (Vercel serverless — /tmp DB is fresh on each cold start)
+// ============================================================
+
+const CREATE_TABLES_SQL = `
+CREATE TABLE IF NOT EXISTS "AdminUser" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "name" TEXT,
+    "password" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'admin',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "AdminUser_email_key" UNIQUE ("email"),
+    CONSTRAINT "AdminUser_pkey" PRIMARY KEY ("id")
+);
+CREATE TABLE IF NOT EXISTS "Category" (
+    "id" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "subtitle" TEXT,
+    "description" TEXT,
+    "image" TEXT,
+    "categoryType" TEXT NOT NULL DEFAULT 'decor',
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Category_slug_key" UNIQUE ("slug"),
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+);
+CREATE TABLE IF NOT EXISTS "Product" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "categorySlug" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "priceUSD" REAL NOT NULL,
+    "tag" TEXT,
+    "isPublished" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "image" TEXT NOT NULL,
+    "material" TEXT,
+    "dimensions" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Product_slug_key" UNIQUE ("slug"),
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "Product_categorySlug_fkey" FOREIGN KEY ("categorySlug") REFERENCES "Category" ("slug") ON UPDATE NO ACTION ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS "Product_categorySlug_idx" ON "Product"("categorySlug");
+CREATE TABLE IF NOT EXISTS "Order" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "fullName" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "currency" TEXT NOT NULL,
+    "totalAmount" REAL NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "stripeSession" TEXT,
+    "itemsJson" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
+);
+`;
+
+async function ensureSchemaExists(): Promise<boolean> {
+  try {
+    await db.category.count();
+    return true;
+  } catch {
+    try {
+      const statements = CREATE_TABLES_SQL.split(";").filter((s) => s.trim());
+      for (const stmt of statements) {
+        await db.$executeRawUnsafe(stmt);
+      }
+      console.log("[db] Schema created on cold start");
+      return true;
+    } catch (err) {
+      console.error("[db] Schema creation failed:", err);
+      return false;
+    }
+  }
+}
+
+const ADMIN_EMAIL = "tikocraft.com@gmail.com";
+const ADMIN_PASSWORD = "147Aa1471:/";
+
+let seedChecked = false;
+
 export async function ensureSeeded() {
+  if (seedChecked) return;
   try {
     const schemaOk = await ensureSchemaExists();
-    if (!schemaOk) {
-      console.error("[catalog] Schema creation failed, skipping seed");
+    if (!schemaOk) return;
+
+    const count = await db.category.count();
+    if (count > 0) {
+      seedChecked = true;
       return;
     }
 
-    const count = await db.category.count();
-    if (count > 0) return;
-
-    // Seed admin
-    const hashed = await bcrypt.hash("tikocraft2026", 10);
+    // DB is empty — seed it
+    const hashed = await bcrypt.hash(ADMIN_PASSWORD, 12);
     await db.adminUser.upsert({
-      where: { email: "admin@tikocraft.studio" },
+      where: { email: ADMIN_EMAIL },
       update: {},
       create: {
-        email: "admin@tikocraft.studio",
-        name: "Tikocraft Admin",
+        email: ADMIN_EMAIL,
+        name: "Tikocraft Owner",
         password: hashed,
         role: "owner",
       },
     });
 
-    // Seed categories
     for (const cat of SEED_CATEGORIES) {
       await db.category.upsert({
         where: { slug: cat.slug },
@@ -316,7 +316,6 @@ export async function ensureSeeded() {
       });
     }
 
-    // Seed products
     for (const p of SEED_PRODUCTS) {
       await db.product.upsert({
         where: { slug: p.slug },
@@ -324,13 +323,14 @@ export async function ensureSeeded() {
         create: p,
       });
     }
-    console.log("[catalog] Auto-seeded DB on cold start");
+    console.log("[catalog] Auto-seeded empty DB");
+    seedChecked = true;
   } catch (err) {
     console.error("[catalog] Auto-seed failed:", err);
   }
 }
 
-// GET /api/catalog — returns all published categories + products in one call
+// GET /api/catalog — returns all published categories + products
 export async function GET() {
   try {
     await ensureSeeded();

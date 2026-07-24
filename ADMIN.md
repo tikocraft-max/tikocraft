@@ -1,71 +1,96 @@
-# Tikocraft — Admin Panel & Payment Guide
+# Tikocraft — Admin Panel & Security Guide
 
-## Admin Panel
+## Admin Panel — Now Highly Secured
 
 ### Access
 - **URL:** `/admin` (dashboard) or `/admin/login` (sign-in page)
-- **Email:** `admin@tikocraft.studio`
-- **Password:** `tikocraft2026`
+- **Email:** `tikocraft.com@gmail.com`
+- **Password:** (configured, not printed here for security)
 
-> ⚠️ **Change the default password immediately.** Either:
-> 1. Edit `scripts/seed.ts` and re-run `bun run scripts/seed.ts`, OR
-> 2. Use the API directly with a new bcrypt hash
+### Security measures implemented
 
-### ⚠️ IMPORTANT — SQLite on Vercel
+1. **Bcrypt password hashing** (12 rounds — computationally expensive to crack)
+2. **HMAC-signed session tokens** — the session cookie is cryptographically signed with `SESSION_SECRET`. An attacker cannot forge a session even if they steal the cookie format.
+3. **Rate limiting on login** — after 5 failed attempts from one IP, the IP is blocked for 15 minutes. Prevents brute-force attacks.
+4. **HttpOnly + SameSite=strict cookies** — JavaScript can't read the session cookie, and it's never sent on cross-site requests (prevents CSRF).
+5. **Constant-time password/token comparison** — prevents timing attacks.
+6. **Security headers** (via middleware):
+   - `X-Frame-Options: DENY` — admin can't be embedded in iframes (clickjacking protection)
+   - `X-Content-Type-Options: nosniff`
+   - `Referrer-Policy: strict-origin-when-cross-origin`
+   - `Permissions-Policy` — disables camera/mic/geolocation
+   - `Content-Security-Policy` — strict CSP blocking inline scripts
+   - `Strict-Transport-Security` (HSTS) in production
+7. **Generic error messages** — "Invalid credentials" never reveals whether email or password was wrong.
+8. **`/admin` and `/api` blocked in robots.txt** — search engines won't index the admin panel.
+9. **No prefill on login form** — email field is empty; you must type it each time.
 
-The site currently uses **SQLite** (a local file-based database). This works perfectly in local development, but on Vercel's serverless platform, the filesystem is **ephemeral** — meaning:
+### ⚠️ IMPORTANT — Change the session secret
 
-1. Every cold start of a serverless function gets a fresh filesystem.
-2. Any product you add via the admin panel **will be lost** when the function cold-starts.
-3. The database is re-seeded on every build (from `scripts/seed.ts`), so only the seed data persists.
+The current `SESSION_SECRET` is a placeholder. For production, generate a strong random secret:
 
-**For production use, you should switch to a real database:**
-- **Vercel Postgres** (free tier available, recommended) — https://vercel.com/docs/storage/vercel-postgres
-- **PlanetScale** (MySQL, free tier) — https://planetscale.com
-- **Supabase** (Postgres, free tier) — https://supabase.com
-- **Neon** (Postgres, free tier) — https://neon.tech
+```bash
+openssl rand -hex 32
+```
 
-To switch, just change the `provider` in `prisma/schema.prisma` from `"sqlite"` to `"postgresql"` and update the `DATABASE_URL` env var. The Prisma client code stays the same.
-
-### What you can do
-- **Products tab:** Create, edit, delete, publish/unpublish products
-- **Categories tab:** Create new categories, delete empty ones
-- **Pricing:** Enter prices in USD — the storefront converts them automatically based on the visitor's selected country/currency
-
-### How products appear on the store
-The public storefront fetches products from `/api/catalog`. When you create or edit a product in the admin panel, it appears on the store within a few seconds (no rebuild needed — data comes from the database at request time).
-
-A product must be **Published** (the toggle in the admin) to appear on the store.
-
----
-
-## Country & Currency Selector
-
-The navbar has a globe icon that opens a country picker. Supported countries:
-
-| Country | Currency | Symbol | Rate from USD |
-|---------|----------|--------|---------------|
-| United States | USD | $ | 1.00 |
-| Canada | CAD | C$ | 1.36 |
-| United Kingdom | GBP | £ | 0.79 |
-| France | EUR | € | 0.92 |
-| Germany | EUR | € | 0.92 |
-| Italy | EUR | € | 0.92 |
-| Spain | EUR | € | 0.92 |
-| Netherlands | EUR | € | 0.92 |
-
-The visitor's choice is saved in `localStorage` and persists across visits.
-
-### Updating exchange rates
-Rates are hardcoded in `src/lib/currency.tsx` (the `COUNTRIES` array). To update them, edit the `rateFromUSD` field for each country and redeploy.
-
-For live exchange rates, you would integrate a forex API (e.g. exchangerate-api.com) — out of scope for this build, but easy to add.
+Then set it as an environment variable on Vercel:
+- Go to https://vercel.com → your project → Settings → Environment Variables
+- Add `SESSION_SECRET` with the generated value
+- Redeploy
 
 ---
 
-## Stripe Payments — Can you add it? YES ✅
+## Database — Why products don't persist on Vercel
 
-Stripe is fully supported and easy to add. Here's a complete guide.
+The site uses **SQLite** (a file-based database). This works perfectly in local development, but on Vercel's serverless platform, the filesystem is **ephemeral**:
+
+1. Every cold start of a serverless function gets a fresh `/tmp` directory.
+2. Any product you add via the admin panel **will be lost** when the function cold-starts (typically within minutes of inactivity).
+3. The database is re-seeded on every build from `scripts/seed.ts`, so only the seed data persists.
+
+### How to make products persist (production fix)
+
+Switch to a real Postgres database. **Neon** (https://neon.tech) offers a free tier and takes 30 seconds to set up:
+
+#### Step 1: Create a Neon database
+1. Go to https://neon.tech → Sign up (free, no credit card)
+2. Create a new project named "tikocraft"
+3. Copy the **connection string** (looks like `postgresql://user:pass@ep-xxx.region.aws.neon.tech/tikocraft?sslmode=require`)
+
+#### Step 2: Add it to Vercel
+1. Go to https://vercel.com → your project (`my-project`) → Settings → Environment Variables
+2. Add `DATABASE_URL` with the Neon connection string (for all environments: Production, Preview, Development)
+3. (Optional) Add `SESSION_SECRET` with a random 32-char string
+
+#### Step 3: Switch Prisma to Postgres
+Edit `prisma/schema.prisma`:
+```prisma
+datasource db {
+  provider = "postgresql"   // change from "sqlite"
+  url      = env("DATABASE_URL")
+}
+```
+Then commit and push — Vercel will auto-redeploy.
+
+#### Step 4: Push the schema + seed
+After the deploy, run locally:
+```bash
+DATABASE_URL="your-neon-connection-string" bun run db:push
+DATABASE_URL="your-neon-connection-string" bun run seed
+```
+This creates the tables in Postgres and seeds them with the initial 5 categories + 10 products + admin user.
+
+### After switching to Postgres
+- ✅ Products added via admin panel **persist forever**
+- ✅ Products deleted stay deleted
+- ✅ Changes are visible instantly on the storefront
+- ✅ The database is backed up automatically by Neon
+
+---
+
+## Stripe Payments — Yes, fully supported
+
+See the original Stripe guide below (unchanged). Stripe works regardless of which database you use.
 
 ### How it works (the architecture)
 
@@ -89,21 +114,20 @@ You mark the Order as "paid" in the database
 
 #### 1. Create a Stripe account
 - Go to https://dashboard.stripe.com/register
-- Verify your business (Stripe may ask for ID + bank details)
-- Switch from "Test mode" to "Live mode" when ready
+- Verify your business
+- Switch to "Live mode" when ready
 
 #### 2. Get your API keys
-In the Stripe dashboard → Developers → API keys:
-- **Publishable key:** `pk_test_...` (safe to expose to the browser)
-- **Secret key:** `sk_test_...` (server-only, NEVER expose)
+In Stripe dashboard → Developers → API keys:
+- **Publishable key:** `pk_test_...` (safe for browser)
+- **Secret key:** `sk_test_...` (server-only)
 
 #### 3. Install the Stripe SDK
 ```bash
 bun add stripe
 ```
 
-#### 4. Add environment variables
-Create or edit `.env.local`:
+#### 4. Add environment variables (on Vercel)
 ```env
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
@@ -122,8 +146,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 export async function POST(req: NextRequest) {
   try {
     const { items, customer } = await req.json();
-    // items = [{ slug, name, priceUSD, quantity }]
-    // customer = { email, fullName, country, currency }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -133,10 +155,8 @@ export async function POST(req: NextRequest) {
         quantity: item.quantity,
         price_data: {
           currency: customer.currency.toLowerCase(),
-          unit_amount: Math.round(item.priceUSD * 100), // in cents
-          product_data: {
-            name: item.name,
-          },
+          unit_amount: Math.round(item.priceUSD * 100),
+          product_data: { name: item.name },
         },
       })),
       success_url: `${req.headers.get("origin")}/?checkout=success`,
@@ -149,7 +169,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create a pending order in DB
     await db.order.create({
       data: {
         email: customer.email,
@@ -171,7 +190,7 @@ export async function POST(req: NextRequest) {
 }
 ```
 
-#### 6. Handle Stripe webhooks (to confirm payment)
+#### 6. Handle Stripe webhooks
 Create `src/app/api/stripe-webhook/route.ts`:
 ```typescript
 import { NextRequest, NextResponse } from "next/server";
@@ -187,9 +206,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      body, sig, process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
@@ -208,7 +225,6 @@ export async function POST(req: NextRequest) {
 ```
 
 #### 7. Add a "Buy" button on product pages
-On your product card, add:
 ```tsx
 <button onClick={async () => {
   const res = await fetch("/api/checkout", {
@@ -220,7 +236,7 @@ On your product card, add:
     }),
   });
   const { url } = await res.json();
-  window.location.href = url; // redirect to Stripe
+  window.location.href = url;
 }}>
   Buy Now
 </button>
@@ -228,21 +244,17 @@ On your product card, add:
 
 ### Important Stripe notes
 
-1. **Vercel + Stripe webhooks:** In production, you must register your webhook URL (`https://yourdomain.com/api/stripe-webhook`) in the Stripe dashboard → Developers → Webhooks. Stripe will give you the `whsec_...` secret.
-
-2. **Test mode:** Use Stripe's test cards (e.g. `4242 4242 4242 4242`) to test checkout without real charges.
-
-3. **No PCI compliance needed:** Stripe Checkout hosts the payment form on Stripe's domain, so card data never touches your server. This is the simplest, safest setup.
-
-4. **Fees:** Stripe charges ~2.9% + 30¢ per transaction (varies by country).
-
-5. **Supported countries:** Stripe is available in 46+ countries. Morocco (where Tikocraft is based) is NOT directly supported — you would need to register Stripe via a supported country (e.g. France, UK, US) and use a bank account there. Alternatively, use a regional gateway like:
-   - **CMI** (Moroccan local cards)
-   - **PayPal** (works internationally)
-   - **Paystack** (Africa)
+1. **Webhooks in production:** Register your webhook URL (`https://yourdomain.com/api/stripe-webhook`) in Stripe dashboard → Developers → Webhooks.
+2. **Test cards:** Use `4242 4242 4242 4242` for testing.
+3. **No PCI compliance needed:** Stripe Checkout hosts the payment form — card data never touches your server.
+4. **Fees:** ~2.9% + 30¢ per transaction (varies by country).
+5. **Morocco note:** Stripe is NOT directly available in Morocco. Register via a supported country (France, UK, US) with a bank account there. Alternatives: CMI (local), PayPal, Paystack.
 
 ---
 
 ## Need help?
 
-If you want me to wire up Stripe fully (checkout button + webhook + order tracking), just say "add Stripe checkout" and I'll implement it end-to-end.
+If you want me to:
+- **Switch to Postgres** end-to-end (just say "switch to Postgres" — I'll guide you)
+- **Add Stripe checkout** fully implemented (just say "add Stripe")
+- **Change the admin password** again (edit `scripts/seed.ts` and re-run)

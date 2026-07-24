@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "seed": "bun run scripts/seed.ts",
     "db:push": "prisma db push --accept-data-loss",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset"

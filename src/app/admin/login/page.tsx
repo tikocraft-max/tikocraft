@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Loader2, Lock, Mail, ArrowRight } from "lucide-react";
+import { Loader2, Lock, Mail, ArrowRight, Shield } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 
 export default function AdminLoginPage() {
@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
           />
           <h1 className="font-display text-4xl text-cream mb-2">Admin</h1>
           <p className="font-body text-xs tracking-luxe uppercase text-beige/60">
-            Sign in to manage your store
+            Authorized access only
           </p>
         </motion.div>
 
@@ -74,6 +74,7 @@ export default function AdminLoginPage() {
           variants={fadeUp}
           onSubmit={handleSubmit}
           className="bg-cream text-brown-900 p-8 space-y-6"
+          autoComplete="off"
         >
           {error && (
             <div className="border border-red-300 bg-red-50 px-4 py-3 font-body text-sm text-red-800">
@@ -81,7 +82,7 @@ export default function AdminLoginPage() {
             </div>
           )}
 
-          {/* Email */}
+          {/* Email — NO prefill, user must type it */}
           <div>
             <label className="font-body text-[10px] tracking-luxe uppercase text-brown-600 block mb-3">
               Email
@@ -92,15 +93,18 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@tikocraft.studio"
-                autoComplete="email"
+                placeholder=""
+                autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
                 required
                 className="flex-1 bg-transparent font-body text-base text-brown-900 placeholder:text-brown-400 py-3 focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Password */}
+          {/* Password — NO prefill */}
           <div>
             <label className="font-body text-[10px] tracking-luxe uppercase text-brown-600 block mb-3">
               Password
@@ -111,8 +115,8 @@ export default function AdminLoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••"
-                autoComplete="current-password"
+                placeholder=""
+                autoComplete="new-password"
                 required
                 className="flex-1 bg-transparent font-body text-base text-brown-900 placeholder:text-brown-400 py-3 focus:outline-none"
               />
@@ -136,19 +140,20 @@ export default function AdminLoginPage() {
               </>
             )}
           </button>
-
-          <div className="font-body text-[11px] text-brown-500 font-light leading-relaxed text-center pt-2">
-            <p className="mb-1">
-              <span className="text-brown-700">Demo credentials</span>
-            </p>
-            <p>admin@tikocraft.studio</p>
-            <p>tikocraft2026</p>
-          </div>
         </motion.form>
+
+        {/* Security notice */}
+        <motion.div
+          variants={fadeUp}
+          className="mt-8 flex items-center justify-center gap-2 font-body text-[10px] tracking-luxe-sm uppercase text-beige/40"
+        >
+          <Shield className="h-3 w-3" strokeWidth={1.5} />
+          <span>Protected · Rate-limited · Encrypted session</span>
+        </motion.div>
 
         <motion.p
           variants={fadeUp}
-          className="text-center mt-8 font-body text-[11px] text-beige/50 font-light"
+          className="text-center mt-6 font-body text-[11px] text-beige/50 font-light"
         >
           <a href="/" className="hover:text-beige transition-colors">
             ← Back to store

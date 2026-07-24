@@ -1,17 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import { ensureSeeded } from "../../catalog/route";
+import {
+  isIpBlocked,
+  recordFailedLogin,
+  recordSuccessfulLogin,
+  createSessionToken,
+  getClientIp,
+} from "@/lib/security";
 
-// POST /api/auth/login — email + password, sets a session cookie
+// POST /api/auth/login — secure login with rate limiting + signed session
 export async function POST(req: NextRequest) {
   try {
-    // Ensure DB is seeded (cold-start safe)
-    await ensureSeeded();
+    const ip = getClientIp(req);
 
-    const { email, password } = await req.json();
+    // 1. Rate limit check — block IPs with too many failures
+    if (isIpBlocked(ip)) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many failed attempts. Please try again in 15 minutes.",
+        },
+        { status: 429 }
+      );
+    }
+
+    const body = await req.json();
+    const { email, password } = body;
+
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password required" },
@@ -19,40 +36,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 2. Look up admin — constant error message so attackers can't tell
+    //    if email exists vs password is wrong
     const admin = await db.adminUser.findUnique({
       where: { email: email.toLowerCase().trim() },
     });
+
     if (!admin) {
+      recordFailedLogin(ip);
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
     }
 
+    // 3. Verify password (bcrypt handles timing safely)
     const ok = await bcrypt.compare(password, admin.password);
     if (!ok) {
+      recordFailedLogin(ip);
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
     }
 
-    const token = randomBytes(32).toString("hex");
+    // 4. Success — clear rate limit + create signed session
+    recordSuccessfulLogin(ip);
+
+    const token = createSessionToken(admin.email);
     const cookieStore = await cookies();
     cookieStore.set("tikocraft-admin-session", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "strict", // strict — admin cookie never sent on cross-site requests
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
-    cookieStore.set("tikocraft-admin-email", admin.email, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+
+    // Don't store email in a separate cookie — the signed token already
+    // contains it (encoded), so we can verify identity without leaking.
 
     return NextResponse.json({
       ok: true,
