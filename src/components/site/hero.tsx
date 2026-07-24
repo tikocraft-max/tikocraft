@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { fadeUp, staggerContainer, easeLuxe } from "@/lib/animations";
+import { useRouter } from "@/lib/router";
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -11,8 +12,8 @@ export default function Hero() {
     target: ref,
     offset: ["start start", "end start"],
   });
+  const { navigate } = useRouter();
 
-  // Parallax transforms
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.55, 0.85]);
@@ -22,10 +23,8 @@ export default function Hero() {
   return (
     <section
       ref={ref}
-      id="home"
-      className="relative h-screen min-h-[700px] w-full overflow-hidden"
+      className="relative h-screen min-h-[680px] w-full overflow-hidden"
     >
-      {/* Background image with parallax */}
       <motion.div
         style={{ y: imageY, scale: imageScale }}
         className="absolute inset-0 z-0"
@@ -37,16 +36,12 @@ export default function Hero() {
         />
       </motion.div>
 
-      {/* Dark overlay for readability */}
       <motion.div
         style={{ opacity: overlayOpacity }}
         className="absolute inset-0 z-10 bg-gradient-to-b from-brown-900/60 via-brown-900/40 to-brown-900/80"
       />
-
-      {/* Subtle grain */}
       <div className="absolute inset-0 z-10 grain-overlay" />
 
-      {/* Content */}
       <motion.div
         style={{ y: textY, opacity: textOpacity }}
         className="relative z-20 flex h-full flex-col items-center justify-center px-6 text-center"
@@ -55,24 +50,22 @@ export default function Hero() {
           variants={staggerContainer(0.18, 0.4)}
           initial="hidden"
           animate="visible"
-          className="max-w-4xl"
+          className="max-w-5xl"
         >
-          {/* Eyebrow */}
           <motion.div
             variants={fadeUp}
             className="flex items-center justify-center gap-4 mb-8"
           >
             <span className="h-px w-12 bg-beige/60" />
-            <span className="font-body text-xs tracking-luxe uppercase text-beige/80">
-              Handcrafted Home Objects · Est. 2018
+            <span className="font-body text-[11px] tracking-luxe uppercase text-beige/80">
+              Handcrafted Decor · 3D DIY Book Nooks · Est. 2018
             </span>
             <span className="h-px w-12 bg-beige/60" />
           </motion.div>
 
-          {/* Main heading */}
           <motion.h1
             variants={fadeUp}
-            className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-cream leading-[0.95] tracking-tight"
+            className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-cream leading-[0.95] tracking-tight"
           >
             Objects made
             <br />
@@ -81,24 +74,21 @@ export default function Hero() {
             lived with long.
           </motion.h1>
 
-          {/* Subtitle */}
           <motion.p
             variants={fadeUp}
             className="mt-10 mx-auto max-w-xl font-body text-base sm:text-lg text-cream/80 leading-relaxed font-light"
           >
-            Tikocraft is a small atelier of ceramicists, weavers and woodworkers,
-            shaping earthy, functional objects for the modern home — one piece at a time.
+            Tikocraft is a small atelier of ceramicists, weavers, woodworkers —
+            and makers of miniature worlds. Earthy home objects, and 3D DIY book
+            nook kits, shaped one piece at a time.
           </motion.p>
 
-          {/* CTAs */}
           <motion.div
             variants={fadeUp}
             className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <button
-              onClick={() => {
-                document.querySelector("#collections")?.scrollIntoView({ behavior: "smooth" });
-              }}
+              onClick={() => navigate("collections")}
               className="group relative inline-flex items-center gap-3 bg-cream text-brown-900 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase overflow-hidden transition-colors duration-500 hover:bg-beige"
             >
               <span className="relative z-10">Explore Collections</span>
@@ -107,18 +97,15 @@ export default function Hero() {
               </span>
             </button>
             <button
-              onClick={() => {
-                document.querySelector("#atelier")?.scrollIntoView({ behavior: "smooth" });
-              }}
+              onClick={() => navigate("products", "booknooks")}
               className="inline-flex items-center gap-3 border border-cream/40 text-cream px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 hover:border-cream hover:bg-cream/10"
             >
-              Our Story
+              Shop Book Nooks
             </button>
           </motion.div>
         </motion.div>
       </motion.div>
 
-      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -136,7 +123,6 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* Bottom fade into next section */}
       <div className="absolute bottom-0 left-0 right-0 z-15 h-32 bg-gradient-to-t from-cream to-transparent" />
     </section>
   );

@@ -1,13 +1,31 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Instagram, ArrowUpRight, ArrowUp } from "lucide-react";
+import { ArrowUpRight, ArrowUp } from "lucide-react";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
+import { useRouter } from "@/lib/router";
+import type { PageId } from "@/lib/content";
 
-const footerLinks = {
-  Collections: ["Ceramics & Vessels", "Textiles & Throws", "Lighting & Ambiance", "Furniture & Seating"],
-  Atelier: ["Our Story", "The Makers", "Process & Materials", "Sustainability"],
-  Visit: ["Book the Showroom", "Trade Enquiries", "Press Kit", "Wholesale"],
+const footerLinks: { title: string; items: { label: string; page?: PageId; param?: string }[] }[] = {
+  Collections: [
+    { label: "Ceramics & Vessels", page: "collections" },
+    { label: "Textiles & Throws", page: "collections" },
+    { label: "Lighting & Ambiance", page: "collections" },
+    { label: "Furniture & Seating", page: "collections" },
+    { label: "Book Nook Kits", page: "products", param: "booknooks" },
+  ],
+  Atelier: [
+    { label: "Our Story", page: "atelier" },
+    { label: "Process & Materials", page: "atelier" },
+    { label: "The Two Crafts", page: "atelier" },
+    { label: "Sustainability", page: "atelier" },
+  ],
+  Visit: [
+    { label: "Book the Showroom", page: "showroom" },
+    { label: "Trade Enquiries", page: "contact" },
+    { label: "Press Kit", page: "contact" },
+    { label: "Wholesale", page: "contact" },
+  ],
 };
 
 const social = [
@@ -17,8 +35,18 @@ const social = [
 ];
 
 export default function Footer() {
+  const { navigate, currentPage } = useRouter();
+  // Footer is always on cream bg; only contact/showroom pages have brown bg behind
+  const isDarkPage = currentPage === "showroom" || currentPage === "contact";
+
   return (
-    <footer className="relative bg-brown-50 border-t border-beige/60 pt-20 pb-10 px-6 lg:px-12 grain-overlay">
+    <footer
+      className={`relative pt-20 pb-10 px-6 lg:px-12 grain-overlay border-t ${
+        isDarkPage
+          ? "bg-brown-800 border-beige/20 text-cream"
+          : "bg-brown-50 border-beige/60 text-brown-900"
+      }`}
+    >
       <div className="mx-auto max-w-7xl">
         {/* Top — Brand + Links */}
         <motion.div
@@ -26,48 +54,77 @@ export default function Footer() {
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 pb-16 border-b border-beige"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 pb-16 border-b"
+          style={{
+            borderColor: isDarkPage ? "rgba(232,213,183,0.2)" : "rgba(232,213,183,1)",
+          }}
         >
           {/* Brand */}
-          <motion.div
-            variants={fadeUp}
-            className="lg:col-span-5"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <span className="h-px w-8 bg-brown-700" />
-              <span className="font-display text-3xl tracking-luxe-sm text-brown-900">
-                Tikocraft
-              </span>
-            </div>
-            <p className="font-body text-sm text-brown-700/80 leading-relaxed max-w-md font-light mb-8">
-              A small atelier of ceramicists, weavers and woodworkers, shaping
-              earthy, functional objects for the modern home — one piece at a
-              time, since 2018.
+          <motion.div variants={fadeUp} className="lg:col-span-5">
+            <button
+              onClick={() => navigate("home")}
+              className="flex items-center mb-6"
+              aria-label="Tikocraft home"
+            >
+              <img
+                src={isDarkPage ? "/images/logo-cream.png" : "/images/logo-nav.png"}
+                alt="Tikocraft"
+                className={`h-12 w-auto ${isDarkPage ? "" : ""}`}
+              />
+            </button>
+            <p
+              className={`font-body text-sm leading-relaxed max-w-md font-light mb-8 ${
+                isDarkPage ? "text-cream/70" : "text-brown-700/80"
+              }`}
+            >
+              A small atelier of ceramicists, weavers, woodworkers — and makers
+              of miniature worlds. Earthy home objects, and 3D DIY book nook
+              kits, shaped one piece at a time, since 2018.
             </p>
 
             {/* Newsletter signup */}
             <div className="max-w-sm">
-              <label className="font-body text-[10px] tracking-luxe uppercase text-brown-600 block mb-3">
+              <label
+                className={`font-body text-[10px] tracking-luxe uppercase block mb-3 ${
+                  isDarkPage ? "text-beige/60" : "text-brown-600"
+                }`}
+              >
                 Letters from the atelier
               </label>
               <form
                 onSubmit={(e) => e.preventDefault()}
-                className="flex items-center border-b border-brown-300 focus-within:border-brown-800 transition-colors"
+                className={`flex items-center border-b transition-colors ${
+                  isDarkPage
+                    ? "border-beige/30 focus-within:border-beige"
+                    : "border-brown-300 focus-within:border-brown-800"
+                }`}
               >
                 <input
                   type="email"
                   placeholder="your@email.com"
-                  className="flex-1 bg-transparent font-body text-sm text-brown-900 placeholder:text-brown-400 py-3 focus:outline-none"
+                  className={`flex-1 bg-transparent font-body text-sm py-3 focus:outline-none ${
+                    isDarkPage
+                      ? "text-cream placeholder:text-cream/40"
+                      : "text-brown-900 placeholder:text-brown-400"
+                  }`}
                 />
                 <button
                   type="submit"
-                  className="text-brown-700 hover:text-brown-900 transition-colors p-2"
+                  className={`transition-colors p-2 ${
+                    isDarkPage
+                      ? "text-beige hover:text-cream"
+                      : "text-brown-700 hover:text-brown-900"
+                  }`}
                   aria-label="Subscribe"
                 >
                   <ArrowUpRight className="h-4 w-4" />
                 </button>
               </form>
-              <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
+              <p
+                className={`font-body text-[10px] mt-2 font-light ${
+                  isDarkPage ? "text-beige/50" : "text-brown-500"
+                }`}
+              >
                 Quarterly notes. Never more, never sold.
               </p>
             </div>
@@ -76,19 +133,31 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([title, items]) => (
             <motion.div key={title} variants={fadeUp} className="lg:col-span-2">
-              <h4 className="font-body text-[10px] tracking-luxe uppercase text-brown-500 mb-6">
+              <h4
+                className={`font-body text-[10px] tracking-luxe uppercase mb-6 ${
+                  isDarkPage ? "text-beige/60" : "text-brown-500"
+                }`}
+              >
                 {title}
               </h4>
               <ul className="space-y-3">
                 {items.map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      className="group inline-flex items-center gap-2 font-display text-base text-brown-800 hover:text-brown-600 transition-colors"
+                  <li key={item.label}>
+                    <button
+                      onClick={() => navigate(item.page || "home", item.param || null)}
+                      className={`group inline-flex items-center gap-2 font-display text-base transition-colors ${
+                        isDarkPage
+                          ? "text-cream/90 hover:text-beige"
+                          : "text-brown-800 hover:text-brown-600"
+                      }`}
                     >
-                      <span className="h-px w-0 bg-brown-700 transition-all duration-500 group-hover:w-4" />
-                      {item}
-                    </a>
+                      <span
+                        className={`h-px w-0 transition-all duration-500 group-hover:w-4 ${
+                          isDarkPage ? "bg-beige" : "bg-brown-700"
+                        }`}
+                      />
+                      {item.label}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -97,7 +166,11 @@ export default function Footer() {
 
           {/* Social column */}
           <motion.div variants={fadeUp} className="lg:col-span-1">
-            <h4 className="font-body text-[10px] tracking-luxe uppercase text-brown-500 mb-6">
+            <h4
+              className={`font-body text-[10px] tracking-luxe uppercase mb-6 ${
+                isDarkPage ? "text-beige/60" : "text-brown-500"
+              }`}
+            >
               Follow
             </h4>
             <ul className="space-y-3">
@@ -105,9 +178,17 @@ export default function Footer() {
                 <li key={s.label}>
                   <a
                     href={s.href}
-                    className="group inline-flex items-center gap-2 font-display text-base text-brown-800 hover:text-brown-600 transition-colors"
+                    className={`group inline-flex items-center gap-2 font-display text-base transition-colors ${
+                      isDarkPage
+                        ? "text-cream/90 hover:text-beige"
+                        : "text-brown-800 hover:text-brown-600"
+                    }`}
                   >
-                    <span className="h-px w-0 bg-brown-700 transition-all duration-500 group-hover:w-4" />
+                    <span
+                      className={`h-px w-0 transition-all duration-500 group-hover:w-4 ${
+                        isDarkPage ? "bg-beige" : "bg-brown-700"
+                      }`}
+                    />
                     {s.label}
                   </a>
                 </li>
@@ -124,26 +205,36 @@ export default function Footer() {
           viewport={viewportOnce}
           className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4"
         >
-          <p className="font-body text-[11px] text-brown-600 font-light tracking-wide">
+          <p
+            className={`font-body text-[11px] font-light tracking-wide ${
+              isDarkPage ? "text-beige/60" : "text-brown-600"
+            }`}
+          >
             © {new Date().getFullYear()} Tikocraft Atelier · Marrakech · All
             objects signed and dated.
           </p>
           <div className="flex items-center gap-6">
             <a
               href="#"
-              className="font-body text-[11px] text-brown-600 hover:text-brown-900 transition-colors"
+              className={`font-body text-[11px] transition-colors ${
+                isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
+              }`}
             >
               Privacy
             </a>
             <a
               href="#"
-              className="font-body text-[11px] text-brown-600 hover:text-brown-900 transition-colors"
+              className={`font-body text-[11px] transition-colors ${
+                isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
+              }`}
             >
               Terms
             </a>
             <a
               href="#"
-              className="font-body text-[11px] text-brown-600 hover:text-brown-900 transition-colors"
+              className={`font-body text-[11px] transition-colors ${
+                isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
+              }`}
             >
               Shipping
             </a>
@@ -151,7 +242,9 @@ export default function Footer() {
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className="group inline-flex items-center gap-2 font-body text-[11px] tracking-luxe-sm uppercase text-brown-700 hover:text-brown-900 transition-colors"
+              className={`group inline-flex items-center gap-2 font-body text-[11px] tracking-luxe-sm uppercase transition-colors ${
+                isDarkPage ? "text-beige/80 hover:text-cream" : "text-brown-700 hover:text-brown-900"
+              }`}
               aria-label="Back to top"
             >
               <span>To top</span>

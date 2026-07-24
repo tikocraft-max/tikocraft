@@ -9,6 +9,7 @@ import { Variants, Transition } from "framer-motion";
 // Easing curves for luxury feel — slow and smooth
 export const easeLuxe: Transition["ease"] = [0.22, 1, 0.36, 1];
 export const easeSoft: Transition["ease"] = [0.4, 0, 0.2, 1];
+export const easeCurtain: Transition["ease"] = [0.76, 0, 0.24, 1];
 
 // Fade up — used for hero text and section intros
 export const fadeUp: Variants = {
@@ -98,33 +99,6 @@ export const staggerContainer = (stagger: number = 0.12, delay: number = 0): Var
   },
 });
 
-// Letter-by-letter reveal for headings
-export const letterReveal: Variants = {
-  hidden: { opacity: 0, y: "100%" },
-  visible: {
-    opacity: 1,
-    y: "0%",
-    transition: {
-      duration: 0.8,
-      ease: easeLuxe,
-    },
-  },
-};
-
-// Word-by-word reveal
-export const wordReveal: Variants = {
-  hidden: { opacity: 0, y: 20, filter: "blur(6px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.9,
-      ease: easeLuxe,
-    },
-  },
-};
-
 // Slide down for nav
 export const slideDown: Variants = {
   hidden: { y: -100, opacity: 0 },
@@ -151,7 +125,103 @@ export const imageReveal: Variants = {
   },
 };
 
-// Slow continuous floating animation
+// ============================================================
+// UNIQUE PAGE TRANSITIONS
+// ============================================================
+
+// Page wrapper transition — a soft curtain + fade + slide
+// The exiting page fades + scales down slightly while sliding up
+export const pageTransition: Variants = {
+  initial: {
+    opacity: 0,
+    y: 30,
+    filter: "blur(10px)",
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.8,
+      ease: easeLuxe,
+      when: "beforeChildren",
+      staggerChildren: 0.08,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    filter: "blur(8px)",
+    transition: {
+      duration: 0.5,
+      ease: easeLuxe,
+    },
+  },
+};
+
+// Overlay curtain that wipes across the screen during page transitions
+export const curtainTransition: Variants = {
+  initial: {
+    scaleY: 0,
+    transformOrigin: "bottom",
+  },
+  animate: {
+    scaleY: [0, 1, 1, 0],
+    transformOrigin: ["bottom", "bottom", "top", "top"],
+    transition: {
+      duration: 1.0,
+      ease: easeCurtain,
+      times: [0, 0.4, 0.6, 1],
+    },
+  },
+};
+
+// Staggered children inside a page (for content reveal after transition)
+export const pageChild: Variants = {
+  initial: {
+    opacity: 0,
+    y: 24,
+    filter: "blur(6px)",
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.7,
+      ease: easeLuxe,
+    },
+  },
+};
+
+// Word-by-word reveal for large display text
+export const wordReveal: Variants = {
+  hidden: { opacity: 0, y: 20, filter: "blur(6px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.9,
+      ease: easeLuxe,
+    },
+  },
+};
+
+// Letter-by-letter for special headings
+export const letterReveal: Variants = {
+  hidden: { opacity: 0, y: "100%" },
+  visible: {
+    opacity: 1,
+    y: "0%",
+    transition: {
+      duration: 0.8,
+      ease: easeLuxe,
+    },
+  },
+};
+
+// Continuous floating animation
 export const floatingAnimation = {
   initial: { y: 0 },
   animate: {
@@ -161,6 +231,60 @@ export const floatingAnimation = {
       ease: "easeInOut" as const,
       repeat: Infinity,
     },
+  },
+};
+
+// Slow continuous rotation (for decorative elements)
+export const slowRotate = {
+  initial: { rotate: 0 },
+  animate: {
+    rotate: 360,
+    transition: {
+      duration: 40,
+      ease: "linear" as const,
+      repeat: Infinity,
+    },
+  },
+};
+
+// Image clip-path reveal — wipes in from left to right
+export const clipRevealLeft: Variants = {
+  hidden: {
+    clipPath: "inset(0 100% 0 0)",
+    opacity: 0,
+  },
+  visible: {
+    clipPath: "inset(0 0% 0 0)",
+    opacity: 1,
+    transition: {
+      duration: 1.2,
+      ease: easeLuxe,
+    },
+  },
+};
+
+// Image clip-path reveal — wipes in from bottom
+export const clipRevealBottom: Variants = {
+  hidden: {
+    clipPath: "inset(100% 0 0 0)",
+    opacity: 0,
+  },
+  visible: {
+    clipPath: "inset(0% 0 0 0)",
+    opacity: 1,
+    transition: {
+      duration: 1.2,
+      ease: easeLuxe,
+    },
+  },
+};
+
+// Hover lift for cards
+export const hoverLift = {
+  rest: { y: 0 },
+  hover: {
+    y: -8,
+    transition: { duration: 0.5, ease: easeLuxe },
   },
 };
 
