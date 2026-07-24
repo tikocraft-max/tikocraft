@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { email, password } = body;
+    // Trim email (passwords are case-sensitive and may contain special chars — DON'T trim)
+    const email = (body?.email || "").toString().trim().toLowerCase();
+    const password = (body?.password || "").toString();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
     // 2. Look up admin — constant error message so attackers can't tell
     //    if email exists vs password is wrong
     const admin = await db.adminUser.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email },
     });
 
     if (!admin) {
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
     cookieStore.set("tikocraft-admin-session", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict", // strict — admin cookie never sent on cross-site requests
+      sameSite: "lax", // lax — allows the cookie on top-level navigation
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
@@ -84,7 +86,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("POST /api/auth/login error", err);
     return NextResponse.json(
-      { error: "Login failed" },
+      { error: "Login failed — please try again" },
       { status: 500 }
     );
   }
