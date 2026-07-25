@@ -291,7 +291,7 @@ function ProductCard({
           </p>
         </div>
         <span
-          className={`font-display text-xl shrink-0 mt-6 ${
+          className={`price-num text-xl shrink-0 mt-6 ${
             isDark ? "text-beige" : "text-brown-800"
           }`}
         >

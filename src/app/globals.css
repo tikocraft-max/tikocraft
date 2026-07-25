@@ -182,6 +182,15 @@
   .font-body {
     font-family: var(--font-body), "Inter", system-ui, sans-serif;
   }
+  /* Price numbers — clean, professional, monospaced digits.
+     Uses Inter (body font) with tabular-nums for aligned columns. */
+  .price-num {
+    font-family: var(--font-body), "Inter", system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
   .text-balance {
     text-wrap: balance;
   }

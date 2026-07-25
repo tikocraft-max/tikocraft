@@ -147,7 +147,7 @@ export default function CartDrawer() {
                             {item.name}
                           </button>
                           <div className="font-body text-xs text-brown-500 mt-1">
-                            {formatPrice(item.priceUSD)} each
+                            <span className="price-num">{formatPrice(item.priceUSD)}</span> each
                           </div>
 
                           {/* Quantity controls */}
@@ -186,7 +186,7 @@ export default function CartDrawer() {
                         </div>
 
                         {/* Line total */}
-                        <div className="font-display text-base text-brown-800 shrink-0">
+                        <div className="price-num text-base text-brown-800 shrink-0">
                           {formatPrice(item.priceUSD * item.quantity)}
                         </div>
                       </motion.div>
@@ -214,7 +214,7 @@ export default function CartDrawer() {
                     <span className="font-body text-[11px] tracking-luxe-sm uppercase text-brown-600">
                       Subtotal
                     </span>
-                    <span className="font-display text-2xl text-brown-900">
+                    <span className="price-num text-2xl text-brown-900">
                       {formatPrice(totalUSD)}
                     </span>
                   </div>

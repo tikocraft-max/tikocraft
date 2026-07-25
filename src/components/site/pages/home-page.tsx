@@ -429,7 +429,7 @@ function ProductPreviewCard({
             {product.name}
           </h3>
         </div>
-        <span className="font-display text-xl text-brown-800 shrink-0 mt-6">
+        <span className="price-num text-xl text-brown-800 shrink-0 mt-6">
           {formatPrice(product.priceUSD)}
         </span>
       </div>
@@ -477,7 +477,7 @@ function BookNookPreviewCard({
             {product.name}
           </h3>
         </div>
-        <span className="font-display text-xl text-beige shrink-0 mt-6">
+        <span className="price-num text-xl text-beige shrink-0 mt-6">
           {formatPrice(product.priceUSD)}
         </span>
       </div>

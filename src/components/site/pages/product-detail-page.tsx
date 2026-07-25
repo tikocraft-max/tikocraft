@@ -256,7 +256,7 @@ function ProductDetailInner({ slug }: { slug: string }) {
 
             {/* Price */}
             <motion.div variants={fadeUp} className="mb-8">
-              <span className="font-display text-3xl text-brown-800">
+              <span className="price-num text-3xl text-brown-800">
                 {formatPrice(product.priceUSD)}
               </span>
             </motion.div>

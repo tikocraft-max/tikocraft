@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter as useNextRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,9 +18,12 @@ import {
   Search,
   ExternalLink,
   Star,
+  Minus,
+  Upload,
 } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { toast } from "sonner";
+import { processImageFile } from "@/lib/image-upload";
 
 // ============================================================
 // Types
@@ -402,7 +405,7 @@ export default function AdminDashboard() {
                             <span className="font-body text-sm text-brown-700">{p.category?.name || p.categorySlug}</span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="font-display text-base text-brown-800">${p.priceUSD.toFixed(2)}</span>
+                            <span className="price-num text-base text-brown-800">${p.priceUSD.toFixed(2)}</span>
                           </td>
                           <td className="px-4 py-3 hidden sm:table-cell">
                             <button
@@ -577,6 +580,10 @@ function ProductForm({
   });
   const [saving, setSaving] = useState(false);
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [uploadingMain, setUploadingMain] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -659,28 +666,181 @@ function ProductForm({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Main image preview */}
-          <div className="flex gap-4">
-            <div className="w-24 h-24 bg-beige-light overflow-hidden shrink-0">
-              <img src={form.image} alt="Preview" className="h-full w-full object-cover" />
+          {/* ============================================================
+              MAIN IMAGE — upload or URL
+              ============================================================ */}
+          <div>
+            <Label>Main photo * (shown on cards + as first gallery image)</Label>
+            <div className="flex gap-4 items-start">
+              {/* Preview */}
+              <div className="w-28 h-28 bg-beige-light overflow-hidden shrink-0 border border-beige">
+                <img src={form.image} alt="Main preview" className="h-full w-full object-cover" />
+              </div>
+
+              {/* Upload + URL controls */}
+              <div className="flex-1 space-y-3">
+                {/* Upload button */}
+                <div className="flex gap-2">
+                  <input
+                    ref={mainImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        setUploadingMain(true);
+                        const dataUrl = await processImageFile(file);
+                        setForm((f) => ({
+                          ...f,
+                          image: dataUrl,
+                          // Also add to gallery if not already there
+                          images: f.images.includes(dataUrl) ? f.images : [...f.images, dataUrl],
+                        }));
+                        toast.success("Main photo uploaded");
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : "Upload failed");
+                      } finally {
+                        setUploadingMain(false);
+                        if (mainImageInputRef.current) mainImageInputRef.current.value = "";
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => mainImageInputRef.current?.click()}
+                    disabled={uploadingMain}
+                    className="inline-flex items-center gap-2 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors"
+                  >
+                    {uploadingMain ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Upload className="h-3.5 w-3.5" />
+                    )}
+                    {uploadingMain ? "Processing…" : "Upload Photo"}
+                  </button>
+                </div>
+
+                {/* OR URL input */}
+                <div className="flex items-center gap-2">
+                  <span className="font-body text-[10px] text-brown-400">or paste URL:</span>
+                  <input
+                    type="text"
+                    value={form.image.startsWith("data:") ? "" : form.image}
+                    onChange={(e) => setForm({ ...form, image: e.target.value })}
+                    placeholder="/images/product-1.png"
+                    disabled={form.image.startsWith("data:")}
+                    className="flex-1 bg-white border border-beige px-3 py-2 font-body text-xs text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700 disabled:bg-brown-50 disabled:text-brown-400"
+                  />
+                  {form.image.startsWith("data:") && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, image: "/images/product-1.png" })}
+                      className="font-body text-[10px] tracking-luxe-sm uppercase text-red-600 hover:text-red-800"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <Label>Main image path * (shown on cards + as default)</Label>
-              <Input
-                value={form.image}
-                onChange={(v) => setForm({ ...form, image: v })}
-                placeholder="/images/product-1.png"
-              />
-              <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
-                Use an image from /public/images/. This is the main photo shown on product cards and as the first image in the gallery.
-              </p>
-            </div>
+            <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
+              Upload from your device (auto-resized to max 1200px) or paste an image path/URL. JPG/PNG/WebP accepted.
+            </p>
           </div>
 
-          {/* Additional image gallery */}
+          {/* ============================================================
+              ADDITIONAL GALLERY IMAGES — upload with +/- buttons
+              ============================================================ */}
           <div>
-            <Label>Additional gallery images (optional)</Label>
-            <div className="flex gap-2 mb-3">
+            <Label>Gallery images (add as many as you want)</Label>
+            <p className="font-body text-[10px] text-brown-500 mb-3 font-light">
+              Click + to upload an image, or click − on any image to remove it. Star makes it the main photo.
+            </p>
+
+            {/* Hidden file input for gallery uploads */}
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={async (e) => {
+                const files = Array.from(e.target.files || []);
+                if (files.length === 0) return;
+                try {
+                  setUploadingGallery(true);
+                  const dataUrls = await Promise.all(files.map(processImageFile));
+                  setForm((f) => ({
+                    ...f,
+                    images: [...f.images, ...dataUrls.filter((u) => !f.images.includes(u))],
+                  }));
+                  toast.success(`${files.length} image${files.length > 1 ? "s" : ""} uploaded`);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Upload failed");
+                } finally {
+                  setUploadingGallery(false);
+                  if (galleryInputRef.current) galleryInputRef.current.value = "";
+                }
+              }}
+            />
+
+            {/* Gallery grid with + and - buttons */}
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+              {/* Main image shown first (with Main badge) */}
+              <div className="relative aspect-square bg-beige-light overflow-hidden border-2 border-brown-800 group">
+                <img src={form.image} alt="Main" className="h-full w-full object-cover" />
+                <div className="absolute bottom-0 left-0 right-0 bg-brown-800 text-cream text-[8px] tracking-luxe uppercase text-center py-0.5">
+                  Main
+                </div>
+              </div>
+
+              {/* Additional gallery images */}
+              {form.images
+                .filter((img) => img !== form.image)
+                .map((img, i) => (
+                  <div key={i} className="relative aspect-square bg-beige-light overflow-hidden group">
+                    <img src={img} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
+                    {/* Set as main button */}
+                    <button
+                      type="button"
+                      onClick={() => setMainImage(img)}
+                      className="absolute top-1 left-1 bg-cream/90 text-brown-800 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Set as main photo"
+                    >
+                      <Star className="h-3 w-3" strokeWidth={1.5} />
+                    </button>
+                    {/* Remove button (−) */}
+                    <button
+                      type="button"
+                      onClick={() => removeImage(img)}
+                      className="absolute top-1 right-1 bg-red-600 text-cream p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Remove image"
+                    >
+                      <Minus className="h-3 w-3" strokeWidth={2} />
+                    </button>
+                  </div>
+                ))}
+
+              {/* + button to add new image */}
+              <button
+                type="button"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={uploadingGallery}
+                className="aspect-square border-2 border-dashed border-brown-300 hover:border-brown-700 hover:bg-brown-50 transition-colors flex items-center justify-center group disabled:opacity-60"
+                title="Add image"
+              >
+                {uploadingGallery ? (
+                  <Loader2 className="h-5 w-5 text-brown-500 animate-spin" />
+                ) : (
+                  <Plus className="h-6 w-6 text-brown-400 group-hover:text-brown-700 transition-colors" strokeWidth={1.5} />
+                )}
+              </button>
+            </div>
+
+            {/* Also keep URL paste option for external images */}
+            <div className="mt-3 flex gap-2">
               <input
                 type="text"
                 value={newImageUrl}
@@ -691,60 +851,18 @@ function ProductForm({
                     addImage();
                   }
                 }}
-                placeholder="/images/product-1-detail.png or https://…"
-                className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
+                placeholder="Or paste an image URL (https://… or /images/…)"
+                className="flex-1 bg-white border border-beige px-3 py-2 font-body text-xs text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
               />
               <button
                 type="button"
                 onClick={addImage}
-                className="inline-flex items-center gap-1 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 transition-colors"
+                className="inline-flex items-center gap-1 border border-brown-300 text-brown-700 px-3 py-2 font-body text-[10px] tracking-luxe-sm uppercase hover:bg-brown-50 transition-colors"
               >
-                <Plus className="h-3.5 w-3.5" />
-                Add
+                <Plus className="h-3 w-3" />
+                Add URL
               </button>
             </div>
-            <p className="font-body text-[10px] text-brown-500 mb-3 font-light">
-              Add multiple images to show in the product gallery. The main image (above) is automatically the first gallery image.
-            </p>
-
-            {/* Gallery thumbnails */}
-            {form.images.length > 0 && (
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                {/* Main image shown first */}
-                <div className="relative aspect-square bg-beige-light overflow-hidden border-2 border-brown-800">
-                  <img src={form.image} alt="Main" className="h-full w-full object-cover" />
-                  <div className="absolute bottom-0 left-0 right-0 bg-brown-800 text-cream text-[8px] tracking-luxe uppercase text-center py-0.5">
-                    Main
-                  </div>
-                </div>
-                {/* Additional images */}
-                {form.images
-                  .filter((img) => img !== form.image)
-                  .map((img, i) => (
-                    <div key={i} className="relative aspect-square bg-beige-light overflow-hidden group">
-                      <img src={img} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
-                      {/* Set as main button */}
-                      <button
-                        type="button"
-                        onClick={() => setMainImage(img)}
-                        className="absolute top-1 left-1 bg-cream/90 text-brown-800 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Set as main image"
-                      >
-                        <Star className="h-3 w-3" strokeWidth={1.5} />
-                      </button>
-                      {/* Remove button */}
-                      <button
-                        type="button"
-                        onClick={() => removeImage(img)}
-                        className="absolute top-1 right-1 bg-red-600 text-cream p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Remove image"
-                      >
-                        <X className="h-3 w-3" strokeWidth={1.8} />
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            )}
           </div>
 
           {/* Video URL */}
