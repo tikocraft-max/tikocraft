@@ -189,26 +189,5 @@
     "id": "seed_the-reading-room-tiny-library",
     "createdAt": "2026-07-25T11:27:02.596Z",
     "updatedAt": "2026-07-25T11:27:02.596Z"
-  },
-  {
-    "name": "Tsubaki-en — Zen Garden",
-    "slug": "tsubaki-en-zen-garden",
-    "categorySlug": "book-nooks",
-    "description": "A Japanese garden at twilight with stone lantern and cherry blossom. 96 pieces, warm LED.",
-    "priceUSD": 148,
-    "tag": null,
-    "image": "/images/booknook-4.png",
-    "images": [
-      "/images/booknook-4.png",
-      "/images/booknook-hero.png"
-    ],
-    "videoUrl": null,
-    "material": "Birch plywood, LED, paint",
-    "dimensions": "21 × 11 × 30 cm",
-    "sortOrder": 10,
-    "isPublished": true,
-    "id": "seed_tsubaki-en-zen-garden",
-    "createdAt": "2026-07-25T11:27:02.596Z",
-    "updatedAt": "2026-07-25T11:27:02.596Z"
   }
 ]
