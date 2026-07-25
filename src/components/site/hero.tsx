@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
-import { fadeUp, staggerContainer, easeLuxe } from "@/lib/animations";
+import { fadeUp, staggerContainer, easeLuxe, easeExpo, clipRevealIris } from "@/lib/animations";
 import { useRouter } from "@/lib/router";
 
 export default function Hero() {
@@ -25,7 +25,11 @@ export default function Hero() {
       ref={ref}
       className="relative h-screen min-h-[680px] w-full overflow-hidden"
     >
+      {/* Image with iris reveal on load + parallax on scroll */}
       <motion.div
+        variants={clipRevealIris}
+        initial="hidden"
+        animate="visible"
         style={{ y: imageY, scale: imageScale }}
         className="absolute inset-0 z-0"
       >
@@ -47,7 +51,7 @@ export default function Hero() {
         className="relative z-20 flex h-full flex-col items-center justify-center px-6 text-center"
       >
         <motion.div
-          variants={staggerContainer(0.18, 0.4)}
+          variants={staggerContainer(0.18, 0.6)}
           initial="hidden"
           animate="visible"
           className="max-w-5xl"
@@ -87,21 +91,27 @@ export default function Hero() {
             variants={fadeUp}
             className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               onClick={() => navigate("collections")}
-              className="group relative inline-flex items-center gap-3 bg-cream text-brown-900 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase overflow-hidden transition-colors duration-500 hover:bg-beige"
+              className="btn-shine group relative inline-flex items-center gap-3 bg-cream text-brown-900 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase overflow-hidden transition-colors duration-500 hover:bg-beige"
             >
               <span className="relative z-10">Explore Collections</span>
               <span className="relative z-10 transition-transform duration-500 group-hover:translate-x-1">
                 →
               </span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               onClick={() => navigate("products", "booknooks")}
               className="inline-flex items-center gap-3 border border-cream/40 text-cream px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 hover:border-cream hover:bg-cream/10"
             >
               Shop Book Nooks
-            </button>
+            </motion.button>
           </motion.div>
         </motion.div>
       </motion.div>
@@ -109,7 +119,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 1, ease: easeLuxe }}
+        transition={{ delay: 2.2, duration: 1, ease: easeLuxe }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
       >
         <span className="font-body text-[10px] tracking-luxe uppercase text-cream/60">

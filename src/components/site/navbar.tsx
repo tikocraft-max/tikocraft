@@ -118,7 +118,10 @@ export default function Navbar() {
             </div>
 
             {/* Cart icon */}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onClick={openCart}
               className={`relative p-2 transition-colors ${
                 scrolled ? "text-brown-800 hover:text-brown-600" : "text-cream hover:text-beige"
@@ -128,6 +131,7 @@ export default function Navbar() {
               <ShoppingBag className="h-5 w-5" strokeWidth={1.4} />
               {cartCount > 0 && (
                 <motion.span
+                  key={cartCount}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 500, damping: 25 }}
@@ -136,7 +140,7 @@ export default function Navbar() {
                   {cartCount > 99 ? "99+" : cartCount}
                 </motion.span>
               )}
-            </button>
+            </motion.button>
 
             <button
               onClick={() => handleNavClick("contact")}

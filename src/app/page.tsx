@@ -6,6 +6,8 @@ import { CurrencyProvider } from "@/lib/currency";
 import Navbar from "@/components/site/navbar";
 import Footer from "@/components/site/footer";
 import CartDrawer from "@/components/site/cart-drawer";
+import ScrollProgress from "@/components/site/scroll-progress";
+import PageCurtain from "@/components/site/page-curtain";
 import HomePage from "@/components/site/pages/home-page";
 import CollectionsPage from "@/components/site/pages/collections-page";
 import ProductsPage from "@/components/site/pages/products-page";
@@ -21,6 +23,8 @@ function CurrentPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col bg-cream">
+      <ScrollProgress />
+      <PageCurtain />
       <Navbar />
 
       <main className="flex-1 relative">

@@ -3,13 +3,26 @@
 import { Variants, Transition } from "framer-motion";
 
 // ============================================================
-// Tikocraft — Reusable Framer Motion animation variants
+// Tikocraft — Luxury animation system
+// Curated easing curves + reusable variants for a calm, editorial
+// feel. Every motion is slow, smooth, and intentional.
 // ============================================================
 
-// Easing curves for luxury feel — slow and smooth
+// ----- Easing curves -----
+// easeLuxe: standard luxury ease — slow start, smooth end
 export const easeLuxe: Transition["ease"] = [0.22, 1, 0.36, 1];
+// easeSoft: subtle ease for micro-interactions
 export const easeSoft: Transition["ease"] = [0.4, 0, 0.2, 1];
+// easeCurtain: dramatic ease for full-screen transitions
 export const easeCurtain: Transition["ease"] = [0.76, 0, 0.24, 1];
+// easeExpo: very dramatic — for hero entrances
+export const easeExpo: Transition["ease"] = [0.16, 1, 0.3, 1];
+// easeSpring: bouncy but controlled — for buttons
+export const easeSpring: Transition = { type: "spring", stiffness: 400, damping: 30 };
+
+// ============================================================
+// Entrance variants
+// ============================================================
 
 // Fade up — used for hero text and section intros
 export const fadeUp: Variants = {
@@ -43,10 +56,12 @@ export const revealLeft: Variants = {
   hidden: {
     opacity: 0,
     x: -60,
+    filter: "blur(6px)",
   },
   visible: {
     opacity: 1,
     x: 0,
+    filter: "blur(0px)",
     transition: {
       duration: 1.1,
       ease: easeLuxe,
@@ -59,10 +74,12 @@ export const revealRight: Variants = {
   hidden: {
     opacity: 0,
     x: 60,
+    filter: "blur(6px)",
   },
   visible: {
     opacity: 1,
     x: 0,
+    filter: "blur(0px)",
     transition: {
       duration: 1.1,
       ease: easeLuxe,
@@ -126,11 +143,10 @@ export const imageReveal: Variants = {
 };
 
 // ============================================================
-// UNIQUE PAGE TRANSITIONS
+// PAGE TRANSITIONS — luxury, multi-layered
 // ============================================================
 
-// Page wrapper transition — a soft curtain + fade + slide
-// The exiting page fades + scales down slightly while sliding up
+// Page wrapper transition — fade + slide + blur, with staggered children
 export const pageTransition: Variants = {
   initial: {
     opacity: 0,
@@ -153,7 +169,7 @@ export const pageTransition: Variants = {
     y: -20,
     filter: "blur(8px)",
     transition: {
-      duration: 0.5,
+      duration: 0.4,
       ease: easeLuxe,
     },
   },
@@ -221,6 +237,10 @@ export const letterReveal: Variants = {
   },
 };
 
+// ============================================================
+// CONTINUOUS / DECORATIVE ANIMATIONS
+// ============================================================
+
 // Continuous floating animation
 export const floatingAnimation = {
   initial: { y: 0 },
@@ -246,6 +266,24 @@ export const slowRotate = {
     },
   },
 };
+
+// Gentle pulse — for badges, dots, indicators
+export const gentlePulse = {
+  initial: { opacity: 0.6, scale: 1 },
+  animate: {
+    opacity: [0.6, 1, 0.6],
+    scale: [1, 1.1, 1],
+    transition: {
+      duration: 3,
+      ease: "easeInOut" as const,
+      repeat: Infinity,
+    },
+  },
+};
+
+// ============================================================
+// IMAGE REVEAL ANIMATIONS — clip-path wipes
+// ============================================================
 
 // Image clip-path reveal — wipes in from left to right
 export const clipRevealLeft: Variants = {
@@ -279,6 +317,44 @@ export const clipRevealBottom: Variants = {
   },
 };
 
+// Image clip-path reveal — circular iris (for hero images)
+export const clipRevealIris: Variants = {
+  hidden: {
+    clipPath: "circle(0% at 50% 50%)",
+    opacity: 0,
+  },
+  visible: {
+    clipPath: "circle(150% at 50% 50%)",
+    opacity: 1,
+    transition: {
+      duration: 1.6,
+      ease: easeLuxe,
+    },
+  },
+};
+
+// Image with internal zoom + reveal — the image zooms out as it reveals
+export const imageZoomReveal: Variants = {
+  hidden: {
+    clipPath: "inset(0 0 100% 0)",
+    scale: 1.3,
+  },
+  visible: {
+    clipPath: "inset(0 0 0% 0)",
+    scale: 1,
+    transition: {
+      duration: 1.4,
+      ease: easeLuxe,
+      clipPath: { duration: 1.2, ease: easeLuxe },
+      scale: { duration: 1.6, ease: easeLuxe },
+    },
+  },
+};
+
+// ============================================================
+// HOVER EFFECTS
+// ============================================================
+
 // Hover lift for cards
 export const hoverLift = {
   rest: { y: 0 },
@@ -288,6 +364,44 @@ export const hoverLift = {
   },
 };
 
-// Default viewport config for whileInView
+// Button press — subtle scale down on tap
+export const buttonPress = {
+  rest: { scale: 1 },
+  hover: { scale: 1.02, transition: { duration: 0.3, ease: easeLuxe } },
+  tap: { scale: 0.97, transition: { duration: 0.1, ease: easeSoft } },
+};
+
+// ============================================================
+// SCROLL-DRIVEN ANIMATIONS
+// ============================================================
+
+// Parallax config — for useScroll + useTransform
+export const parallaxSlow = { start: ["start end", "end start"], range: ["-8%", "8%"] };
+export const parallaxMedium = { start: ["start end", "end start"], range: ["-15%", "15%"] };
+export const parallaxFast = { start: ["start end", "end start"], range: ["-25%", "25%"] };
+
+// ============================================================
+// Viewport configs
+// ============================================================
 export const viewportOnce = { once: true, amount: 0.2 } as const;
 export const viewportSoft = { once: true, amount: 0.1 } as const;
+export const viewportEarly = { once: true, amount: 0.05 } as const;
+
+// ============================================================
+// COMPOSITE: section reveal — for whole sections entering view
+// ============================================================
+export const sectionReveal: Variants = {
+  hidden: { opacity: 0, y: 60, filter: "blur(10px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 1.3,
+      ease: easeLuxe,
+      when: "beforeChildren",
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};

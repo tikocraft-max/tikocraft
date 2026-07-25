@@ -153,26 +153,36 @@ export default function CartDrawer() {
                           {/* Quantity controls */}
                           <div className="flex items-center gap-3 mt-3">
                             <div className="inline-flex items-center border border-brown-300">
-                              <button
+                              <motion.button
+                                whileTap={{ scale: 0.85 }}
                                 onClick={() => updateQuantity(item.slug, item.quantity - 1)}
                                 className="p-1.5 text-brown-700 hover:bg-brown-50 transition-colors"
                                 aria-label="Decrease"
                               >
                                 <Minus className="h-3 w-3" />
-                              </button>
-                              <span className="font-display text-sm text-brown-900 w-8 text-center">
+                              </motion.button>
+                              <motion.span
+                                key={item.quantity}
+                                initial={{ scale: 0.8, opacity: 0.5 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                                className="price-num text-sm text-brown-900 w-8 text-center"
+                              >
                                 {item.quantity}
-                              </span>
-                              <button
+                              </motion.span>
+                              <motion.button
+                                whileTap={{ scale: 0.85 }}
                                 onClick={() => updateQuantity(item.slug, item.quantity + 1)}
                                 className="p-1.5 text-brown-700 hover:bg-brown-50 transition-colors"
                                 aria-label="Increase"
                               >
                                 <Plus className="h-3 w-3" />
-                              </button>
+                              </motion.button>
                             </div>
 
-                            <button
+                            <motion.button
+                              whileTap={{ scale: 0.85 }}
+                              whileHover={{ scale: 1.1 }}
                               onClick={() => {
                                 removeItem(item.slug);
                                 toast.success(`${item.name} removed`);
@@ -181,7 +191,7 @@ export default function CartDrawer() {
                               aria-label="Remove"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
-                            </button>
+                            </motion.button>
                           </div>
                         </div>
 
@@ -223,13 +233,16 @@ export default function CartDrawer() {
                   </p>
 
                   {/* Checkout button */}
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     onClick={handleCheckout}
-                    className="group inline-flex w-full items-center justify-center gap-3 bg-brown-800 text-cream px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 hover:bg-brown-900"
+                    className="btn-shine group inline-flex w-full items-center justify-center gap-3 bg-brown-800 text-cream px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 hover:bg-brown-900"
                   >
                     Proceed to Checkout
                     <ArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
-                  </button>
+                  </motion.button>
 
                   {/* Continue shopping */}
                   <button

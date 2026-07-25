@@ -127,15 +127,16 @@ function ProductDetailInner({ slug }: { slug: string }) {
             {/* Main media area */}
             <motion.div
               variants={revealLeft}
-              className="relative aspect-square overflow-hidden bg-beige-light mb-4"
+              className="relative aspect-square overflow-hidden bg-beige-light mb-4 img-zoom"
             >
               <AnimatePresence mode="wait">
                 {showVideo && product.videoUrl ? (
                   <motion.div
                     key="video"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.6, ease: easeLuxe }}
                     className="absolute inset-0"
                   >
                     <VideoEmbed url={product.videoUrl} />
@@ -145,10 +146,10 @@ function ProductDetailInner({ slug }: { slug: string }) {
                     key={activeImage}
                     src={images[activeImage]}
                     alt={product.name}
-                    initial={{ opacity: 0, scale: 1.05 }}
+                    initial={{ opacity: 0, scale: 1.08 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5, ease: easeLuxe }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.7, ease: easeLuxe }}
                     className="h-full w-full object-cover"
                   />
                 )}
@@ -324,9 +325,12 @@ function ProductDetailInner({ slug }: { slug: string }) {
 
             {/* Add to cart + buy now */}
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 mb-8">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 onClick={handleAddToCart}
-                className={`group inline-flex flex-1 items-center justify-center gap-3 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 ${
+                className={`btn-shine group inline-flex flex-1 items-center justify-center gap-3 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 ${
                   added
                     ? "bg-green-700 text-cream"
                     : "bg-brown-800 text-cream hover:bg-brown-900"
@@ -343,8 +347,11 @@ function ProductDetailInner({ slug }: { slug: string }) {
                     Add to Cart
                   </>
                 )}
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 onClick={() => {
                   handleAddToCart();
                   // Open cart immediately for checkout
@@ -356,7 +363,7 @@ function ProductDetailInner({ slug }: { slug: string }) {
               >
                 Order Now
                 <ArrowRight className="h-3.5 w-3.5" />
-              </button>
+              </motion.button>
             </motion.div>
 
             {/* Trust badges */}

@@ -205,18 +205,20 @@ function ProductCard({
   return (
     <motion.article
       variants={fadeUp}
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="group cursor-pointer"
       onClick={onNavigate}
     >
       <div
-        className={`relative aspect-square overflow-hidden mb-6 ${
+        className={`relative aspect-square overflow-hidden mb-6 img-zoom ${
           isDark ? "bg-brown-800" : "bg-beige-light"
         }`}
       >
         <img
           src={product.image}
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
+          className="h-full w-full object-cover"
         />
         {product.tag && (
           <div className="absolute top-4 left-4">
@@ -242,7 +244,8 @@ function ProductCard({
         )}
         {/* Quick view + add to cart buttons on hover */}
         <div className="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 flex gap-2">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={(e) => {
               e.stopPropagation();
               onNavigate();
@@ -252,8 +255,10 @@ function ProductCard({
             }`}
           >
             View Details
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.08 }}
             onClick={handleAddToCart}
             className={`backdrop-blur-sm p-3 transition-colors ${
               isDark ? "bg-brown-900/80 text-cream hover:bg-brown-900" : "bg-brown-800/90 text-cream hover:bg-brown-800"
@@ -261,7 +266,7 @@ function ProductCard({
             aria-label="Add to cart"
           >
             <Plus className="h-4 w-4" />
-          </button>
+          </motion.button>
         </div>
       </div>
       <div className="flex items-start justify-between gap-4">
