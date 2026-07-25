@@ -1,67 +1,91 @@
 // ============================================================
-// Client-side image processing utility
-// Resizes + compresses uploaded images to a reasonable size
-// before converting to base64 data URLs for storage.
+// Client-side media processing utilities
+// - Images: resize + compress to base64
+// - Videos: validate size, convert to base64 (with size warning)
 // ============================================================
 
-const MAX_WIDTH = 1200; // max width in pixels
-const MAX_HEIGHT = 1200; // max height in pixels
-const QUALITY = 0.82; // JPEG quality (0-1)
-const MAX_FILE_SIZE_BYTES = 600 * 1024; // 600KB max after compression
+const MAX_IMAGE_WIDTH = 1200;
+const MAX_IMAGE_HEIGHT = 1200;
+const IMAGE_QUALITY = 0.82;
+const MAX_IMAGE_SIZE_BYTES = 600 * 1024; // 600KB after compression
+
+// Videos can be larger but we still cap to avoid DB bloat
+const MAX_VIDEO_SIZE_BYTES = 8 * 1024 * 1024; // 8MB upload limit
+const COMPRESSED_VIDEO_SIZE_BYTES = 4 * 1024 * 1024; // warn if > 4MB after
 
 /**
  * Process an image File: resize, compress, and convert to base64 data URL.
- * Returns a Promise that resolves to the base64 string.
  */
 export async function processImageFile(file: File): Promise<string> {
-  // Validate file type
   if (!file.type.startsWith("image/")) {
     throw new Error("Please select an image file (JPEG, PNG, or WebP)");
   }
 
-  // Validate file size (before processing — reject huge files)
   if (file.size > 10 * 1024 * 1024) {
     throw new Error("Image is too large. Please use an image under 10MB");
   }
 
-  // Read the file as a data URL
   const dataUrl = await readFileAsDataURL(file);
-
-  // Load it into an Image element to get dimensions
   const img = await loadImage(dataUrl);
 
-  // Calculate new dimensions (maintain aspect ratio, fit within max bounds)
   let { width, height } = img;
-  if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-    const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+  if (width > MAX_IMAGE_WIDTH || height > MAX_IMAGE_HEIGHT) {
+    const ratio = Math.min(MAX_IMAGE_WIDTH / width, MAX_IMAGE_HEIGHT / height);
     width = Math.round(width * ratio);
     height = Math.round(height * ratio);
   }
 
-  // Draw to canvas at new size
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not process image");
 
-  // Use white background for transparent PNGs (so they don't get black bg)
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, width, height);
   ctx.drawImage(img, 0, 0, width, height);
 
-  // Convert to JPEG with compression
-  let quality = QUALITY;
+  let quality = IMAGE_QUALITY;
   let result = canvas.toDataURL("image/jpeg", quality);
 
-  // If still too large, reduce quality iteratively
-  while (result.length > MAX_FILE_SIZE_BYTES * 1.37 && quality > 0.3) {
-    // 1.37 ≈ base64 overhead factor
+  while (result.length > MAX_IMAGE_SIZE_BYTES * 1.37 && quality > 0.3) {
     quality -= 0.1;
     result = canvas.toDataURL("image/jpeg", quality);
   }
 
   return result;
+}
+
+/**
+ * Process a video File: validate size, convert to base64 data URL.
+ * Videos are NOT compressed (browser can't easily compress video).
+ * We just validate size and return the data URL.
+ *
+ * For large videos, we recommend using a YouTube/Vimeo URL instead.
+ */
+export async function processVideoFile(file: File): Promise<string> {
+  if (!file.type.startsWith("video/")) {
+    throw new Error("Please select a video file (MP4, WebM, or MOV)");
+  }
+
+  if (file.size > MAX_VIDEO_SIZE_BYTES) {
+    throw new Error(
+      `Video is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). ` +
+        "Maximum is 8MB. For larger videos, please upload to YouTube/Vimeo and paste the URL."
+    );
+  }
+
+  const dataUrl = await readFileAsDataURL(file);
+
+  if (dataUrl.length > COMPRESSED_VIDEO_SIZE_BYTES * 1.37) {
+    // Warn but allow — it's under the hard limit
+    console.warn(
+      `[video] Large video (${(dataUrl.length / 1024 / 1024).toFixed(1)}MB base64). ` +
+        "Consider using a YouTube/Vimeo URL for better performance."
+    );
+  }
+
+  return dataUrl;
 }
 
 function readFileAsDataURL(file: File): Promise<string> {
@@ -87,4 +111,13 @@ function loadImage(src: string): Promise<HTMLImageElement> {
  */
 export function isDataUrl(str: string): boolean {
   return str.startsWith("data:");
+}
+
+/**
+ * Format file size for display
+ */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }

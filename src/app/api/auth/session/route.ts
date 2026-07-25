@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { db } from "@/lib/db";
 import { verifySessionToken } from "@/lib/security";
+import { getAdmin, ensureGitHubSeeded } from "@/lib/github-db";
 
 // GET /api/auth/session — returns current admin user or null
-// Verifies the signed session token (HMAC) — token can't be forged.
 export async function GET() {
   const cookieStore = await cookies();
   const token = cookieStore.get("tikocraft-admin-session");
@@ -13,22 +12,20 @@ export async function GET() {
     return NextResponse.json({ admin: null });
   }
 
-  // 1. Verify the HMAC signature + expiry
   const { email, valid } = verifySessionToken(token.value);
   if (!valid || !email) {
     return NextResponse.json({ admin: null });
   }
 
-  // 2. Confirm the admin still exists in DB (in case they were removed)
   try {
-    const admin = await db.adminUser.findUnique({
-      where: { email },
-      select: { email: true, name: true, role: true },
-    });
-    if (!admin) {
+    await ensureGitHubSeeded();
+    const admin = await getAdmin();
+    if (!admin || admin.email.toLowerCase() !== email.toLowerCase()) {
       return NextResponse.json({ admin: null });
     }
-    return NextResponse.json({ admin });
+    return NextResponse.json({
+      admin: { email: admin.email, name: admin.name, role: admin.role },
+    });
   } catch {
     return NextResponse.json({ admin: null });
   }

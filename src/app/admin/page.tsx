@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { toast } from "sonner";
-import { processImageFile } from "@/lib/image-upload";
+import { processImageFile, processVideoFile } from "@/lib/image-upload";
 
 // ============================================================
 // Types
@@ -51,10 +51,12 @@ interface Product {
   isPublished: boolean;
   sortOrder: number;
   image: string;
-  images: string | null; // JSON string of array
+  images: string[] | null; // array of image URLs (from GitHub DB)
   videoUrl: string | null;
   material: string | null;
   dimensions: string | null;
+  createdAt?: string;
+  updatedAt?: string;
   category?: Category;
 }
 
@@ -552,16 +554,10 @@ function ProductForm({
   onSave: (data: Partial<Product>, isNew: boolean) => void;
 }) {
   const isNew = !product;
-  // Parse existing images from JSON string
-  const existingImages: string[] = (() => {
-    if (!product?.images) return [];
-    try {
-      const parsed = JSON.parse(product.images);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  })();
+  // images is now an array directly (from GitHub DB)
+  const existingImages: string[] = Array.isArray(product?.images)
+    ? product.images
+    : [];
 
   const [form, setForm] = useState({
     name: product?.name || "",
@@ -582,8 +578,10 @@ function ProductForm({
   const [newImageUrl, setNewImageUrl] = useState("");
   const [uploadingMain, setUploadingMain] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -865,16 +863,83 @@ function ProductForm({
             </div>
           </div>
 
-          {/* Video URL */}
+          {/* ============================================================
+              VIDEO — upload or URL
+              ============================================================ */}
           <div>
-            <Label>Video URL (optional — YouTube, Vimeo, or MP4)</Label>
-            <Input
-              value={form.videoUrl}
-              onChange={(v) => setForm({ ...form, videoUrl: v })}
-              placeholder="https://www.youtube.com/watch?v=…"
+            <Label>Product video (optional)</Label>
+            <p className="font-body text-[10px] text-brown-500 mb-3 font-light">
+              Upload a short video clip (max 8MB, MP4/WebM) from your device, or paste a YouTube/Vimeo/MP4 URL.
+              A "Watch Video" button will appear on the product page.
+            </p>
+
+            {/* Video preview (if video is set) */}
+            {form.videoUrl && (
+              <div className="mb-3 relative aspect-video max-w-sm bg-black overflow-hidden">
+                <VideoPreview url={form.videoUrl} />
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, videoUrl: "" })}
+                  className="absolute top-2 right-2 bg-red-600 text-cream p-1.5 hover:bg-red-700 transition-colors z-10"
+                  title="Remove video"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2} />
+                </button>
+              </div>
+            )}
+
+            {/* Hidden file input for video upload */}
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  setUploadingVideo(true);
+                  const dataUrl = await processVideoFile(file);
+                  setForm((f) => ({ ...f, videoUrl: dataUrl }));
+                  toast.success("Video uploaded");
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Upload failed");
+                } finally {
+                  setUploadingVideo(false);
+                  if (videoInputRef.current) videoInputRef.current.value = "";
+                }
+              }}
             />
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              {/* Upload button */}
+              <button
+                type="button"
+                onClick={() => videoInputRef.current?.click()}
+                disabled={uploadingVideo}
+                className="inline-flex items-center gap-2 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors"
+              >
+                {uploadingVideo ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Upload className="h-3.5 w-3.5" />
+                )}
+                {uploadingVideo ? "Uploading…" : "Upload Video"}
+              </button>
+
+              {/* OR paste URL */}
+              <input
+                type="text"
+                value={form.videoUrl.startsWith("data:") ? "" : form.videoUrl}
+                onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+                placeholder="Or paste YouTube/Vimeo/MP4 URL"
+                disabled={form.videoUrl.startsWith("data:")}
+                className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700 disabled:bg-brown-50 disabled:text-brown-400"
+              />
+            </div>
             <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
-              Paste a YouTube, Vimeo, or direct MP4 link. A "Watch Video" button will appear on the product page.
+              💡 For best performance with longer videos, upload to YouTube/Vimeo and paste the URL.
+              Direct upload is best for clips under 8MB.
             </p>
           </div>
 
@@ -1162,6 +1227,64 @@ function CategoryForm({
 // ============================================================
 // Small form primitives
 // ============================================================
+
+// Video preview — shows video in admin form
+function VideoPreview({ url }: { url: string }) {
+  // Check if it's a data URL (uploaded file) or external URL
+  if (url.startsWith("data:")) {
+    return (
+      <video
+        src={url}
+        className="h-full w-full object-contain"
+        controls
+        muted
+        playsInline
+      />
+    );
+  }
+
+  // Parse YouTube
+  const youtubeMatch = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
+  );
+  if (youtubeMatch) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${youtubeMatch[1]}`}
+        className="h-full w-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        title="Video preview"
+      />
+    );
+  }
+
+  // Parse Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return (
+      <iframe
+        src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
+        className="h-full w-full"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowFullScreen
+        title="Video preview"
+      />
+    );
+  }
+
+  // Direct video URL (MP4/WebM)
+  return (
+    <video
+      src={url}
+      className="h-full w-full object-contain"
+      controls
+      muted
+      playsInline
+    />
+  );
+}
+
 function Label({ children }: { children: React.ReactNode }) {
   return (
     <label className="font-body text-[10px] tracking-luxe uppercase text-brown-600 block mb-2">

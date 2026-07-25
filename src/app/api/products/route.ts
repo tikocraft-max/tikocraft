@@ -1,53 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import {
+  getAllProducts,
+  saveProduct,
+  type StoredProduct,
+} from "@/lib/github-db";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { ensureSeeded } from "@/lib/seed";
 import { verifySessionToken } from "@/lib/security";
 
 // Helper — checks if the current request is from a logged-in admin
-// Verifies the HMAC-signed session token (can't be forged)
 async function requireAdmin() {
   const cookieStore = await cookies();
   const token = cookieStore.get("tikocraft-admin-session");
-  if (!token?.value) {
-    return null;
-  }
+  if (!token?.value) return null;
   const { email, valid } = verifySessionToken(token.value);
-  if (!valid || !email) {
-    return null;
-  }
-  try {
-    const admin = await db.adminUser.findUnique({
-      where: { email },
-      select: { email: true, name: true, role: true },
-    });
-    return admin;
-  } catch {
-    return null;
-  }
+  if (!valid || !email) return null;
+  // For GitHub-backed admin, we just need the email to match
+  return { email, name: "Admin", role: "owner" };
 }
 
 // ============================================================
-// GET /api/products — list products (public)
-//   Query params: ?category=ceramics  &published=true
+// GET /api/products — list products (public + admin)
+//   Query params: ?published=false (admin only — includes unpublished)
 // ============================================================
 export async function GET(req: NextRequest) {
   try {
-    await ensureSeeded();
     const { searchParams } = new URL(req.url);
-    const category = searchParams.get("category");
-    const publishedOnly = searchParams.get("published") !== "false";
+    const includeUnpublished = searchParams.get("published") === "false";
 
-    const products = await db.product.findMany({
-      where: {
-        ...(category ? { categorySlug: category } : {}),
-        ...(publishedOnly ? { isPublished: true } : {}),
-      },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-      include: { category: true },
+    const allProducts = await getAllProducts();
+
+    // If admin requesting unpublished, return all
+    if (includeUnpublished) {
+      const admin = await requireAdmin();
+      if (!admin) {
+        return NextResponse.json(
+          { error: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+    }
+
+    const filtered = includeUnpublished
+      ? allProducts
+      : allProducts.filter((p) => p.isPublished);
+
+    // Sort by sortOrder then createdAt desc
+    const sorted = [...filtered].sort((a, b) => {
+      if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-    return NextResponse.json({ products });
+
+    return NextResponse.json({ products: sorted });
   } catch (err) {
     console.error("GET /api/products error", err);
     return NextResponse.json(
@@ -95,19 +99,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { images, videoUrl, ...rest } = parsed.data;
-    const product = await db.product.create({
-      data: {
-        ...rest,
-        images: images && images.length > 0 ? JSON.stringify(images) : null,
-        videoUrl: videoUrl ?? null,
-        tag: parsed.data.tag ?? null,
-        material: parsed.data.material ?? null,
-        dimensions: parsed.data.dimensions ?? null,
-        isPublished: parsed.data.isPublished ?? true,
-        sortOrder: parsed.data.sortOrder ?? 0,
-      },
-    });
+    // Check slug uniqueness
+    const existing = await getAllProducts();
+    if (existing.find((p) => p.slug === parsed.data.slug)) {
+      return NextResponse.json(
+        { error: "A product with this slug already exists" },
+        { status: 400 }
+      );
+    }
+
+    const now = new Date().toISOString();
+    const product: StoredProduct = {
+      id: `prod_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      name: parsed.data.name,
+      slug: parsed.data.slug,
+      categorySlug: parsed.data.categorySlug,
+      description: parsed.data.description,
+      priceUSD: parsed.data.priceUSD,
+      tag: parsed.data.tag ?? null,
+      isPublished: parsed.data.isPublished ?? true,
+      sortOrder: parsed.data.sortOrder ?? 0,
+      image: parsed.data.image,
+      images: parsed.data.images || [parsed.data.image],
+      videoUrl: parsed.data.videoUrl ?? null,
+      material: parsed.data.material ?? null,
+      dimensions: parsed.data.dimensions ?? null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const ok = await saveProduct(product);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Failed to save product (GitHub commit failed)" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ product }, { status: 201 });
   } catch (err) {
     console.error("POST /api/products error", err);

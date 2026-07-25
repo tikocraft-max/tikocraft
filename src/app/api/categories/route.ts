@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getAllCategories, getAllProducts, saveCategory, deleteCategory, ensureGitHubSeeded, type StoredCategory } from "@/lib/github-db";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { ensureSeeded } from "@/lib/seed";
+import { verifySessionToken } from "@/lib/security";
 
 // GET /api/categories — list all categories (public)
 export async function GET() {
   try {
-    await ensureSeeded();
-    const categories = await db.category.findMany({
-      orderBy: { sortOrder: "asc" },
-      include: {
-        _count: { select: { products: { where: { isPublished: true } } } },
-      },
-    });
-    return NextResponse.json({ categories });
+    await ensureGitHubSeeded();
+    const [categories, products] = await Promise.all([
+      getAllCategories(),
+      getAllProducts(),
+    ]);
+
+    // Add product counts
+    const withCounts = categories.map((c) => ({
+      ...c,
+      _count: { products: products.filter((p) => p.categorySlug === c.slug).length },
+    }));
+
+    const sorted = [...withCounts].sort((a, b) => a.sortOrder - b.sortOrder);
+    return NextResponse.json({ categories: sorted });
   } catch (err) {
     console.error("GET /api/categories error", err);
     return NextResponse.json(
@@ -26,17 +32,11 @@ export async function GET() {
 
 async function requireAdmin() {
   const cookieStore = await cookies();
-  const session = cookieStore.get("tikocraft-admin-session");
-  const email = cookieStore.get("tikocraft-admin-email");
-  if (!session?.value || !email?.value) return null;
-  try {
-    return await db.adminUser.findUnique({
-      where: { email: email.value },
-      select: { email: true, name: true, role: true },
-    });
-  } catch {
-    return null;
-  }
+  const token = cookieStore.get("tikocraft-admin-session");
+  if (!token?.value) return null;
+  const { email, valid } = verifySessionToken(token.value);
+  if (!valid || !email) return null;
+  return { email, name: "Admin", role: "owner" };
 }
 
 const createSchema = z.object({
@@ -69,17 +69,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const category = await db.category.create({
-      data: {
-        slug: parsed.data.slug,
-        name: parsed.data.name,
-        subtitle: parsed.data.subtitle ?? null,
-        description: parsed.data.description ?? null,
-        image: parsed.data.image ?? null,
-        categoryType: parsed.data.categoryType ?? "decor",
-        sortOrder: parsed.data.sortOrder ?? 0,
-      },
-    });
+    const category: StoredCategory = {
+      id: `cat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      subtitle: parsed.data.subtitle ?? null,
+      description: parsed.data.description ?? null,
+      image: parsed.data.image ?? null,
+      categoryType: parsed.data.categoryType ?? "decor",
+      sortOrder: parsed.data.sortOrder ?? 0,
+    };
+
+    const ok = await saveCategory(category);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Failed to save category (GitHub commit failed)" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ category }, { status: 201 });
   } catch (err) {
     console.error("POST /api/categories error", err);

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import {
+  getAllProducts,
+  saveProduct,
+  deleteProduct,
+  type StoredProduct,
+} from "@/lib/github-db";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { verifySessionToken } from "@/lib/security";
@@ -10,14 +15,7 @@ async function requireAdmin() {
   if (!token?.value) return null;
   const { email, valid } = verifySessionToken(token.value);
   if (!valid || !email) return null;
-  try {
-    return await db.adminUser.findUnique({
-      where: { email },
-      select: { email: true, name: true, role: true },
-    });
-  } catch {
-    return null;
-  }
+  return { email, name: "Admin", role: "owner" };
 }
 
 // GET /api/products/[slug] — fetch a single product
@@ -27,10 +25,8 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const product = await db.product.findUnique({
-      where: { slug },
-      include: { category: true },
-    });
+    const products = await getAllProducts();
+    const product = products.find((p) => p.slug === slug);
     if (!product) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -81,18 +77,30 @@ export async function PATCH(
       );
     }
 
-    const { images, ...rest } = parsed.data;
-    const updateData: Record<string, unknown> = { ...rest };
-    // Convert images array to JSON string for storage
-    if (images !== undefined) {
-      updateData.images = images && images.length > 0 ? JSON.stringify(images) : null;
+    // Get current product
+    const products = await getAllProducts();
+    const existing = products.find((p) => p.slug === slug);
+    if (!existing) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    const product = await db.product.update({
-      where: { slug },
-      data: updateData,
-    });
-    return NextResponse.json({ product });
+    // Merge updates
+    const updated: StoredProduct = {
+      ...existing,
+      ...parsed.data,
+      images: parsed.data.images ?? existing.images,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const ok = await saveProduct(updated);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Failed to update product (GitHub commit failed)" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ product: updated });
   } catch (err) {
     console.error("PATCH /api/products/[slug] error", err);
     return NextResponse.json(
@@ -117,7 +125,13 @@ export async function DELETE(
 
   try {
     const { slug } = await params;
-    await db.product.delete({ where: { slug } });
+    const ok = await deleteProduct(slug);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Product not found or delete failed" },
+        { status: 404 }
+      );
+    }
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("DELETE /api/products/[slug] error", err);

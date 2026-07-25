@@ -55,3 +55,6 @@ server.log
 # Database (SQLite — local only, seeded on deploy)
 /db/*.db
 /db/*.db-journal
+
+# GitHub-backed data files (managed via API, not committed locally)
+/data/

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getAllCategories, saveCategory, deleteCategory, type StoredCategory } from "@/lib/github-db";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { verifySessionToken } from "@/lib/security";
@@ -10,14 +10,7 @@ async function requireAdmin() {
   if (!token?.value) return null;
   const { email, valid } = verifySessionToken(token.value);
   if (!valid || !email) return null;
-  try {
-    return await db.adminUser.findUnique({
-      where: { email },
-      select: { email: true, name: true, role: true },
-    });
-  } catch {
-    return null;
-  }
+  return { email, name: "Admin", role: "owner" };
 }
 
 const updateSchema = z.object({
@@ -53,11 +46,22 @@ export async function PATCH(
       );
     }
 
-    const category = await db.category.update({
-      where: { slug },
-      data: parsed.data,
-    });
-    return NextResponse.json({ category });
+    const categories = await getAllCategories();
+    const existing = categories.find((c) => c.slug === slug);
+    if (!existing) {
+      return NextResponse.json({ error: "Category not found" }, { status: 404 });
+    }
+
+    const updated: StoredCategory = { ...existing, ...parsed.data };
+    const ok = await saveCategory(updated);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Failed to update category" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ category: updated });
   } catch (err) {
     console.error("PATCH /api/categories/[slug] error", err);
     return NextResponse.json(
@@ -82,19 +86,13 @@ export async function DELETE(
 
   try {
     const { slug } = await params;
-    // First check if any products exist in this category
-    const productCount = await db.product.count({
-      where: { categorySlug: slug },
-    });
-    if (productCount > 0) {
+    const ok = await deleteCategory(slug);
+    if (!ok) {
       return NextResponse.json(
-        {
-          error: `Cannot delete — ${productCount} product(s) still in this category. Move or delete them first.`,
-        },
-        { status: 400 }
+        { error: "Category not found or delete failed" },
+        { status: 404 }
       );
     }
-    await db.category.delete({ where: { slug } });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("DELETE /api/categories/[slug] error", err);
