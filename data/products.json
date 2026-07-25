@@ -1,27 +1,5 @@
 [
   {
-    "name": "Terracotta Vessel No. 04",
-    "slug": "terracotta-vessel-04",
-    "categorySlug": "ceramics",
-    "description": "Wheel-thrown terracotta with a soft matte glaze. Each vessel is unique in proportion and surface.",
-    "priceUSD": 186,
-    "tag": "New",
-    "image": "/images/product-1.png",
-    "images": [
-      "/images/product-1.png",
-      "/images/atelier-1.png",
-      "/images/collection-ceramics.png"
-    ],
-    "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "material": "Stoneware, matte glaze",
-    "dimensions": "Ø 18 × H 32 cm",
-    "sortOrder": 1,
-    "isPublished": true,
-    "id": "seed_terracotta-vessel-04",
-    "createdAt": "2026-07-25T11:34:16.730Z",
-    "updatedAt": "2026-07-25T11:34:16.730Z"
-  },
-  {
     "name": "Seagrass Carry Basket",
     "slug": "seagrass-carry-basket",
     "categorySlug": "textiles",
