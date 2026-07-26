@@ -20,6 +20,8 @@ import {
   Star,
   Minus,
   Upload,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { toast } from "sonner";
@@ -540,7 +542,7 @@ export default function AdminDashboard() {
 }
 
 // ============================================================
-// Product form modal
+// Product form modal — organized into clear sections with tabs
 // ============================================================
 function ProductForm({
   product,
@@ -554,7 +556,6 @@ function ProductForm({
   onSave: (data: Partial<Product>, isNew: boolean) => void;
 }) {
   const isNew = !product;
-  // images is now an array directly (from GitHub DB)
   const existingImages: string[] = Array.isArray(product?.images)
     ? product.images
     : [];
@@ -567,7 +568,7 @@ function ProductForm({
     priceUSD: product?.priceUSD || 0,
     tag: product?.tag || "",
     image: product?.image || "/images/product-1.png",
-    images: existingImages, // array of image URLs
+    images: existingImages,
     videoUrl: product?.videoUrl || "",
     material: product?.material || "",
     dimensions: product?.dimensions || "",
@@ -579,6 +580,7 @@ function ProductForm({
   const [uploadingMain, setUploadingMain] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [activeTab, setActiveTab] = useState<"details" | "media" | "settings">("details");
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -586,7 +588,13 @@ function ProductForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.slug || !form.categorySlug || !form.description || !form.image) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in all required fields (name, slug, category, description, main photo)");
+      setActiveTab("details");
+      return;
+    }
+    if (form.priceUSD <= 0) {
+      toast.error("Price must be greater than 0");
+      setActiveTab("details");
       return;
     }
     setSaving(true);
@@ -598,7 +606,7 @@ function ProductForm({
         tag: form.tag || null,
         material: form.material || null,
         dimensions: form.dimensions || null,
-        images: form.images, // array — API converts to JSON
+        images: form.images,
         videoUrl: form.videoUrl || null,
       },
       isNew
@@ -606,7 +614,6 @@ function ProductForm({
     setSaving(false);
   };
 
-  // Image gallery management
   const addImage = () => {
     const url = newImageUrl.trim();
     if (!url) return;
@@ -626,7 +633,6 @@ function ProductForm({
     setForm((f) => ({ ...f, image: url }));
   };
 
-  // Auto-generate slug from name
   const handleNameChange = (name: string) => {
     setForm((f) => ({
       ...f,
@@ -642,7 +648,7 @@ function ProductForm({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-brown-900/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-brown-900/70 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 overflow-y-auto"
       onClick={onClose}
     >
       <motion.div
@@ -650,424 +656,585 @@ function ProductForm({
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         exit={{ opacity: 0, y: 20, filter: "blur(6px)" }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-cream text-brown-900 w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto"
+        className="bg-cream text-brown-900 w-full max-w-2xl my-4 max-h-[95vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-cream border-b border-beige px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="font-display text-2xl text-brown-900">
-            {isNew ? "New Product" : "Edit Product"}
-          </h2>
-          <button onClick={onClose} className="p-2 text-brown-600 hover:bg-brown-100 transition-colors">
+        <div className="sticky top-0 bg-cream border-b border-beige px-6 py-4 flex items-center justify-between z-10 shrink-0">
+          <div>
+            <h2 className="font-display text-2xl text-brown-900 leading-tight">
+              {isNew ? "New Product" : "Edit Product"}
+            </h2>
+            <p className="font-body text-[10px] tracking-luxe-sm uppercase text-brown-500 mt-1">
+              {isNew ? "Fill in the details below" : "Update the product details"}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-brown-600 hover:bg-brown-100 transition-colors shrink-0"
+            aria-label="Close"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* ============================================================
-              MAIN IMAGE — upload or URL
-              ============================================================ */}
-          <div>
-            <Label>Main photo * (shown on cards + as first gallery image)</Label>
-            <div className="flex gap-4 items-start">
-              {/* Preview */}
-              <div className="w-28 h-28 bg-beige-light overflow-hidden shrink-0 border border-beige">
-                <img src={form.image} alt="Main preview" className="h-full w-full object-cover" />
-              </div>
+        {/* Tabs */}
+        <div className="flex border-b border-beige bg-brown-50/50 shrink-0">
+          {[
+            { id: "details" as const, label: "1 · Details" },
+            { id: "media" as const, label: "2 · Photos & Video" },
+            { id: "settings" as const, label: "3 · Settings" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 px-4 py-3 font-body text-[11px] tracking-luxe-sm uppercase transition-colors border-b-2 ${
+                activeTab === tab.id
+                  ? "bg-cream text-brown-900 border-brown-800"
+                  : "text-brown-500 hover:text-brown-700 border-transparent hover:bg-brown-50"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-              {/* Upload + URL controls */}
-              <div className="flex-1 space-y-3">
-                {/* Upload button */}
-                <div className="flex gap-2">
+        {/* Form body — scrollable */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* ============================================================
+                TAB 1: DETAILS
+                ============================================================ */}
+            {activeTab === "details" && (
+              <div className="space-y-5 animate-fade-in-up">
+                <div className="bg-brown-50/60 border border-beige p-4">
+                  <h3 className="font-display text-lg text-brown-900 mb-1">Product Information</h3>
+                  <p className="font-body text-[11px] text-brown-500">
+                    The name, description, and price customers will see.
+                  </p>
+                </div>
+
+                <div>
+                  <Label>Product Name *</Label>
+                  <Input
+                    value={form.name}
+                    onChange={handleNameChange}
+                    placeholder="e.g. Terracotta Vessel No. 04"
+                  />
+                </div>
+
+                <div>
+                  <Label>URL Slug * <span className="text-brown-400 normal-case tracking-normal">(auto-generated from name)</span></Label>
+                  <Input
+                    value={form.slug}
+                    onChange={(v) => setForm({ ...form, slug: v })}
+                    placeholder="terracotta-vessel-04"
+                    disabled={!isNew}
+                  />
+                  <p className="font-body text-[10px] text-brown-500 mt-1.5 font-light">
+                    Used in the product URL: /#product/<span className="font-mono">{form.slug || "your-slug"}</span>
+                  </p>
+                </div>
+
+                <div>
+                  <Label>Description *</Label>
+                  <textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="Describe the product — materials, story, what makes it special…"
+                    rows={4}
+                    className="w-full bg-white border border-beige px-4 py-3 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700 resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Category *</Label>
+                    <select
+                      value={form.categorySlug}
+                      onChange={(e) => setForm({ ...form, categorySlug: e.target.value })}
+                      className="w-full bg-white border border-beige px-4 py-3 font-body text-sm text-brown-900 focus:outline-none focus:border-brown-700"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.slug} value={c.slug}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <Label>Price (USD) *</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-brown-500">$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={form.priceUSD}
+                        onChange={(e) => setForm({ ...form, priceUSD: Number(e.target.value) })}
+                        placeholder="186"
+                        className="w-full bg-white border border-beige pl-7 pr-4 py-3 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Tag <span className="text-brown-400 normal-case tracking-normal">(optional badge)</span></Label>
+                  <div className="flex flex-wrap gap-2">
+                    {["", "New", "Limited", "Signature", "Bestseller"].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setForm({ ...form, tag })}
+                        className={`font-body text-[11px] tracking-luxe-sm uppercase px-4 py-2 border transition-all ${
+                          (form.tag || "") === tag
+                            ? "bg-brown-800 text-cream border-brown-800"
+                            : "border-brown-300 text-brown-700 hover:border-brown-700 hover:bg-brown-50"
+                        }`}
+                      >
+                        {tag || "None"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Material <span className="text-brown-400 normal-case tracking-normal">(optional)</span></Label>
+                    <Input
+                      value={form.material}
+                      onChange={(v) => setForm({ ...form, material: v })}
+                      placeholder="e.g. Stoneware, matte glaze"
+                    />
+                  </div>
+                  <div>
+                    <Label>Dimensions <span className="text-brown-400 normal-case tracking-normal">(optional)</span></Label>
+                    <Input
+                      value={form.dimensions}
+                      onChange={(v) => setForm({ ...form, dimensions: v })}
+                      placeholder="e.g. Ø 18 × H 32 cm"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("media")}
+                    className="inline-flex items-center gap-2 bg-brown-800 text-cream px-6 py-3 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 transition-colors"
+                  >
+                    Next: Photos & Video
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ============================================================
+                TAB 2: MEDIA (Photos + Video)
+                ============================================================ */}
+            {activeTab === "media" && (
+              <div className="space-y-6 animate-fade-in-up">
+                <div className="bg-brown-50/60 border border-beige p-4">
+                  <h3 className="font-display text-lg text-brown-900 mb-1">Main Photo *</h3>
+                  <p className="font-body text-[11px] text-brown-500">
+                    Shown on product cards and as the first image in the gallery.
+                  </p>
+                </div>
+
+                {/* Main photo */}
+                <div className="flex gap-4 items-start">
+                  <div className="w-28 h-28 bg-beige-light overflow-hidden shrink-0 border border-beige">
+                    <img src={form.image} alt="Main preview" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <input
+                      ref={mainImageInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          setUploadingMain(true);
+                          const dataUrl = await processImageFile(file);
+                          setForm((f) => ({
+                            ...f,
+                            image: dataUrl,
+                            images: f.images.includes(dataUrl) ? f.images : [...f.images, dataUrl],
+                          }));
+                          toast.success("Main photo uploaded");
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Upload failed");
+                        } finally {
+                          setUploadingMain(false);
+                          if (mainImageInputRef.current) mainImageInputRef.current.value = "";
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => mainImageInputRef.current?.click()}
+                      disabled={uploadingMain}
+                      className="inline-flex items-center gap-2 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors w-full justify-center"
+                    >
+                      {uploadingMain ? (
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Processing…</>
+                      ) : (
+                        <><Upload className="h-3.5 w-3.5" /> Upload Main Photo</>
+                      )}
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <span className="font-body text-[10px] text-brown-400 uppercase tracking-luxe-sm">or URL:</span>
+                      <input
+                        type="text"
+                        value={form.image.startsWith("data:") ? "" : form.image}
+                        onChange={(e) => setForm({ ...form, image: e.target.value })}
+                        placeholder="/images/product-1.png"
+                        disabled={form.image.startsWith("data:")}
+                        className="flex-1 bg-white border border-beige px-3 py-2 font-body text-xs text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700 disabled:bg-brown-50 disabled:text-brown-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gallery */}
+                <div className="border-t border-beige pt-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-display text-lg text-brown-900">Gallery Images</h3>
+                      <p className="font-body text-[11px] text-brown-500">
+                        Additional photos shown in the product gallery. Hover to remove or set as main.
+                      </p>
+                    </div>
+                  </div>
+
                   <input
-                    ref={mainImageInputRef}
+                    ref={galleryInputRef}
                     type="file"
                     accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length === 0) return;
+                      try {
+                        setUploadingGallery(true);
+                        const dataUrls = await Promise.all(files.map(processImageFile));
+                        setForm((f) => ({
+                          ...f,
+                          images: [...f.images, ...dataUrls.filter((u) => !f.images.includes(u))],
+                        }));
+                        toast.success(`${files.length} image${files.length > 1 ? "s" : ""} added`);
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : "Upload failed");
+                      } finally {
+                        setUploadingGallery(false);
+                        if (galleryInputRef.current) galleryInputRef.current.value = "";
+                      }
+                    }}
+                  />
+
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                    <div className="relative aspect-square bg-beige-light overflow-hidden border-2 border-brown-800">
+                      <img src={form.image} alt="Main" className="h-full w-full object-cover" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-brown-800 text-cream text-[8px] tracking-luxe uppercase text-center py-0.5">
+                        Main
+                      </div>
+                    </div>
+
+                    {form.images
+                      .filter((img) => img !== form.image)
+                      .map((img, i) => (
+                        <div key={i} className="relative aspect-square bg-beige-light overflow-hidden group">
+                          <img src={img} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setMainImage(img)}
+                            className="absolute top-1 left-1 bg-cream/90 text-brown-800 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Set as main photo"
+                          >
+                            <Star className="h-3 w-3" strokeWidth={1.5} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(img)}
+                            className="absolute top-1 right-1 bg-red-600 text-cream p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Remove image"
+                          >
+                            <Minus className="h-3 w-3" strokeWidth={2} />
+                          </button>
+                        </div>
+                      ))}
+
+                    <button
+                      type="button"
+                      onClick={() => galleryInputRef.current?.click()}
+                      disabled={uploadingGallery}
+                      className="aspect-square border-2 border-dashed border-brown-300 hover:border-brown-700 hover:bg-brown-50 transition-colors flex items-center justify-center group disabled:opacity-60"
+                      title="Add image"
+                    >
+                      {uploadingGallery ? (
+                        <Loader2 className="h-5 w-5 text-brown-500 animate-spin" />
+                      ) : (
+                        <Plus className="h-6 w-6 text-brown-400 group-hover:text-brown-700 transition-colors" strokeWidth={1.5} />
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="mt-3 flex gap-2">
+                    <input
+                      type="text"
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addImage();
+                        }
+                      }}
+                      placeholder="Or paste an image URL (https://… or /images/…)"
+                      className="flex-1 bg-white border border-beige px-3 py-2 font-body text-xs text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
+                    />
+                    <button
+                      type="button"
+                      onClick={addImage}
+                      className="inline-flex items-center gap-1 border border-brown-300 text-brown-700 px-3 py-2 font-body text-[10px] tracking-luxe-sm uppercase hover:bg-brown-50 transition-colors"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add URL
+                    </button>
+                  </div>
+                </div>
+
+                {/* Video */}
+                <div className="border-t border-beige pt-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-display text-lg text-brown-900">Product Video <span className="text-brown-400 text-sm font-body">(optional)</span></h3>
+                      <p className="font-body text-[11px] text-brown-500">
+                        Upload a clip (max 4MB) or paste a YouTube/Vimeo URL.
+                      </p>
+                    </div>
+                  </div>
+
+                  {form.videoUrl && (
+                    <div className="mb-3 relative aspect-video max-w-sm bg-black overflow-hidden">
+                      <VideoPreview url={form.videoUrl} />
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, videoUrl: "" })}
+                        className="absolute top-2 right-2 bg-red-600 text-cream p-1.5 hover:bg-red-700 transition-colors z-10"
+                        title="Remove video"
+                      >
+                        <X className="h-3.5 w-3.5" strokeWidth={2} />
+                      </button>
+                    </div>
+                  )}
+
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    accept="video/*"
                     className="hidden"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       try {
-                        setUploadingMain(true);
-                        const dataUrl = await processImageFile(file);
-                        setForm((f) => ({
-                          ...f,
-                          image: dataUrl,
-                          // Also add to gallery if not already there
-                          images: f.images.includes(dataUrl) ? f.images : [...f.images, dataUrl],
-                        }));
-                        toast.success("Main photo uploaded");
+                        setUploadingVideo(true);
+                        const formData = new FormData();
+                        formData.append("video", file);
+                        const res = await fetch("/api/upload/video", {
+                          method: "POST",
+                          body: formData,
+                        });
+                        const data = await res.json();
+                        if (!res.ok) {
+                          throw new Error(data.error || "Upload failed");
+                        }
+                        setForm((f) => ({ ...f, videoUrl: data.url }));
+                        toast.success(`Video uploaded (${(data.size / 1024 / 1024).toFixed(1)}MB)`);
                       } catch (err) {
                         toast.error(err instanceof Error ? err.message : "Upload failed");
                       } finally {
-                        setUploadingMain(false);
-                        if (mainImageInputRef.current) mainImageInputRef.current.value = "";
+                        setUploadingVideo(false);
+                        if (videoInputRef.current) videoInputRef.current.value = "";
                       }
                     }}
                   />
+
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={() => videoInputRef.current?.click()}
+                      disabled={uploadingVideo}
+                      className="inline-flex items-center gap-2 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors justify-center"
+                    >
+                      {uploadingVideo ? (
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…</>
+                      ) : (
+                        <><Upload className="h-3.5 w-3.5" /> Upload Video</>
+                      )}
+                    </button>
+                    <input
+                      type="text"
+                      value={form.videoUrl}
+                      onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+                      placeholder="Or paste YouTube/Vimeo/MP4 URL"
+                      className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
+                    />
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="flex justify-between pt-2 border-t border-beige">
                   <button
                     type="button"
-                    onClick={() => mainImageInputRef.current?.click()}
-                    disabled={uploadingMain}
-                    className="inline-flex items-center gap-2 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors"
+                    onClick={() => setActiveTab("details")}
+                    className="inline-flex items-center gap-2 font-body text-[11px] tracking-luxe-sm uppercase px-4 py-3 text-brown-700 hover:text-brown-900 transition-colors"
                   >
-                    {uploadingMain ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Upload className="h-3.5 w-3.5" />
-                    )}
-                    {uploadingMain ? "Processing…" : "Upload Photo"}
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("settings")}
+                    className="inline-flex items-center gap-2 bg-brown-800 text-cream px-6 py-3 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 transition-colors"
+                  >
+                    Next: Settings
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
-
-                {/* OR URL input */}
-                <div className="flex items-center gap-2">
-                  <span className="font-body text-[10px] text-brown-400">or paste URL:</span>
-                  <input
-                    type="text"
-                    value={form.image.startsWith("data:") ? "" : form.image}
-                    onChange={(e) => setForm({ ...form, image: e.target.value })}
-                    placeholder="/images/product-1.png"
-                    disabled={form.image.startsWith("data:")}
-                    className="flex-1 bg-white border border-beige px-3 py-2 font-body text-xs text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700 disabled:bg-brown-50 disabled:text-brown-400"
-                  />
-                  {form.image.startsWith("data:") && (
-                    <button
-                      type="button"
-                      onClick={() => setForm({ ...form, image: "/images/product-1.png" })}
-                      className="font-body text-[10px] tracking-luxe-sm uppercase text-red-600 hover:text-red-800"
-                    >
-                      Reset
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-            <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
-              Upload from your device (auto-resized to max 1200px) or paste an image path/URL. JPG/PNG/WebP accepted.
-            </p>
-          </div>
-
-          {/* ============================================================
-              ADDITIONAL GALLERY IMAGES — upload with +/- buttons
-              ============================================================ */}
-          <div>
-            <Label>Gallery images (add as many as you want)</Label>
-            <p className="font-body text-[10px] text-brown-500 mb-3 font-light">
-              Click + to upload an image, or click − on any image to remove it. Star makes it the main photo.
-            </p>
-
-            {/* Hidden file input for gallery uploads */}
-            <input
-              ref={galleryInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={async (e) => {
-                const files = Array.from(e.target.files || []);
-                if (files.length === 0) return;
-                try {
-                  setUploadingGallery(true);
-                  const dataUrls = await Promise.all(files.map(processImageFile));
-                  setForm((f) => ({
-                    ...f,
-                    images: [...f.images, ...dataUrls.filter((u) => !f.images.includes(u))],
-                  }));
-                  toast.success(`${files.length} image${files.length > 1 ? "s" : ""} uploaded`);
-                } catch (err) {
-                  toast.error(err instanceof Error ? err.message : "Upload failed");
-                } finally {
-                  setUploadingGallery(false);
-                  if (galleryInputRef.current) galleryInputRef.current.value = "";
-                }
-              }}
-            />
-
-            {/* Gallery grid with + and - buttons */}
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-              {/* Main image shown first (with Main badge) */}
-              <div className="relative aspect-square bg-beige-light overflow-hidden border-2 border-brown-800 group">
-                <img src={form.image} alt="Main" className="h-full w-full object-cover" />
-                <div className="absolute bottom-0 left-0 right-0 bg-brown-800 text-cream text-[8px] tracking-luxe uppercase text-center py-0.5">
-                  Main
-                </div>
-              </div>
-
-              {/* Additional gallery images */}
-              {form.images
-                .filter((img) => img !== form.image)
-                .map((img, i) => (
-                  <div key={i} className="relative aspect-square bg-beige-light overflow-hidden group">
-                    <img src={img} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
-                    {/* Set as main button */}
-                    <button
-                      type="button"
-                      onClick={() => setMainImage(img)}
-                      className="absolute top-1 left-1 bg-cream/90 text-brown-800 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Set as main photo"
-                    >
-                      <Star className="h-3 w-3" strokeWidth={1.5} />
-                    </button>
-                    {/* Remove button (−) */}
-                    <button
-                      type="button"
-                      onClick={() => removeImage(img)}
-                      className="absolute top-1 right-1 bg-red-600 text-cream p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Remove image"
-                    >
-                      <Minus className="h-3 w-3" strokeWidth={2} />
-                    </button>
-                  </div>
-                ))}
-
-              {/* + button to add new image */}
-              <button
-                type="button"
-                onClick={() => galleryInputRef.current?.click()}
-                disabled={uploadingGallery}
-                className="aspect-square border-2 border-dashed border-brown-300 hover:border-brown-700 hover:bg-brown-50 transition-colors flex items-center justify-center group disabled:opacity-60"
-                title="Add image"
-              >
-                {uploadingGallery ? (
-                  <Loader2 className="h-5 w-5 text-brown-500 animate-spin" />
-                ) : (
-                  <Plus className="h-6 w-6 text-brown-400 group-hover:text-brown-700 transition-colors" strokeWidth={1.5} />
-                )}
-              </button>
-            </div>
-
-            {/* Also keep URL paste option for external images */}
-            <div className="mt-3 flex gap-2">
-              <input
-                type="text"
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addImage();
-                  }
-                }}
-                placeholder="Or paste an image URL (https://… or /images/…)"
-                className="flex-1 bg-white border border-beige px-3 py-2 font-body text-xs text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
-              />
-              <button
-                type="button"
-                onClick={addImage}
-                className="inline-flex items-center gap-1 border border-brown-300 text-brown-700 px-3 py-2 font-body text-[10px] tracking-luxe-sm uppercase hover:bg-brown-50 transition-colors"
-              >
-                <Plus className="h-3 w-3" />
-                Add URL
-              </button>
-            </div>
-          </div>
-
-          {/* ============================================================
-              VIDEO — upload or URL
-              ============================================================ */}
-          <div>
-            <Label>Product video (optional)</Label>
-            <p className="font-body text-[10px] text-brown-500 mb-3 font-light">
-              Upload a short video clip (max 8MB, MP4/WebM) from your device, or paste a YouTube/Vimeo/MP4 URL.
-              A "Watch Video" button will appear on the product page.
-            </p>
-
-            {/* Video preview (if video is set) */}
-            {form.videoUrl && (
-              <div className="mb-3 relative aspect-video max-w-sm bg-black overflow-hidden">
-                <VideoPreview url={form.videoUrl} />
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, videoUrl: "" })}
-                  className="absolute top-2 right-2 bg-red-600 text-cream p-1.5 hover:bg-red-700 transition-colors z-10"
-                  title="Remove video"
-                >
-                  <X className="h-3.5 w-3.5" strokeWidth={2} />
-                </button>
               </div>
             )}
 
-            {/* Hidden file input for video upload */}
-            <input
-              ref={videoInputRef}
-              type="file"
-              accept="video/*"
-              className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                try {
-                  setUploadingVideo(true);
-                  // Upload to server (stores as separate file in GitHub repo)
-                  const formData = new FormData();
-                  formData.append("video", file);
-                  const res = await fetch("/api/upload/video", {
-                    method: "POST",
-                    body: formData,
-                  });
-                  const data = await res.json();
-                  if (!res.ok) {
-                    throw new Error(data.error || "Upload failed");
-                  }
-                  setForm((f) => ({ ...f, videoUrl: data.url }));
-                  toast.success(`Video uploaded (${(data.size / 1024 / 1024).toFixed(1)}MB)`);
-                } catch (err) {
-                  toast.error(err instanceof Error ? err.message : "Upload failed");
-                } finally {
-                  setUploadingVideo(false);
-                  if (videoInputRef.current) videoInputRef.current.value = "";
-                }
-              }}
-            />
+            {/* ============================================================
+                TAB 3: SETTINGS
+                ============================================================ */}
+            {activeTab === "settings" && (
+              <div className="space-y-5 animate-fade-in-up">
+                <div className="bg-brown-50/60 border border-beige p-4">
+                  <h3 className="font-display text-lg text-brown-900 mb-1">Publishing & Order</h3>
+                  <p className="font-body text-[11px] text-brown-500">
+                    Control visibility and display order.
+                  </p>
+                </div>
 
-            <div className="flex flex-col sm:flex-row gap-2">
-              {/* Upload button */}
-              <button
-                type="button"
-                onClick={() => videoInputRef.current?.click()}
-                disabled={uploadingVideo}
-                className="inline-flex items-center gap-2 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors"
-              >
-                {uploadingVideo ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Upload className="h-3.5 w-3.5" />
-                )}
-                {uploadingVideo ? "Uploading…" : "Upload Video"}
-              </button>
+                {/* Published toggle */}
+                <label className="flex items-center justify-between bg-white border border-beige p-4 cursor-pointer hover:border-brown-300 transition-colors">
+                  <div>
+                    <div className="font-display text-base text-brown-900">Published</div>
+                    <div className="font-body text-[11px] text-brown-500 mt-0.5">
+                      Visible on the store. Uncheck to hide without deleting.
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={form.isPublished}
+                      onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
+                      className="sr-only"
+                    />
+                    <div
+                      className={`w-11 h-6 rounded-full transition-colors ${
+                        form.isPublished ? "bg-brown-800" : "bg-brown-300"
+                      }`}
+                    >
+                      <div
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-cream rounded-full transition-transform ${
+                          form.isPublished ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </label>
 
-              {/* OR paste URL */}
-              <input
-                type="text"
-                value={form.videoUrl}
-                onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
-                placeholder="Or paste YouTube/Vimeo/MP4 URL"
-                className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
-              />
-            </div>
-            <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
-              💡 Upload a video from your device (max 4MB, MP4/WebM) or paste a YouTube/Vimeo URL for larger videos.
-              Uploaded videos are stored permanently.
-            </p>
-          </div>
+                <div>
+                  <Label>Sort Order <span className="text-brown-400 normal-case tracking-normal">(lower = appears first)</span></Label>
+                  <Input
+                    type="number"
+                    value={form.sortOrder}
+                    onChange={(v) => setForm({ ...form, sortOrder: Number(v) })}
+                    placeholder="0"
+                  />
+                  <p className="font-body text-[10px] text-brown-500 mt-1.5 font-light">
+                    Products are sorted by this number (ascending). Use 0 for newest first.
+                  </p>
+                </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Name *</Label>
-              <Input value={form.name} onChange={handleNameChange} placeholder="Terracotta Vessel No. 04" />
-            </div>
-            <div>
-              <Label>Slug *</Label>
-              <Input value={form.slug} onChange={(v) => setForm({ ...form, slug: v })} placeholder="terracotta-vessel-04" disabled={!isNew} />
-            </div>
-          </div>
+                {/* Summary preview */}
+                <div className="bg-white border border-beige p-4">
+                  <div className="font-body text-[10px] tracking-luxe uppercase text-brown-500 mb-3">
+                    Product Summary
+                  </div>
+                  <div className="flex gap-4">
+                    <img
+                      src={form.image}
+                      alt="Preview"
+                      className="w-16 h-16 object-cover bg-beige-light shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-display text-base text-brown-900 leading-tight">
+                        {form.name || "Untitled Product"}
+                      </div>
+                      <div className="font-body text-xs text-brown-500 mt-1">
+                        {form.categorySlug} · ${form.priceUSD || 0}
+                      </div>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="font-body text-[10px] text-brown-500">
+                          {form.images.length} photo{form.images.length !== 1 ? "s" : ""}
+                        </span>
+                        {form.videoUrl && (
+                          <span className="font-body text-[10px] text-brown-500">· has video</span>
+                        )}
+                        <span className={`font-body text-[10px] ${form.isPublished ? "text-green-700" : "text-brown-400"}`}>
+                          · {form.isPublished ? "published" : "hidden"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-          <div>
-            <Label>Description *</Label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Wheel-thrown terracotta with a soft matte glaze…"
-              rows={3}
-              className="w-full bg-white border border-beige px-4 py-3 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700 resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <Label>Category *</Label>
-              <select
-                value={form.categorySlug}
-                onChange={(e) => setForm({ ...form, categorySlug: e.target.value })}
-                className="w-full bg-white border border-beige px-4 py-3 font-body text-sm text-brown-900 focus:outline-none focus:border-brown-700"
-              >
-                {categories.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label>Price (USD) *</Label>
-              <Input
-                type="number"
-                value={form.priceUSD}
-                onChange={(v) => setForm({ ...form, priceUSD: Number(v) })}
-                placeholder="186"
-              />
-            </div>
-            <div>
-              <Label>Tag</Label>
-              <select
-                value={form.tag || ""}
-                onChange={(e) => setForm({ ...form, tag: e.target.value })}
-                className="w-full bg-white border border-beige px-4 py-3 font-body text-sm text-brown-900 focus:outline-none focus:border-brown-700"
-              >
-                <option value="">— None —</option>
-                <option value="New">New</option>
-                <option value="Limited">Limited</option>
-                <option value="Signature">Signature</option>
-                <option value="Bestseller">Bestseller</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Material</Label>
-              <Input value={form.material} onChange={(v) => setForm({ ...form, material: v })} placeholder="Stoneware, matte glaze" />
-            </div>
-            <div>
-              <Label>Dimensions</Label>
-              <Input value={form.dimensions} onChange={(v) => setForm({ ...form, dimensions: v })} placeholder="Ø 18 × H 32 cm" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-            <div>
-              <Label>Sort order</Label>
-              <Input
-                type="number"
-                value={form.sortOrder}
-                onChange={(v) => setForm({ ...form, sortOrder: Number(v) })}
-                placeholder="0"
-              />
-            </div>
-            <label className="flex items-center gap-3 cursor-pointer py-3">
-              <input
-                type="checkbox"
-                checked={form.isPublished}
-                onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
-                className="h-4 w-4 accent-brown-800"
-              />
-              <span className="font-body text-sm text-brown-900">Published (visible on store)</span>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-beige">
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-body text-[11px] tracking-luxe-sm uppercase px-5 py-3 text-brown-700 hover:text-brown-900 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 bg-brown-800 text-cream px-6 py-3 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors"
-            >
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              {isNew ? "Create Product" : "Save Changes"}
-            </button>
+                {/* Navigation + Save */}
+                <div className="flex justify-between pt-4 border-t border-beige">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("media")}
+                    className="inline-flex items-center gap-2 font-body text-[11px] tracking-luxe-sm uppercase px-4 py-3 text-brown-700 hover:text-brown-900 transition-colors"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    Back
+                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="font-body text-[11px] tracking-luxe-sm uppercase px-5 py-3 text-brown-700 hover:text-brown-900 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="inline-flex items-center gap-2 bg-brown-800 text-cream px-6 py-3 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors"
+                    >
+                      {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                      {isNew ? "Create Product" : "Save Changes"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </form>
       </motion.div>
     </motion.div>
   );
 }
+
 
 // ============================================================
 // Category form modal
