@@ -188,5 +188,27 @@
     "dimensions": "21 × 11 × 30 cm",
     "createdAt": "2026-07-25T11:35:12.799Z",
     "updatedAt": "2026-07-25T11:35:12.799Z"
+  },
+  {
+    "id": "prod_1785109582570_3zmdht",
+    "name": "Final Test Product",
+    "slug": "final-test-product",
+    "categorySlug": "book-nooks",
+    "description": "Testing complete flow with images and video.",
+    "priceUSD": 55,
+    "tag": "New",
+    "isPublished": true,
+    "sortOrder": 99,
+    "image": "/images/booknook-1.png",
+    "images": [
+      "/images/booknook-1.png",
+      "/images/booknook-hero.png",
+      "/images/booknook-process.png"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "material": "Birch plywood",
+    "dimensions": "21 x 11 x 30 cm",
+    "createdAt": "2026-07-26T23:46:22.655Z",
+    "updatedAt": "2026-07-26T23:46:22.655Z"
   }
 ]
