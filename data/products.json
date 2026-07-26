@@ -188,5 +188,25 @@
     "dimensions": "21 × 11 × 30 cm",
     "createdAt": "2026-07-25T11:35:12.799Z",
     "updatedAt": "2026-07-25T11:35:12.799Z"
+  },
+  {
+    "id": "prod_1785109737923_g6dmmn",
+    "name": "Video Upload Test",
+    "slug": "video-upload-test",
+    "categorySlug": "ceramics",
+    "description": "Testing video upload from device.",
+    "priceUSD": 33,
+    "tag": null,
+    "isPublished": true,
+    "sortOrder": 99,
+    "image": "/images/product-1.png",
+    "images": [
+      "/images/product-1.png"
+    ],
+    "videoUrl": "https://raw.githubusercontent.com/tikocraft-max/tikocraft/main/data/videos/video_test_1785109736.mp4",
+    "material": null,
+    "dimensions": null,
+    "createdAt": "2026-07-26T23:48:58.031Z",
+    "updatedAt": "2026-07-26T23:48:58.031Z"
   }
 ]
