@@ -1017,7 +1017,7 @@ function ProductForm({
                     <div>
                       <h3 className="font-display text-lg text-brown-900">Product Video <span className="text-brown-400 text-sm font-body">(optional)</span></h3>
                       <p className="font-body text-[11px] text-brown-500">
-                        Upload a clip (max 4MB) or paste a YouTube/Vimeo URL.
+                        Upload a clip (max 50MB) or paste a YouTube/Vimeo URL.
                       </p>
                     </div>
                   </div>

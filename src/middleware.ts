@@ -14,19 +14,23 @@ export function middleware(_req: NextRequest) {
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
-  // Strict Content Security Policy — blocks inline scripts (except Next.js allowed),
-  // blocks external resources, prevents XSS attacks
-  // Note: Next.js requires 'unsafe-inline' for styles in dev mode,
-  // and uses nonce-based CSP in production. This is a balanced CSP.
+  // Content Security Policy — allows:
+  // - self for everything
+  // - GitHub API for direct video uploads from admin
+  // - raw.githubusercontent.com for video playback
+  // - YouTube/Vimeo for video embeds
+  // - data:/blob: for images and uploaded media
   res.headers.set(
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://player.vimeo.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data:",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self'",
+      "media-src 'self' data: blob: https: https://raw.githubusercontent.com",
+      "connect-src 'self' https://api.github.com https://raw.githubusercontent.com",
+      "frame-src 'self' https://www.youtube.com https://player.vimeo.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
