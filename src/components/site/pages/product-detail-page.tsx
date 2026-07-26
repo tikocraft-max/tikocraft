@@ -139,7 +139,7 @@ function ProductDetailInner({ slug }: { slug: string }) {
                     transition={{ duration: 0.6, ease: easeLuxe }}
                     className="absolute inset-0"
                   >
-                    <VideoEmbed url={product.videoUrl} />
+                    <VideoEmbed url={product.videoUrl} poster={product.image} />
                   </motion.div>
                 ) : (
                   <motion.img
@@ -407,9 +407,10 @@ function ProductDetailInner({ slug }: { slug: string }) {
 }
 
 // ============================================================
-// Video embed — supports YouTube, Vimeo, and direct MP4
+// Video embed — supports YouTube, Vimeo, direct MP4, and
+// GitHub raw URLs (uploaded videos)
 // ============================================================
-function VideoEmbed({ url }: { url: string }) {
+function VideoEmbed({ url, poster }: { url: string; poster?: string }) {
   // Parse YouTube URL
   const youtubeMatch = url.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
@@ -420,7 +421,7 @@ function VideoEmbed({ url }: { url: string }) {
   if (youtubeMatch) {
     return (
       <iframe
-        src={`https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0`}
+        src={`https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&autoplay=1`}
         className="h-full w-full"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
@@ -432,7 +433,7 @@ function VideoEmbed({ url }: { url: string }) {
   if (vimeoMatch) {
     return (
       <iframe
-        src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
+        src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`}
         className="h-full w-full"
         allow="autoplay; fullscreen; picture-in-picture"
         allowFullScreen
@@ -441,14 +442,19 @@ function VideoEmbed({ url }: { url: string }) {
     );
   }
 
-  // Direct MP4 or other video file
+  // Direct MP4/WebM (including GitHub raw URLs for uploaded videos)
   return (
     <video
       src={url}
-      className="h-full w-full object-cover"
+      poster={poster}
+      className="h-full w-full object-contain bg-brown-900"
       controls
       autoPlay
+      muted
+      loop
       playsInline
-    />
+    >
+      Your browser does not support video playback.
+    </video>
   );
 }

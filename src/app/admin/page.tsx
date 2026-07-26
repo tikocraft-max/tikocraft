@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { toast } from "sonner";
-import { processImageFile, processVideoFile } from "@/lib/image-upload";
+import { processImageFile } from "@/lib/image-upload";
 
 // ============================================================
 // Types
@@ -899,9 +899,19 @@ function ProductForm({
                 if (!file) return;
                 try {
                   setUploadingVideo(true);
-                  const dataUrl = await processVideoFile(file);
-                  setForm((f) => ({ ...f, videoUrl: dataUrl }));
-                  toast.success("Video uploaded");
+                  // Upload to server (stores as separate file in GitHub repo)
+                  const formData = new FormData();
+                  formData.append("video", file);
+                  const res = await fetch("/api/upload/video", {
+                    method: "POST",
+                    body: formData,
+                  });
+                  const data = await res.json();
+                  if (!res.ok) {
+                    throw new Error(data.error || "Upload failed");
+                  }
+                  setForm((f) => ({ ...f, videoUrl: data.url }));
+                  toast.success(`Video uploaded (${(data.size / 1024 / 1024).toFixed(1)}MB)`);
                 } catch (err) {
                   toast.error(err instanceof Error ? err.message : "Upload failed");
                 } finally {
@@ -930,16 +940,15 @@ function ProductForm({
               {/* OR paste URL */}
               <input
                 type="text"
-                value={form.videoUrl.startsWith("data:") ? "" : form.videoUrl}
+                value={form.videoUrl}
                 onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
                 placeholder="Or paste YouTube/Vimeo/MP4 URL"
-                disabled={form.videoUrl.startsWith("data:")}
-                className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700 disabled:bg-brown-50 disabled:text-brown-400"
+                className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
               />
             </div>
             <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
-              💡 For best performance with longer videos, upload to YouTube/Vimeo and paste the URL.
-              Direct upload is best for clips under 8MB.
+              💡 Upload a video from your device (max 4MB, MP4/WebM) or paste a YouTube/Vimeo URL for larger videos.
+              Uploaded videos are stored permanently.
             </p>
           </div>
 
