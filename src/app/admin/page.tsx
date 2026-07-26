@@ -580,6 +580,7 @@ function ProductForm({
   const [uploadingMain, setUploadingMain] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<"details" | "media" | "settings">("details");
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -1043,24 +1044,79 @@ function ProductForm({
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
+
+                      // Max 50MB (GitHub Contents API supports up to 100MB)
+                      const MAX_SIZE = 50 * 1024 * 1024;
+                      if (file.size > MAX_SIZE) {
+                        toast.error(
+                          `Video is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB. For larger videos, use YouTube/Vimeo.`
+                        );
+                        if (videoInputRef.current) videoInputRef.current.value = "";
+                        return;
+                      }
+
                       try {
                         setUploadingVideo(true);
-                        const formData = new FormData();
-                        formData.append("video", file);
-                        const res = await fetch("/api/upload/video", {
-                          method: "POST",
-                          body: formData,
-                        });
-                        const data = await res.json();
-                        if (!res.ok) {
-                          throw new Error(data.error || "Upload failed");
+                        setVideoUploadProgress(0);
+
+                        // Step 1: Get GitHub token from server (admin-only)
+                        const tokenRes = await fetch("/api/upload/github-token");
+                        if (!tokenRes.ok) {
+                          throw new Error("Could not get upload permission. Please log in again.");
                         }
-                        setForm((f) => ({ ...f, videoUrl: data.url }));
-                        toast.success(`Video uploaded (${(data.size / 1024 / 1024).toFixed(1)}MB)`);
+                        const { token: githubToken } = await tokenRes.json();
+
+                        // Step 2: Convert file to base64 (in chunks to avoid memory issues)
+                        const base64Content = await fileToBase64(file, (progress) => {
+                          // Base64 conversion is ~50% of the work
+                          setVideoUploadProgress(Math.round(progress * 50));
+                        });
+
+                        // Step 3: Upload directly to GitHub Contents API
+                        // This bypasses Vercel's 4.5MB body size limit
+                        const ext = file.name.split(".").pop() || "mp4";
+                        const filename = `video_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+                        const path = `data/videos/${filename}`;
+
+                        setVideoUploadProgress(55);
+
+                        const githubRes = await fetch(
+                          `https://api.github.com/repos/tikocraft-max/tikocraft/contents/${path}`,
+                          {
+                            method: "PUT",
+                            headers: {
+                              Authorization: `token ${githubToken}`,
+                              Accept: "application/vnd.github.v3+json",
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                              message: `upload video: ${filename}`,
+                              content: base64Content,
+                              branch: "main",
+                            }),
+                          }
+                        );
+
+                        setVideoUploadProgress(90);
+
+                        if (!githubRes.ok) {
+                          const errBody = await githubRes.text();
+                          console.error("GitHub upload error:", githubRes.status, errBody);
+                          throw new Error(
+                            `Upload failed (${githubRes.status}). ${githubRes.status === 422 ? "File may already exist." : "Please try again."}`
+                          );
+                        }
+
+                        // Step 4: Set the video URL (raw URL)
+                        const rawUrl = `https://raw.githubusercontent.com/tikocraft-max/tikocraft/main/${path}`;
+                        setForm((f) => ({ ...f, videoUrl: rawUrl }));
+                        setVideoUploadProgress(100);
+                        toast.success(`Video uploaded (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
                       } catch (err) {
                         toast.error(err instanceof Error ? err.message : "Upload failed");
                       } finally {
                         setUploadingVideo(false);
+                        setVideoUploadProgress(0);
                         if (videoInputRef.current) videoInputRef.current.value = "";
                       }
                     }}
@@ -1074,7 +1130,7 @@ function ProductForm({
                       className="inline-flex items-center gap-2 bg-brown-800 text-cream px-4 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 disabled:opacity-60 transition-colors justify-center"
                     >
                       {uploadingVideo ? (
-                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…</>
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading… {videoUploadProgress}%</>
                       ) : (
                         <><Upload className="h-3.5 w-3.5" /> Upload Video</>
                       )}
@@ -1087,6 +1143,29 @@ function ProductForm({
                       className="flex-1 bg-white border border-beige px-4 py-2.5 font-body text-sm text-brown-900 placeholder:text-brown-400 focus:outline-none focus:border-brown-700"
                     />
                   </div>
+
+                  {/* Progress bar */}
+                  {uploadingVideo && (
+                    <div className="mt-2">
+                      <div className="h-1.5 bg-beige rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-brown-800 transition-all duration-300"
+                          style={{ width: `${videoUploadProgress}%` }}
+                        />
+                      </div>
+                      <p className="font-body text-[10px] text-brown-500 mt-1 text-center">
+                        {videoUploadProgress < 50
+                          ? "Converting video…"
+                          : videoUploadProgress < 90
+                          ? "Uploading to storage…"
+                          : "Finishing…"}
+                      </p>
+                    </div>
+                  )}
+
+                  <p className="font-body text-[10px] text-brown-500 mt-2 font-light">
+                    💡 Upload from your device (max 50MB, MP4/WebM/MOV) or paste a YouTube/Vimeo URL.
+                  </p>
                 </div>
 
                 {/* Navigation */}
@@ -1398,6 +1477,32 @@ function CategoryForm({
       </motion.div>
     </motion.div>
   );
+}
+
+// ============================================================
+// Helper: convert File to base64 (with progress callback)
+// ============================================================
+async function fileToBase64(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Strip the "data:video/mp4;base64," prefix
+      const base64 = result.split(",")[1];
+      onProgress?.(100);
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error("Could not read video file"));
+    reader.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress((e.loaded / e.total) * 100);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ============================================================
