@@ -408,7 +408,15 @@ function ProductDetailInner({ slug }: { slug: string }) {
 
 // ============================================================
 // Video embed — supports YouTube, Vimeo, direct MP4, and
-// GitHub raw URLs (uploaded videos)
+// GitHub raw URLs (uploaded videos).
+//
+// Behaviour:
+//   - Autoplays automatically when the user clicks "Watch Video"
+//   - Full controls (play, pause, seek, volume, fullscreen)
+//   - No loop — user decides when to replay
+//   - No mute — user hears the audio
+//   - For YouTube/Vimeo: autoplay + controls built into the iframe
+//   - For direct MP4/GitHub raw: native <video controls autoPlay>
 // ============================================================
 function VideoEmbed({ url, poster }: { url: string; poster?: string }) {
   // Parse YouTube URL
@@ -421,9 +429,9 @@ function VideoEmbed({ url, poster }: { url: string; poster?: string }) {
   if (youtubeMatch) {
     return (
       <iframe
-        src={`https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&autoplay=1`}
+        src={`https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&autoplay=1&modestbranding=1`}
         className="h-full w-full"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
         title="Product video"
       />
@@ -443,6 +451,8 @@ function VideoEmbed({ url, poster }: { url: string; poster?: string }) {
   }
 
   // Direct MP4/WebM (including GitHub raw URLs for uploaded videos)
+  // autoPlay + controls: starts playing automatically, user can pause/seek
+  // No muted, no loop — user has full control
   return (
     <video
       src={url}
@@ -450,9 +460,8 @@ function VideoEmbed({ url, poster }: { url: string; poster?: string }) {
       className="h-full w-full object-contain bg-brown-900"
       controls
       autoPlay
-      muted
-      loop
       playsInline
+      preload="auto"
     >
       Your browser does not support video playback.
     </video>
