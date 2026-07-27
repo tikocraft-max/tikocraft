@@ -25,122 +25,38 @@ export interface Product {
 
 export const collections: Collection[] = [
   {
-    id: "ceramics",
-    title: "Ceramics & Vessels",
-    subtitle: "Earth & Form",
-    description:
-      "Hand-thrown stoneware and porcelain, finished in matte glazes drawn from river clays and mineral oxides. Each vessel carries the thumbprint of its maker.",
-    image: "/images/collection-ceramics.png",
-    items: "24 pieces",
-    category: "decor",
-  },
-  {
-    id: "textiles",
-    title: "Textiles & Throws",
-    subtitle: "Woven Warmth",
-    description:
-      "Natural fibers — linen, wool, hemp — dyed with plant pigments and woven on heritage looms. Slow textiles made to soften with every season of use.",
-    image: "/images/collection-textiles.png",
-    items: "18 pieces",
-    category: "decor",
-  },
-  {
-    id: "lighting",
-    title: "Lighting & Ambiance",
-    subtitle: "Quiet Light",
-    description:
-      "Cast bronze and beaten brass fixtures that hold candle and bulb in equal measure. Sculptural forms that shape the way a room breathes after dusk.",
-    image: "/images/collection-lighting.png",
-    items: "12 pieces",
-    category: "decor",
-  },
-  {
-    id: "furniture",
-    title: "Furniture & Seating",
-    subtitle: "Solid Ground",
-    description:
-      "Oak, walnut and ash joined by hand — no metal, no shortcuts. Furniture built to outlive trend cycles and to carry the patina of a life well-used.",
-    image: "/images/collection-furniture.png",
-    items: "9 pieces",
-    category: "decor",
-  },
-  {
-    id: "booknooks",
+    id: "book-nooks",
     title: "3D DIY Book Nooks",
     subtitle: "Worlds Between Books",
     description:
       "Hand-cut wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
     image: "/images/collection-booknooks.png",
-    items: "12 kits",
+    items: "4 kits",
+    category: "booknook",
+  },
+  {
+    id: "3d-diy-miniature",
+    title: "3D DIY Miniature",
+    subtitle: "Build Your World",
+    description:
+      "Detailed miniature diorama kits you assemble yourself. Precision-cut pieces, warm LED lighting, and hand-painted details bring tiny scenes to life.",
+    image: "/images/booknook-hero.png",
+    items: "Coming soon",
+    category: "booknook",
+  },
+  {
+    id: "custom-figures",
+    title: "Custom Figures",
+    subtitle: "Sculpted From Your Photo",
+    description:
+      "Turn a photo into a hand-sculpted clay figure. A unique gift for loved ones, a memorial keepsake, or a personal treasure. Each piece is crafted by hand.",
+    image: "/images/atelier-1.png",
+    items: "Made to order",
     category: "booknook",
   },
 ];
 
 export const products: Product[] = [
-  {
-    id: "p1",
-    name: "Terracotta Vessel No. 04",
-    category: "Ceramics",
-    price: "$186",
-    image: "/images/product-1.png",
-    description:
-      "Wheel-thrown terracotta with a soft matte glaze. Each vessel is unique in proportion and surface.",
-    tag: "New",
-    categoryType: "decor",
-  },
-  {
-    id: "p2",
-    name: "Seagrass Carry Basket",
-    category: "Textiles",
-    price: "$124",
-    image: "/images/product-2.png",
-    description:
-      "Hand-woven seagrass with vegetable-tanned leather handles. Made by a single artisan over three days.",
-    categoryType: "decor",
-  },
-  {
-    id: "p3",
-    name: "Walnut Serving Bowl",
-    category: "Wood",
-    price: "$248",
-    image: "/images/product-3.png",
-    description:
-      "Carved from a single block of figured walnut, finished with food-safe linseed oil.",
-    tag: "Limited",
-    categoryType: "decor",
-  },
-  {
-    id: "p4",
-    name: "Fringed Linen Throw",
-    category: "Textiles",
-    price: "$168",
-    image: "/images/product-4.png",
-    description:
-      "Stonewashed Belgian linen with hand-knotted fringe. Softens with every wash.",
-    categoryType: "decor",
-  },
-  {
-    id: "p5",
-    name: "Bronze Candleholder",
-    category: "Lighting",
-    price: "$215",
-    image: "/images/product-5.png",
-    description:
-      "Sand-cast bronze with a living patina. Designed to age gracefully alongside its candle.",
-    categoryType: "decor",
-  },
-  {
-    id: "p6",
-    name: "Sculptural Form No. 02",
-    category: "Objects",
-    price: "$320",
-    image: "/images/product-6.png",
-    description:
-      "Hand-built matte ceramic sculpture. A quiet object for the shelf or the entry table.",
-    tag: "Signature",
-    categoryType: "decor",
-  },
-  // 3D DIY Book Nooks
   {
     id: "bn1",
     name: "Rue des Livres — Parisian Alley",
