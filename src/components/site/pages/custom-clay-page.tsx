@@ -551,82 +551,10 @@ export default function CustomClayPage() {
             onSubmit={handleSubmit}
             className="bg-white border border-beige p-8 md:p-10 space-y-8"
           >
-            {/* Step 1: Size selection */}
+            {/* Step 1: Upload Reference Photo (matches "How It Works" 01) */}
             <div>
               <h3 className="font-display text-xl text-brown-900 mb-1">
-                1. Choose a Size
-              </h3>
-              <p className="font-body text-[11px] text-brown-500 mb-4">
-                Price includes sculpting, firing, and hand-painting.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {SIZE_TIERS.map((tier) => (
-                  <button
-                    key={tier.id}
-                    type="button"
-                    onClick={() => setSelectedSize(tier.id)}
-                    className={`relative text-left p-4 border-2 transition-all ${
-                      selectedSize === tier.id
-                        ? "border-brown-800 bg-brown-50"
-                        : "border-beige hover:border-brown-300"
-                    }`}
-                  >
-                    {tier.popular && (
-                      <span className="absolute top-2 right-2 font-body text-[8px] tracking-luxe-sm uppercase bg-brown-800 text-cream px-2 py-0.5">
-                        Popular
-                      </span>
-                    )}
-                    <div className="font-display text-lg text-brown-900">
-                      {tier.label}
-                    </div>
-                    <div className="font-body text-[11px] text-brown-500 mb-1">
-                      {tier.dimensions}
-                    </div>
-                    <div className="price-num text-xl text-brown-800">
-                      {formatPrice(tier.priceUSD)}
-                    </div>
-                    <div className="font-body text-[10px] text-brown-400 mt-1">
-                      {tier.details}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 2: Occasion */}
-            <div>
-              <h3 className="font-display text-xl text-brown-900 mb-1">
-                2. What's the occasion?
-              </h3>
-              <p className="font-body text-[11px] text-brown-500 mb-4">
-                This helps us tailor the sculpture to your needs.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {OCCASIONS.map((occ) => {
-                  const Icon = occ.icon;
-                  return (
-                    <button
-                      key={occ.id}
-                      type="button"
-                      onClick={() => setOccasion(occ.id)}
-                      className={`inline-flex items-center gap-2 px-4 py-2.5 border-2 transition-all ${
-                        occasion === occ.id
-                          ? "border-brown-800 bg-brown-50 text-brown-900"
-                          : "border-beige text-brown-500 hover:border-brown-300"
-                      }`}
-                    >
-                      <Icon className="h-3.5 w-3.5" strokeWidth={1.4} />
-                      <span className="font-body text-xs">{occ.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Step 3: Reference photo */}
-            <div>
-              <h3 className="font-display text-xl text-brown-900 mb-1">
-                3. Upload Reference Photo *
+                1. Upload a Photo *
               </h3>
               <p className="font-body text-[11px] text-brown-500 mb-4">
                 A clear, front-facing photo with good lighting. This is what our
@@ -693,6 +621,78 @@ export default function CustomClayPage() {
                   face the camera directly, avoid shadows on the face, include
                   the shoulders. Multiple angles can be described in the notes.
                 </p>
+              </div>
+            </div>
+
+            {/* Step 2: Size selection (matches "How It Works" 02) */}
+            <div>
+              <h3 className="font-display text-xl text-brown-900 mb-1">
+                2. Pick a Size
+              </h3>
+              <p className="font-body text-[11px] text-brown-500 mb-4">
+                Price includes sculpting, firing, and hand-painting.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {SIZE_TIERS.map((tier) => (
+                  <button
+                    key={tier.id}
+                    type="button"
+                    onClick={() => setSelectedSize(tier.id)}
+                    className={`relative text-left p-4 border-2 transition-all ${
+                      selectedSize === tier.id
+                        ? "border-brown-800 bg-brown-50"
+                        : "border-beige hover:border-brown-300"
+                    }`}
+                  >
+                    {tier.popular && (
+                      <span className="absolute top-2 right-2 font-body text-[8px] tracking-luxe-sm uppercase bg-brown-800 text-cream px-2 py-0.5">
+                        Popular
+                      </span>
+                    )}
+                    <div className="font-display text-lg text-brown-900">
+                      {tier.label}
+                    </div>
+                    <div className="font-body text-[11px] text-brown-500 mb-1">
+                      {tier.dimensions}
+                    </div>
+                    <div className="price-num text-xl text-brown-800">
+                      {formatPrice(tier.priceUSD)}
+                    </div>
+                    <div className="font-body text-[10px] text-brown-400 mt-1">
+                      {tier.details}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Step 3: Occasion */}
+            <div>
+              <h3 className="font-display text-xl text-brown-900 mb-1">
+                3. What's the occasion?
+              </h3>
+              <p className="font-body text-[11px] text-brown-500 mb-4">
+                This helps us tailor the sculpture to your needs.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {OCCASIONS.map((occ) => {
+                  const Icon = occ.icon;
+                  return (
+                    <button
+                      key={occ.id}
+                      type="button"
+                      onClick={() => setOccasion(occ.id)}
+                      className={`inline-flex items-center gap-2 px-4 py-2.5 border-2 transition-all ${
+                        occasion === occ.id
+                          ? "border-brown-800 bg-brown-50 text-brown-900"
+                          : "border-beige text-brown-500 hover:border-brown-300"
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" strokeWidth={1.4} />
+                      <span className="font-body text-xs">{occ.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
