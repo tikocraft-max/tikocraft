@@ -221,19 +221,32 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Book Nooks preview */}
+      {/* Featured Book Nooks preview — with background video */}
       <section className="bg-brown-900 text-cream py-24 md:py-32 px-6 lg:px-12 grain-overlay relative overflow-hidden">
+        {/* Background video — plays in loop, muted, behind content */}
+        <video
+          src="/videos/book-nook-bg.mp4"
+          className="absolute inset-0 h-full w-full object-cover opacity-20"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+        {/* Dark overlay so content is readable over video */}
+        <div className="absolute inset-0 bg-brown-900/60" />
+
         <motion.span
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={viewportOnce}
           transition={{ duration: 1.5, ease: easeLuxe }}
-          className="absolute -top-6 left-0 right-0 text-center pointer-events-none select-none font-display text-[16vw] md:text-[12vw] leading-none text-cream/[0.04] tracking-tight"
+          className="absolute -top-6 left-0 right-0 text-center pointer-events-none select-none font-display text-[16vw] md:text-[12vw] leading-none text-cream/[0.04] tracking-tight z-10"
         >
           Book Nooks
         </motion.span>
 
-        <div className="relative mx-auto max-w-7xl">
+        <div className="relative z-10 mx-auto max-w-7xl">
           <div className="mb-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
             <SectionHeading
               eyebrow="Miniature Worlds"
@@ -338,8 +351,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Showroom CTA */}
-      <section className="relative h-[80vh] min-h-[500px] overflow-hidden">
+      {/* Newsletter / Stay Connected CTA */}
+      <section className="relative h-[70vh] min-h-[450px] overflow-hidden">
         <motion.div
           initial={{ scale: 1.15, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
@@ -348,12 +361,12 @@ export default function HomePage() {
           className="absolute inset-0"
         >
           <img
-            src="/images/showroom.png"
-            alt="Tikocraft showroom"
+            src="/images/atelier-2.png"
+            alt="Tikocraft atelier"
             className="h-full w-full object-cover"
           />
         </motion.div>
-        <div className="absolute inset-0 bg-brown-900/55" />
+        <div className="absolute inset-0 bg-brown-900/60" />
         <div className="absolute inset-0 grain-overlay" />
         <motion.div
           variants={staggerContainer(0.15, 0.2)}
@@ -365,26 +378,43 @@ export default function HomePage() {
           <motion.div variants={fadeUp} className="flex items-center justify-center gap-4 mb-8">
             <span className="h-px w-12 bg-beige/60" />
             <span className="font-body text-xs tracking-luxe uppercase text-beige/80">
-              Visit the Showroom
+              Stay Connected
             </span>
             <span className="h-px w-12 bg-beige/60" />
           </motion.div>
           <motion.h2
             variants={fadeUp}
-            className="font-display text-4xl sm:text-5xl md:text-6xl text-cream leading-[1.05] mb-8 text-balance"
+            className="font-display text-4xl sm:text-5xl md:text-6xl text-cream leading-[1.05] mb-6 text-balance"
           >
-            Come sit with the objects
+            Letters from
             <br />
-            <span className="italic font-light text-beige">before you choose.</span>
+            <span className="italic font-light text-beige">the atelier.</span>
           </motion.h2>
-          <motion.button
+          <motion.p
             variants={fadeUp}
-            onClick={() => navigate("showroom")}
-            className="group inline-flex items-center gap-3 bg-cream text-brown-900 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-colors duration-500 hover:bg-beige"
+            className="max-w-xl font-body text-base text-cream/70 leading-relaxed font-light mb-10"
           >
-            Book a Visit
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
-          </motion.button>
+            New pieces, behind-the-scenes from the workshop, and early access to
+            limited editions. No noise — just quiet notes, a few times a year.
+          </motion.p>
+          <motion.form
+            variants={fadeUp}
+            onSubmit={(e) => e.preventDefault()}
+            className="flex flex-col sm:flex-row items-center gap-3 max-w-md w-full"
+          >
+            <input
+              type="email"
+              placeholder="your@email.com"
+              className="flex-1 w-full bg-cream/10 backdrop-blur-sm border border-cream/30 text-cream placeholder:text-cream/40 px-5 py-4 font-body text-sm focus:outline-none focus:border-cream/60 transition-colors"
+            />
+            <button
+              type="submit"
+              className="group inline-flex items-center gap-2 bg-cream text-brown-900 px-6 py-4 font-body text-xs tracking-luxe-sm uppercase transition-colors duration-500 hover:bg-beige whitespace-nowrap"
+            >
+              Subscribe
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
+            </button>
+          </motion.form>
         </motion.div>
       </section>
     </div>
