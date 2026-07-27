@@ -209,5 +209,25 @@
     "dimensions": "Dimensions ",
     "createdAt": "2026-07-27T01:38:19.484Z",
     "updatedAt": "2026-07-27T01:38:19.484Z"
+  },
+  {
+    "id": "custom_1785118740397_blbpvv",
+    "name": "Custom Clay Figure — Test Customer",
+    "slug": "custom_1785118740397_blbpvv",
+    "categorySlug": "custom-clay-orders",
+    "description": "Custom Clay Figure Order\nCustomer: Test Customer\nEmail: test@example.com\nSize: Medium\nPrice: $145\nOccasion: personal\nOrder Date: 2026-07-27T02:19:00.397Z\nOrder ID: custom_1785118740397_blbpvv\nStatus: pending",
+    "priceUSD": 145,
+    "tag": "Custom Order",
+    "isPublished": false,
+    "sortOrder": 0,
+    "image": "https://raw.githubusercontent.com/tikocraft-max/tikocraft/main/data/custom-orders/custom_1785118739663_vqkafr.png",
+    "images": [
+      "https://raw.githubusercontent.com/tikocraft-max/tikocraft/main/data/custom-orders/custom_1785118739663_vqkafr.png"
+    ],
+    "videoUrl": null,
+    "material": "{\"customerName\":\"Test Customer\",\"customerEmail\":\"test@example.com\",\"size\":\"Medium\",\"occasion\":\"personal\",\"recipientName\":\"\",\"notes\":\"\",\"status\":\"pending\",\"orderDate\":\"2026-07-27T02:19:00.397Z\",\"orderId\":\"custom_1785118740397_blbpvv\"}",
+    "dimensions": "Medium",
+    "createdAt": "2026-07-27T02:19:00.596Z",
+    "updatedAt": "2026-07-27T02:19:00.596Z"
   }
 ]
