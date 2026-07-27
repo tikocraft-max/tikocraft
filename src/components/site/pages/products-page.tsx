@@ -12,6 +12,7 @@ import {
   staggerContainer,
   fadeUp,
   viewportOnce,
+  easeLuxe,
 } from "@/lib/animations";
 import type { CatalogProduct } from "@/lib/use-catalog";
 import { toast } from "sonner";
@@ -46,63 +47,69 @@ export default function ProductsPage() {
 
   return (
     <div
-      className={`pt-32 md:pt-40 min-h-screen transition-colors duration-700 ${
+      className={`transition-colors duration-700 ${
         isDark ? "bg-brown-900 text-cream" : "bg-cream text-brown-900"
       }`}
     >
-      {/* Page header */}
-      <section className="px-6 lg:px-12 pb-16 md:pb-20">
-        <div className="mx-auto max-w-7xl">
-          <motion.div
-            variants={staggerContainer(0.12, 0.1)}
-            initial="hidden"
-            animate="visible"
-            className="mb-12 md:mb-16"
-          >
-            <motion.div variants={fadeUp} className="flex items-center gap-3 mb-6">
-              <span
-                className={`h-px w-8 ${
-                  isDark ? "bg-beige/60" : "bg-brown-400"
-                }`}
-              />
-              <span
-                className={`font-body text-[11px] tracking-luxe uppercase ${
-                  isDark ? "text-beige/80" : "text-brown-500"
-                }`}
-              >
-                Selected Pieces
-              </span>
-            </motion.div>
-            <motion.h1
-              variants={fadeUp}
-              className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.02] mb-8 text-balance max-w-4xl ${
-                isDark ? "text-cream" : "text-brown-900"
-              }`}
-            >
-              Objects with
-              <br />
-              <span className={`italic font-light ${isDark ? "text-beige" : "text-brown-500"}`}>
-                a quiet presence
-              </span>
-              .
-            </motion.h1>
-            <motion.p
-              variants={fadeUp}
-              className={`max-w-2xl font-body text-base sm:text-lg leading-relaxed font-light ${
-                isDark ? "text-cream/70" : "text-brown-700/80"
-              }`}
-            >
-              A rotating selection of finished pieces and book nook kits from
-              the atelier — each one signed, dated, and ready to ship. Click any
-              piece for full details, images, and video.
-            </motion.p>
-          </motion.div>
+      {/* ============================================================
+          HERO — looped background video (like Custom Figures page)
+          ============================================================ */}
+      <section className="relative h-[60vh] min-h-[420px] overflow-hidden flex items-center justify-center">
+        <video
+          src="/videos/book-nook-bg.mp4"
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+        <div className="absolute inset-0 bg-brown-900/55" />
+        <div className="absolute inset-0 grain-overlay" />
 
-          {/* Filter bar */}
+        <motion.div
+          variants={staggerContainer(0.15, 0.3)}
+          initial="hidden"
+          animate="visible"
+          className="relative z-10 max-w-3xl mx-auto px-6 text-center"
+        >
           <motion.div
             variants={fadeUp}
-            initial="hidden"
-            animate="visible"
+            className="flex items-center justify-center gap-4 mb-6"
+          >
+            <span className="h-px w-12 bg-beige/60" />
+            <span className="font-body text-[11px] tracking-luxe uppercase text-beige/80">
+              Selected Pieces
+            </span>
+            <span className="h-px w-12 bg-beige/60" />
+          </motion.div>
+
+          <motion.h1
+            variants={fadeUp}
+            className="font-display text-5xl sm:text-6xl md:text-7xl text-cream leading-[1.02] mb-6 text-balance"
+          >
+            Objects with
+            <br />
+            <span className="italic font-light text-beige">a quiet presence</span>
+          </motion.h1>
+
+          <motion.p
+            variants={fadeUp}
+            className="max-w-xl mx-auto font-body text-base text-cream/70 leading-relaxed font-light"
+          >
+            A rotating selection of book nook kits and miniature worlds — each
+            one ready to ship. Click any piece for full details, images, and video.
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* Filter bar */}
+      <section className={`px-6 lg:px-12 pt-12 pb-6 ${isDark ? "" : ""}`}>
+        <div className="mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6, ease: easeLuxe }}
             className="flex flex-wrap items-center gap-3 border-t border-b py-6"
             style={{
               borderColor: isDark ? "rgba(232,213,183,0.2)" : "rgba(184,148,106,0.3)",
@@ -118,7 +125,6 @@ export default function ProductsPage() {
             {(
               [
                 { id: "all", label: "All Pieces" },
-                { id: "decor", label: "Handmade Decor" },
                 { id: "booknook", label: "Book Nook Kits" },
               ] as { id: FilterType; label: string }[]
             ).map((opt) => (
