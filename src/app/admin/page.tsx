@@ -68,7 +68,7 @@ interface AdminUser {
   role: string;
 }
 
-type Tab = "products" | "categories";
+type Tab = "products" | "categories" | "orders";
 
 // ============================================================
 // Page
@@ -305,6 +305,17 @@ export default function AdminDashboard() {
               Categories
               <span className="font-body text-[10px] opacity-70">({categories.length})</span>
             </button>
+            <button
+              onClick={() => setTab("orders")}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase transition-colors ${
+                tab === "orders"
+                  ? "bg-brown-800 text-cream"
+                  : "text-brown-700 hover:bg-brown-100"
+              }`}
+            >
+              <Package className="h-3.5 w-3.5" />
+              Custom Orders
+            </button>
           </div>
 
           {tab === "products" ? (
@@ -315,7 +326,7 @@ export default function AdminDashboard() {
               <Plus className="h-3.5 w-3.5" />
               New Product
             </button>
-          ) : (
+          ) : tab === "categories" ? (
             <button
               onClick={() => setShowCategoryForm(true)}
               className="inline-flex items-center gap-2 bg-brown-800 text-cream px-5 py-2.5 font-body text-[11px] tracking-luxe-sm uppercase hover:bg-brown-900 transition-colors"
@@ -323,7 +334,7 @@ export default function AdminDashboard() {
               <Plus className="h-3.5 w-3.5" />
               New Category
             </button>
-          )}
+          ) : null}
         </div>
 
         {/* Products tab */}
@@ -535,6 +546,298 @@ export default function AdminDashboard() {
               loadCategories();
             }}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Custom Orders tab */}
+      {tab === "orders" && <CustomOrdersPanel />}
+    </div>
+  );
+}
+
+// ============================================================
+// Custom Orders Panel — shows custom clay figure orders
+// ============================================================
+function CustomOrdersPanel() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+
+  const loadOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/custom-orders", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data.orders || []);
+      }
+    } catch {
+      toast.error("Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const updateStatus = async (orderId: string, status: string) => {
+    try {
+      const res = await fetch("/api/custom-orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status }),
+      });
+      if (res.ok) {
+        toast.success(`Order marked as ${status}`);
+        loadOrders();
+        if (selectedOrder?.slug === orderId) {
+          setSelectedOrder(null);
+        }
+      } else {
+        toast.error("Failed to update status");
+      }
+    } catch {
+      toast.error("Network error");
+    }
+  };
+
+  const parseOrderData = (order: any) => {
+    try {
+      return JSON.parse(order.material || "{}");
+    } catch {
+      return {};
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-brown-500" />
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="bg-white border border-beige p-16 text-center">
+        <Package className="h-10 w-10 text-brown-300 mx-auto mb-4" />
+        <p className="font-display text-2xl text-brown-900 mb-2">
+          No custom orders yet
+        </p>
+        <p className="font-body text-sm text-brown-600">
+          When customers place custom clay figure orders, they'll appear here.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
+        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+        <span className="font-body text-xs text-green-800">
+          {orders.length} custom order{orders.length !== 1 ? "s" : ""} —
+          new orders appear here instantly
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3">
+        {orders.map((order) => {
+          const data = parseOrderData(order);
+          const status = data.status || "pending";
+          const statusColors: Record<string, string> = {
+            pending: "bg-amber-100 text-amber-800 border-amber-300",
+            confirmed: "bg-blue-100 text-blue-800 border-blue-300",
+            sculpting: "bg-purple-100 text-purple-800 border-purple-300",
+            shipped: "bg-green-100 text-green-800 border-green-300",
+            cancelled: "bg-red-100 text-red-800 border-red-300",
+          };
+
+          return (
+            <div
+              key={order.id}
+              className="bg-white border border-beige p-4 flex flex-col sm:flex-row gap-4"
+            >
+              {/* Photo */}
+              <div className="w-20 h-20 bg-beige-light overflow-hidden shrink-0">
+                <img
+                  src={order.image}
+                  alt="Reference"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <span className="font-display text-base text-brown-900">
+                      {data.customerName || "Unknown"}
+                    </span>
+                    <span className={`ml-2 font-body text-[9px] tracking-luxe-sm uppercase px-2 py-0.5 border ${statusColors[status] || statusColors.pending}`}>
+                      {status}
+                    </span>
+                  </div>
+                  <span className="price-num text-base text-brown-800">
+                    ${order.priceUSD}
+                  </span>
+                </div>
+                <div className="font-body text-xs text-brown-500 space-y-0.5">
+                  <div>📧 {data.customerEmail}</div>
+                  <div>📐 {data.size || order.dimensions}</div>
+                  {data.occasion === "gift" && data.recipientName && (
+                    <div>🎁 Gift for: {data.recipientName}</div>
+                  )}
+                  {data.notes && (
+                    <div className="text-brown-400 italic">📝 {data.notes.substring(0, 80)}{data.notes.length > 80 ? "…" : ""}</div>
+                  )}
+                  <div className="text-brown-400">
+                    📅 {new Date(data.orderDate || order.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex sm:flex-col gap-2 shrink-0">
+                <button
+                  onClick={() => setSelectedOrder(order)}
+                  className="font-body text-[10px] tracking-luxe-sm uppercase px-3 py-2 border border-brown-300 text-brown-700 hover:bg-brown-50 transition-colors"
+                >
+                  View
+                </button>
+                <select
+                  value={status}
+                  onChange={(e) => updateStatus(order.slug, e.target.value)}
+                  className="font-body text-[10px] tracking-luxe-sm uppercase px-2 py-2 border border-brown-300 bg-white text-brown-700 focus:outline-none focus:border-brown-700"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="sculpting">Sculpting</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Order detail modal */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-brown-900/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedOrder(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="bg-cream w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-cream border-b border-beige px-6 py-4 flex items-center justify-between z-10">
+                <h2 className="font-display text-2xl text-brown-900">
+                  Order Details
+                </h2>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="p-2 text-brown-600 hover:bg-brown-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="p-6 space-y-6">
+                {(() => {
+                  const data = parseOrderData(selectedOrder);
+                  return (
+                    <>
+                      {/* Reference photo */}
+                      <div>
+                        <Label>Reference Photo</Label>
+                        <div className="w-full aspect-video bg-beige-light overflow-hidden">
+                          <img
+                            src={selectedOrder.image}
+                            alt="Reference"
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Customer info */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Customer</Label>
+                          <div className="font-display text-base text-brown-900">
+                            {data.customerName}
+                          </div>
+                        </div>
+                        <div>
+                          <Label>Email</Label>
+                          <div className="font-body text-sm text-brown-700">
+                            {data.customerEmail}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Size</Label>
+                          <div className="font-display text-base text-brown-900">
+                            {data.size}
+                          </div>
+                        </div>
+                        <div>
+                          <Label>Price</Label>
+                          <div className="price-num text-lg text-brown-800">
+                            ${selectedOrder.priceUSD}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Occasion</Label>
+                          <div className="font-body text-sm text-brown-700 capitalize">
+                            {data.occasion}
+                          </div>
+                        </div>
+                        {data.recipientName && (
+                          <div>
+                            <Label>Recipient</Label>
+                            <div className="font-body text-sm text-brown-700">
+                              {data.recipientName}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {data.notes && (
+                        <div>
+                          <Label>Notes</Label>
+                          <div className="bg-brown-50 border border-beige p-4 font-body text-sm text-brown-700 whitespace-pre-wrap">
+                            {data.notes}
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <Label>Order ID</Label>
+                        <code className="font-mono text-xs text-brown-500">
+                          {data.orderId || selectedOrder.slug}
+                        </code>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

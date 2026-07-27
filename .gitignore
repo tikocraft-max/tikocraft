@@ -58,3 +58,4 @@ server.log
 
 # GitHub-backed data files (managed via API, not committed locally)
 /data/
+upload/

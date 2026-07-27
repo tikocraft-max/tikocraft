@@ -25,6 +25,7 @@ const VALID_PAGES: PageId[] = [
   "products",
   "atelier",
   "showroom",
+  "custom-clay",
   "contact",
   "product",
 ];
