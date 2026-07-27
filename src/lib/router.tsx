@@ -52,12 +52,13 @@ export function RouterProvider({ children }: { children: ReactNode }) {
     (page: PageId, param: string | null = null) => {
       if (page === currentPage && param === pageParam) return;
       setIsTransitioning(true);
+      // Shorter delay for snappier navigation (was 600ms — felt broken)
       window.setTimeout(() => {
         setCurrentPage(page);
         setPageParam(param);
         window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
         window.setTimeout(() => setIsTransitioning(false), 50);
-      }, 600);
+      }, 300);
     },
     [currentPage, pageParam]
   );

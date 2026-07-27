@@ -20,9 +20,9 @@ export default function HomePage() {
   const { navigate } = useRouter();
   const { categories, products } = useCatalog();
   const { formatPrice } = useCurrency();
-  const featuredCollections = categories.slice(0, 4);
-  const decorProducts = products.filter((p) => p.categoryType === "decor").slice(0, 3);
-  const booknookProducts = products.filter((p) => p.categoryType === "booknook").slice(0, 3);
+  const featuredCollections = categories.slice(0, 5);
+  const decorProducts = products.filter((p) => p.categoryType === "decor").slice(0, 4);
+  const booknookProducts = products.filter((p) => p.categoryType === "booknook").slice(0, 4);
 
   return (
     <div>
@@ -212,7 +212,7 @@ export default function HomePage() {
             initial="hidden"
             whileInView="visible"
             viewport={viewportOnce}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
+            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 lg:gap-x-6 lg:gap-y-12"
           >
             {decorProducts.map((product) => (
               <ProductPreviewCard key={product.id} product={product} onClick={() => navigate("product", product.slug)} formatPrice={formatPrice} />
@@ -266,7 +266,7 @@ export default function HomePage() {
             initial="hidden"
             whileInView="visible"
             viewport={viewportOnce}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8 lg:gap-y-16"
+            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 lg:gap-x-6 lg:gap-y-12"
           >
             {booknookProducts.map((product) => (
               <BookNookPreviewCard key={product.id} product={product} onClick={() => navigate("product", product.slug)} formatPrice={formatPrice} />

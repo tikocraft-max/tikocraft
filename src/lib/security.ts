@@ -5,8 +5,9 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 // ============================================================
-// 1. Rate limiting — in-memory, per IP
-//    Tracks failed login attempts and blocks IPs after threshold.
+// 1. Rate limiting — per email + per IP
+//    On Vercel serverless, each request may come from a different IP,
+//    so we also rate-limit by email (which is consistent across requests).
 // ============================================================
 
 interface RateLimitEntry {
@@ -16,6 +17,7 @@ interface RateLimitEntry {
 }
 
 // Use a global Map so it survives hot reloads in dev
+// and persists across requests within the same serverless instance
 const rateLimitStore = globalThis as unknown as {
   __loginRateLimit?: Map<string, RateLimitEntry>;
 };
@@ -28,35 +30,35 @@ const MAX_FAILURES = 5; // block after 5 failures
 const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const FAILURE_WINDOW_MS = 15 * 60 * 1000; // failures expire after 15 min
 
-export function isIpBlocked(ip: string): boolean {
-  const entry = rateLimitMap.get(ip);
+export function isIpBlocked(key: string): boolean {
+  const entry = rateLimitMap.get(key);
   if (!entry) return false;
   if (entry.blockedUntil > Date.now()) return true;
   // Block expired — clear it
   if (entry.blockedUntil > 0 && entry.blockedUntil <= Date.now()) {
-    rateLimitMap.delete(ip);
+    rateLimitMap.delete(key);
     return false;
   }
   return false;
 }
 
-export function getBlockTimeRemaining(ip: string): number {
-  const entry = rateLimitMap.get(ip);
+export function getBlockTimeRemaining(key: string): number {
+  const entry = rateLimitMap.get(key);
   if (!entry || entry.blockedUntil <= Date.now()) return 0;
   return Math.ceil((entry.blockedUntil - Date.now()) / 1000);
 }
 
-export function recordFailedLogin(ip: string): void {
+export function recordFailedLogin(key: string): void {
   const now = Date.now();
-  let entry = rateLimitMap.get(ip);
+  let entry = rateLimitMap.get(key);
   if (!entry) {
     entry = { failures: 0, firstFailedAt: now, blockedUntil: 0 };
-    rateLimitMap.set(ip, entry);
+    rateLimitMap.set(key, entry);
   }
   // Reset window if first failure was too long ago
   if (now - entry.firstFailedAt > FAILURE_WINDOW_MS) {
     entry = { failures: 0, firstFailedAt: now, blockedUntil: 0 };
-    rateLimitMap.set(ip, entry);
+    rateLimitMap.set(key, entry);
   }
   entry.failures += 1;
   if (entry.failures >= MAX_FAILURES) {
@@ -64,8 +66,8 @@ export function recordFailedLogin(ip: string): void {
   }
 }
 
-export function recordSuccessfulLogin(ip: string): void {
-  rateLimitMap.delete(ip);
+export function recordSuccessfulLogin(key: string): void {
+  rateLimitMap.delete(key);
 }
 
 // ============================================================

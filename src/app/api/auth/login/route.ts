@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const ip = getClientIp(req);
 
-    // 1. Rate limit check
+    // 1. Rate limit check — by IP AND by email (for Vercel where IP varies)
     if (isIpBlocked(ip)) {
       return NextResponse.json(
         {
@@ -39,11 +39,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Also rate-limit by email (consistent across Vercel requests)
+    if (isIpBlocked(`email:${email}`)) {
+      return NextResponse.json(
+        {
+          error: "Too many failed attempts for this email. Please try again in 15 minutes.",
+        },
+        { status: 429 }
+      );
+    }
+
     // 2. Look up admin from GitHub-backed JSON file
     const admin = await getAdmin();
 
     if (!admin || admin.email.toLowerCase() !== email) {
       recordFailedLogin(ip);
+      recordFailedLogin(`email:${email}`);
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
@@ -54,6 +65,7 @@ export async function POST(req: NextRequest) {
     const ok = await bcrypt.compare(password, admin.password);
     if (!ok) {
       recordFailedLogin(ip);
+      recordFailedLogin(`email:${email}`);
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
@@ -62,6 +74,7 @@ export async function POST(req: NextRequest) {
 
     // 4. Success
     recordSuccessfulLogin(ip);
+    recordSuccessfulLogin(`email:${email}`);
 
     const token = createSessionToken(admin.email);
     const cookieStore = await cookies();
