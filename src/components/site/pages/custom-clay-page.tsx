@@ -82,6 +82,7 @@ export default function CustomClayPage() {
   const [photoFileName, setPhotoFileName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [orderId, setOrderId] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedTier = SIZE_TIERS.find((t) => t.id === selectedSize)!;
@@ -154,7 +155,8 @@ export default function CustomClayPage() {
       }
 
       setSubmitted(true);
-      toast.success("Your order has been received! We'll contact you soon.");
+      setOrderId(data.orderId || "");
+      toast.success("Your order has been received!");
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Failed to submit order"
@@ -166,60 +168,228 @@ export default function CustomClayPage() {
 
   if (submitted) {
     return (
-      <div className="pt-32 min-h-screen bg-cream flex items-center justify-center px-6">
+      <div className="pt-28 min-h-screen bg-cream flex items-center justify-center px-6 overflow-hidden relative">
+        {/* Decorative background type */}
         <motion.div
-          initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, ease: easeLuxe }}
-          className="max-w-lg text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 2 }}
+          className="absolute -top-10 left-0 right-0 text-center pointer-events-none select-none"
         >
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
-            <Check className="h-10 w-10 text-green-700" strokeWidth={1.5} />
-          </div>
-          <h1 className="font-display text-4xl md:text-5xl text-brown-900 mb-4 leading-tight">
-            Order Received!
-          </h1>
-          <p className="font-body text-base text-brown-700 leading-relaxed mb-2">
-            Thank you, {customerName}. Your custom clay figure order has been
-            submitted successfully.
-          </p>
-          <p className="font-body text-sm text-brown-500 mb-8 font-light">
-            We'll review your reference photo and contact you at{" "}
-            <strong>{customerEmail}</strong> within 24 hours to confirm the
-            details and discuss next steps.
-          </p>
-          <div className="bg-brown-50 border border-beige p-6 mb-8 text-left">
-            <div className="font-body text-[10px] tracking-luxe uppercase text-brown-500 mb-3">
-              Order Summary
-            </div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-display text-lg text-brown-900">
-                {selectedTier.label}
-              </span>
-              <span className="price-num text-lg text-brown-800">
-                {formatPrice(selectedTier.priceUSD)}
-              </span>
-            </div>
-            <div className="font-body text-xs text-brown-500">
-              {selectedTier.dimensions}
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setCustomerName("");
-              setCustomerEmail("");
-              setRecipientName("");
-              setNotes("");
-              setPhotoDataUrl(null);
-              setPhotoFileName("");
-              setSelectedSize("medium");
-              setOccasion("personal");
-            }}
-            className="inline-flex items-center gap-3 bg-brown-800 text-cream px-8 py-4 font-body text-xs tracking-luxe-sm uppercase hover:bg-brown-900 transition-colors"
+          <span className="font-display text-[20vw] leading-none text-brown-900/[0.03] tracking-tight">
+            Thank You
+          </span>
+        </motion.div>
+
+        <motion.div
+          variants={staggerContainer(0.12, 0.2)}
+          initial="hidden"
+          animate="visible"
+          className="relative z-10 max-w-xl w-full text-center"
+        >
+          {/* Animated checkmark */}
+          <motion.div
+            variants={fadeUp}
+            className="relative w-24 h-24 mx-auto mb-10"
           >
-            Place Another Order
-          </button>
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+              className="w-24 h-24 bg-brown-800 rounded-full flex items-center justify-center"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.6, type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <Check className="h-12 w-12 text-cream" strokeWidth={1.5} />
+              </motion.div>
+            </motion.div>
+            {/* Pulsing ring */}
+            <motion.div
+              initial={{ scale: 1, opacity: 0.5 }}
+              animate={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+              className="absolute inset-0 w-24 h-24 border-2 border-brown-800 rounded-full"
+            />
+          </motion.div>
+
+          {/* Eyebrow */}
+          <motion.div
+            variants={fadeUp}
+            className="flex items-center justify-center gap-3 mb-6"
+          >
+            <span className="h-px w-8 bg-brown-400" />
+            <span className="font-body text-[10px] tracking-luxe uppercase text-brown-500">
+              Order Confirmed
+            </span>
+            <span className="h-px w-8 bg-brown-400" />
+          </motion.div>
+
+          {/* Heading */}
+          <motion.h1
+            variants={fadeUp}
+            className="font-display text-4xl md:text-5xl text-brown-900 mb-4 leading-tight text-balance"
+          >
+            Your figure is
+            <br />
+            <span className="italic font-light text-brown-500">on its way</span> to
+            being made.
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            variants={fadeUp}
+            className="font-body text-base text-brown-700 leading-relaxed mb-2 font-light"
+          >
+            Thank you, {customerName}. We've received your order and your
+            reference photo.
+          </motion.p>
+          <motion.p
+            variants={fadeUp}
+            className="font-body text-sm text-brown-500 mb-10 font-light"
+          >
+            We'll contact you at <strong className="text-brown-700">{customerEmail}</strong> to
+            share progress and updates on your sculpture.
+          </motion.p>
+
+          {/* Order summary card */}
+          <motion.div
+            variants={fadeUp}
+            className="bg-white border border-beige p-8 mb-10 text-left"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="h-px flex-1 bg-beige" />
+              <span className="font-body text-[10px] tracking-luxe uppercase text-brown-500">
+                Order Summary
+              </span>
+              <span className="h-px flex-1 bg-beige" />
+            </div>
+
+            {/* Reference photo + details */}
+            {photoDataUrl && (
+              <div className="flex gap-4 mb-6">
+                <div className="w-16 h-16 bg-beige-light overflow-hidden shrink-0">
+                  <img
+                    src={photoDataUrl}
+                    alt="Reference"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display text-lg text-brown-900 leading-tight">
+                    {selectedTier.label}
+                  </div>
+                  <div className="font-body text-[11px] text-brown-500 mt-0.5">
+                    {selectedTier.dimensions}
+                  </div>
+                  {occasion === "gift" && recipientName && (
+                    <div className="font-body text-[11px] text-brown-400 mt-0.5">
+                      Gift for {recipientName}
+                    </div>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="price-num text-xl text-brown-800">
+                    {formatPrice(selectedTier.priceUSD)}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Order ID */}
+            <div className="flex items-center justify-between pt-4 border-t border-beige">
+              <span className="font-body text-[10px] tracking-luxe uppercase text-brown-400">
+                Order ID
+              </span>
+              <code className="font-mono text-xs text-brown-600">
+                {orderId || "—"}
+              </code>
+            </div>
+
+            {/* Status */}
+            <div className="flex items-center justify-between mt-2">
+              <span className="font-body text-[10px] tracking-luxe uppercase text-brown-400">
+                Status
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-body text-[10px] tracking-luxe-sm uppercase text-amber-700">
+                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+                Pending
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Timeline */}
+          <motion.div
+            variants={fadeUp}
+            className="grid grid-cols-3 gap-2 mb-10"
+          >
+            {[
+              { label: "Order", icon: "✓", active: true },
+              { label: "Sculpting", icon: "02", active: false },
+              { label: "Shipping", icon: "03", active: false },
+            ].map((step, i) => (
+              <motion.div
+                key={step.label}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + i * 0.15, duration: 0.5 }}
+                className={`p-4 border ${
+                  step.active
+                    ? "border-brown-800 bg-brown-50"
+                    : "border-beige bg-white/50"
+                }`}
+              >
+                <div
+                  className={`font-display text-lg mb-1 ${
+                    step.active ? "text-brown-800" : "text-brown-300"
+                  }`}
+                >
+                  {step.icon}
+                </div>
+                <div
+                  className={`font-body text-[9px] tracking-luxe-sm uppercase ${
+                    step.active ? "text-brown-700" : "text-brown-400"
+                  }`}
+                >
+                  {step.label}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Actions */}
+          <motion.div
+            variants={fadeUp}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3"
+          >
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setCustomerName("");
+                setCustomerEmail("");
+                setRecipientName("");
+                setNotes("");
+                setPhotoDataUrl(null);
+                setPhotoFileName("");
+                setOrderId("");
+                setSelectedSize("medium");
+                setOccasion("personal");
+              }}
+              className="inline-flex items-center gap-3 bg-brown-800 text-cream px-8 py-4 font-body text-xs tracking-luxe-sm uppercase hover:bg-brown-900 transition-colors"
+            >
+              Place Another Order
+            </button>
+            <button
+              onClick={() => {
+                window.location.hash = "#home";
+              }}
+              className="inline-flex items-center gap-3 border border-brown-700 text-brown-800 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase hover:bg-brown-800 hover:text-cream transition-colors"
+            >
+              Back to Store
+            </button>
+          </motion.div>
         </motion.div>
       </div>
     );
@@ -532,7 +702,7 @@ export default function CustomClayPage() {
                 4. Your Details
               </h3>
               <p className="font-body text-[11px] text-brown-500 mb-4">
-                We'll contact you to confirm the order and arrange payment.
+                So we can contact you about your order.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -627,8 +797,8 @@ export default function CustomClayPage() {
               </button>
 
               <p className="font-body text-[10px] text-brown-400 text-center mt-3 font-light">
-                Payment is arranged after confirmation. No charge until you
-                approve the design.
+                By submitting, you agree to be contacted about your custom
+                clay figure order.
               </p>
             </div>
           </motion.form>
