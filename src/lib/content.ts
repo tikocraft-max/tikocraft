@@ -208,7 +208,7 @@ export const navItems: NavItem[] = [
   { label: "Pieces", href: "products", page: "products" },
   { label: "Book Nooks", href: "booknooks", page: "products" },
   { label: "Atelier", href: "atelier", page: "atelier" },
-  { label: "Custom Clay", href: "custom-clay", page: "custom-clay" },
+  { label: "Custom Figures", href: "custom-clay", page: "custom-clay" },
   { label: "Contact", href: "contact", page: "contact" },
 ];
 
