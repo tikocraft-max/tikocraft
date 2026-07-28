@@ -39,63 +39,76 @@ interface CatalogData {
   products: CatalogProduct[];
 }
 
-// Static fallback — used if the API call fails (e.g. during build)
-import { collections as fallbackCollections, products as fallbackProducts } from "./content";
-
-const fallbackData: CatalogData = {
-  categories: fallbackCollections.map((c) => ({
-    id: c.id,
-    slug: c.id,
-    title: c.title,
-    subtitle: c.subtitle,
-    description: c.description,
-    image: c.image,
-    items: c.items,
-    category: c.category,
-  })),
-  products: fallbackProducts.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.id,
-    category: p.category,
-    categorySlug: p.categoryType === "booknook" ? "book-nooks" : p.category.toLowerCase(),
-    categoryType: p.categoryType,
-    price: Number(p.price.replace(/[^0-9.]/g, "")),
-    priceUSD: Number(p.price.replace(/[^0-9.]/g, "")),
-    image: p.image,
-    images: [p.image],
-    videoUrl: null,
-    description: p.description,
-    tag: p.tag ?? null,
-    material: null,
-    dimensions: null,
-  })),
+// Empty initial state — show nothing until API loads.
+// This prevents showing stale fallback data that doesn't match
+// what's actually in the database.
+const emptyData: CatalogData = {
+  categories: [],
+  products: [],
 };
 
+// ============================================================
+// Global cache — shared across all useCatalog() calls within
+// the same page. Prevents multiple API calls and ensures
+// all components see the same data simultaneously.
+// ============================================================
+let globalCache: CatalogData | null = null;
+let globalFetchPromise: Promise<CatalogData> | null = null;
+
+async function fetchCatalog(): Promise<CatalogData> {
+  if (globalCache) return globalCache;
+  if (globalFetchPromise) return globalFetchPromise;
+
+  globalFetchPromise = fetch("/api/catalog", { cache: "no-store" })
+    .then((r) => r.json())
+    .then((d: CatalogData) => {
+      if (d?.categories && d?.products) {
+        globalCache = d;
+        return d;
+      }
+      return emptyData;
+    })
+    .catch(() => {
+      return emptyData;
+    })
+    .finally(() => {
+      globalFetchPromise = null;
+    });
+
+  return globalFetchPromise;
+}
+
 export function useCatalog() {
-  const [data, setData] = useState<CatalogData>(fallbackData);
-  const [loading, setLoading] = useState(true);
+  // Start with cache if available, otherwise empty
+  const [data, setData] = useState<CatalogData>(globalCache || emptyData);
+  const [loading, setLoading] = useState(!globalCache);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/catalog", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d: CatalogData) => {
-        if (cancelled) return;
-        if (d?.categories && d?.products) {
-          setData(d);
-        }
-      })
-      .catch(() => {
-        // Use fallback on error
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+
+    // If already cached, initial state already has the data — just ensure loading is false
+    if (globalCache) {
+      return;
+    }
+
+    fetchCatalog().then((d) => {
+      if (cancelled) return;
+      Promise.resolve().then(() => {
+        setData(d);
+        setLoading(false);
       });
+    });
+
     return () => {
       cancelled = true;
     };
   }, []);
 
   return { ...data, loading };
+}
+
+// Allow manual cache refresh (e.g., after admin changes)
+export function refreshCatalog() {
+  globalCache = null;
+  globalFetchPromise = null;
 }

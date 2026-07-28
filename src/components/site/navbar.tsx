@@ -37,8 +37,11 @@ export default function Navbar() {
   };
 
   // Determine if we are on a "dark" page where the navbar should be light
-  const isDarkPage = currentPage === "showroom" || currentPage === "contact";
-  const onLightBg = scrolled || (!isDarkPage);
+  // Determine if navbar should use light text (on dark backgrounds)
+  // Dark pages: contact, custom-clay (dark hero sections)
+  // All other pages: navbar starts transparent (light text) over hero
+  const isDarkPage = currentPage === "contact" || currentPage === "custom-clay" || currentPage === "products";
+  const onLightBg = scrolled;
 
   return (
     <>
@@ -143,14 +146,14 @@ export default function Navbar() {
             </motion.button>
 
             <button
-              onClick={() => handleNavClick("contact")}
+              onClick={() => handleNavClick("custom-clay")}
               className={`hidden lg:inline-flex font-body text-[11px] tracking-luxe-sm uppercase px-5 py-2.5 border transition-all duration-500 ${
                 scrolled
                   ? "border-brown-700 text-brown-800 hover:bg-brown-700 hover:text-cream"
                   : "border-cream/60 text-cream hover:bg-cream hover:text-brown-800"
               }`}
             >
-              Visit Showroom
+              Order Custom
             </button>
 
             {/* Mobile toggle */}
