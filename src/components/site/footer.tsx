@@ -8,11 +8,9 @@ import type { PageId } from "@/lib/content";
 
 const footerLinks: { title: string; items: { label: string; page?: PageId; param?: string }[] }[] = {
   Collections: [
-    { label: "Ceramics & Vessels", page: "collections" },
-    { label: "Textiles & Throws", page: "collections" },
-    { label: "Lighting & Ambiance", page: "collections" },
-    { label: "Furniture & Seating", page: "collections" },
     { label: "Book Nook Kits", page: "products", param: "booknooks" },
+    { label: "3D DIY Miniature", page: "products", param: "booknooks" },
+    { label: "Custom Figures", page: "custom-clay" },
   ],
   Atelier: [
     { label: "Our Story", page: "atelier" },
@@ -20,11 +18,11 @@ const footerLinks: { title: string; items: { label: string; page?: PageId; param
     { label: "The Two Crafts", page: "atelier" },
     { label: "Sustainability", page: "atelier" },
   ],
-  Visit: [
-    { label: "Book the Showroom", page: "showroom" },
+  Contact: [
     { label: "Trade Enquiries", page: "contact" },
     { label: "Press Kit", page: "contact" },
     { label: "Wholesale", page: "contact" },
+    { label: "Get in Touch", page: "contact" },
   ],
 };
 
@@ -37,7 +35,7 @@ const social = [
 export default function Footer() {
   const { navigate, currentPage } = useRouter();
   // Footer is always on cream bg; only contact/showroom pages have brown bg behind
-  const isDarkPage = currentPage === "showroom" || currentPage === "contact";
+  const isDarkPage = currentPage === "contact";
 
   return (
     <footer
