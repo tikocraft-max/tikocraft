@@ -21,7 +21,6 @@ export default function HomePage() {
   const { categories, products } = useCatalog();
   const { formatPrice } = useCurrency();
   const featuredCollections = categories.slice(0, 5);
-  const decorProducts = products.filter((p) => p.categoryType === "decor").slice(0, 4);
   const booknookProducts = products.filter((p) => p.categoryType === "booknook").slice(0, 4);
 
   return (
@@ -174,48 +173,6 @@ export default function HomePage() {
                   </h3>
                 </div>
               </motion.button>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Featured Decor products preview */}
-      <section className="bg-cream py-24 md:py-32 px-6 lg:px-12">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-            <SectionHeading
-              eyebrow="Selected Decor Pieces"
-              align="left"
-              title={
-                <>
-                  Objects with
-                  <br />
-                  <span className="italic font-light text-brown-500">a quiet presence</span>
-                </>
-              }
-            />
-            <motion.button
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={viewportOnce}
-              onClick={() => navigate("products")}
-              className="group inline-flex items-center gap-3 self-start border border-brown-700 text-brown-800 px-7 py-3.5 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 hover:bg-brown-800 hover:text-cream"
-            >
-              All Decor Pieces
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
-            </motion.button>
-          </div>
-
-          <motion.div
-            variants={staggerContainer(0.12, 0.1)}
-            initial="hidden"
-            whileInView="visible"
-            viewport={viewportOnce}
-            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 lg:gap-x-6 lg:gap-y-12"
-          >
-            {decorProducts.map((product) => (
-              <ProductPreviewCard key={product.id} product={product} onClick={() => navigate("product", product.slug)} formatPrice={formatPrice} />
             ))}
           </motion.div>
         </div>

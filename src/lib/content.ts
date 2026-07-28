@@ -121,7 +121,6 @@ export type PageId =
 export const navItems: NavItem[] = [
   { label: "Home", href: "home", page: "home" },
   { label: "Collections", href: "collections", page: "collections" },
-  { label: "Pieces", href: "products", page: "products" },
   { label: "Book Nooks", href: "booknooks", page: "products" },
   { label: "Atelier", href: "atelier", page: "atelier" },
   { label: "Custom Figures", href: "custom-clay", page: "custom-clay" },
