@@ -32,15 +32,15 @@ export default function HomePage() {
       <section className="bg-cream py-24 md:py-32 px-6 lg:px-12">
         <div className="mx-auto max-w-7xl">
           <SectionHeading
-            eyebrow="Two Crafts, One Hand"
+            eyebrow="Crafted With Care"
             title={
               <>
-                From earthy vessels
+                From tiny worlds
                 <br />
-                to <span className="italic font-light text-brown-500">miniature worlds</span>.
+                to <span className="italic font-light text-brown-500">custom figures</span>.
               </>
             }
-            description="Tikocraft began with clay and wood — and grew, quietly, into tiny worlds that glow between books. Two crafts, one slow hand."
+            description="Tikocraft crafts hand-cut book nook dioramas, 3D miniature kits, and bespoke clay figures sculpted from your photos. Each piece is made with patience, one at a time."
           />
 
           <motion.div
@@ -50,35 +50,7 @@ export default function HomePage() {
             viewport={viewportOnce}
             className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8"
           >
-            <motion.button
-              variants={scaleIn}
-              onClick={() => navigate("collections")}
-              className="group relative overflow-hidden bg-white text-left cursor-pointer"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <img
-                  src="/images/collection-ceramics.png"
-                  alt="Handcrafted home decor"
-                  className="h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brown-900/70 via-brown-900/10 to-transparent" />
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
-                <span className="font-body text-[11px] tracking-luxe uppercase text-beige mb-3 block">
-                  Handmade Decor
-                </span>
-                <h3 className="font-display text-3xl md:text-4xl text-cream mb-3">
-                  Vessels, textiles, light
-                </h3>
-                <div className="flex items-center gap-3 text-cream">
-                  <span className="font-body text-[11px] tracking-luxe-sm uppercase">
-                    Browse Collections
-                  </span>
-                  <span className="h-px w-8 bg-cream transition-all duration-500 group-hover:w-14" />
-                </div>
-              </div>
-            </motion.button>
-
+            {/* Book Nooks card */}
             <motion.button
               variants={scaleIn}
               onClick={() => navigate("products", "booknooks")}
@@ -102,6 +74,36 @@ export default function HomePage() {
                 <div className="flex items-center gap-3 text-cream">
                   <span className="font-body text-[11px] tracking-luxe-sm uppercase">
                     Shop Book Nooks
+                  </span>
+                  <span className="h-px w-8 bg-cream transition-all duration-500 group-hover:w-14" />
+                </div>
+              </div>
+            </motion.button>
+
+            {/* Custom Figures card */}
+            <motion.button
+              variants={scaleIn}
+              onClick={() => navigate("custom-clay")}
+              className="group relative overflow-hidden bg-white text-left cursor-pointer"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src="/images/atelier-1.png"
+                  alt="Custom Clay Figures"
+                  className="h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brown-900/70 via-brown-900/10 to-transparent" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
+                <span className="font-body text-[11px] tracking-luxe uppercase text-beige mb-3 block">
+                  Custom Figures
+                </span>
+                <h3 className="font-display text-3xl md:text-4xl text-cream mb-3">
+                  Sculpted from your photo
+                </h3>
+                <div className="flex items-center gap-3 text-cream">
+                  <span className="font-body text-[11px] tracking-luxe-sm uppercase">
+                    Start Your Order
                   </span>
                   <span className="h-px w-8 bg-cream transition-all duration-500 group-hover:w-14" />
                 </div>
