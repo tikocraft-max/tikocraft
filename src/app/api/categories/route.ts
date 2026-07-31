@@ -44,15 +44,6 @@ async function requireAdmin() {
   return { email, name: "Admin", role: "owner" };
 }
 
-const createSchema = z.object({
-  slug: z.string().min(1),
-  name: z.string().min(1),
-  subtitle: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-  image: z.string().nullable().optional(),
-  categoryType: z.enum(["decor", "booknook"]).optional(),
-  sortOrder: z.number().optional(),
-});
 
 // POST /api/categories — create category (admin only)
 export async function POST(req: NextRequest) {

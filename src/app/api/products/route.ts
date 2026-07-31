@@ -5,7 +5,6 @@ import {
   type StoredProduct,
 } from "@/lib/github-db";
 import { cookies } from "next/headers";
-import { z } from "zod";
 import { verifySessionToken } from "@/lib/security";
 import {
   sanitizeString,
@@ -82,21 +81,6 @@ export async function GET(req: NextRequest) {
 // ============================================================
 // POST /api/products — create product (admin only)
 // ============================================================
-const productSchema = z.object({
-  name: z.string().min(1),
-  slug: z.string().min(1),
-  categorySlug: z.string().min(1),
-  description: z.string().min(1),
-  priceUSD: z.number().positive(),
-  tag: z.string().nullable().optional(),
-  image: z.string().min(1),
-  images: z.array(z.string()).nullable().optional(),
-  videoUrl: z.string().nullable().optional(),
-  material: z.string().nullable().optional(),
-  dimensions: z.string().nullable().optional(),
-  isPublished: z.boolean().optional(),
-  sortOrder: z.number().optional(),
-});
 
 export async function POST(req: NextRequest) {
   const admin = await requireAdmin();

@@ -6,8 +6,18 @@ import {
   type StoredProduct,
 } from "@/lib/github-db";
 import { cookies } from "next/headers";
-import { z } from "zod";
 import { verifySessionToken } from "@/lib/security";
+import {
+  sanitizeString,
+  sanitizeSlug,
+  sanitizeNumber,
+  sanitizeUrl,
+  sanitizeStringArray,
+  sanitizeBoolean,
+  checkRateLimit,
+  getClientIp,
+  RATE_LIMITS,
+} from "@/lib/sanitize";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -37,21 +47,6 @@ export async function GET(
   }
 }
 
-const updateSchema = z.object({
-  name: z.string().min(1).optional(),
-  slug: z.string().min(1).optional(),
-  categorySlug: z.string().min(1).optional(),
-  description: z.string().min(1).optional(),
-  priceUSD: z.number().positive().optional(),
-  tag: z.string().nullable().optional(),
-  image: z.string().min(1).optional(),
-  images: z.array(z.string()).nullable().optional(),
-  videoUrl: z.string().nullable().optional(),
-  material: z.string().nullable().optional(),
-  dimensions: z.string().nullable().optional(),
-  isPublished: z.boolean().optional(),
-  sortOrder: z.number().optional(),
-});
 
 // PATCH /api/products/[slug] — update product (admin only)
 export async function PATCH(
@@ -66,16 +61,14 @@ export async function PATCH(
     );
   }
 
+  // Rate limit
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`products:patch:${ip}`, RATE_LIMITS.admin);
+  if (rl.blocked) return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+
   try {
     const { slug } = await params;
     const body = await req.json();
-    const parsed = updateSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid update data", details: parsed.error.flatten() },
-        { status: 400 }
-      );
-    }
 
     // Get current product
     const products = await getAllProducts();
@@ -84,18 +77,29 @@ export async function PATCH(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Merge updates
+    // Sanitize only provided fields (partial update)
     const updated: StoredProduct = {
       ...existing,
-      ...parsed.data,
-      images: parsed.data.images ?? existing.images,
+      name: body.name !== undefined ? sanitizeString(body.name, 200) : existing.name,
+      slug: body.slug !== undefined ? sanitizeSlug(body.slug) : existing.slug,
+      categorySlug: body.categorySlug !== undefined ? sanitizeSlug(body.categorySlug) : existing.categorySlug,
+      description: body.description !== undefined ? sanitizeString(body.description, 5000) : existing.description,
+      priceUSD: body.priceUSD !== undefined ? sanitizeNumber(body.priceUSD, 0.01, 100000) : existing.priceUSD,
+      tag: body.tag !== undefined ? (body.tag ? sanitizeString(body.tag, 50) : null) : existing.tag,
+      image: body.image !== undefined ? sanitizeUrl(body.image) : existing.image,
+      images: body.images !== undefined ? sanitizeStringArray(body.images) : existing.images,
+      videoUrl: body.videoUrl !== undefined ? (body.videoUrl ? sanitizeUrl(body.videoUrl) : null) : existing.videoUrl,
+      material: body.material !== undefined ? (body.material ? sanitizeString(body.material, 200) : null) : existing.material,
+      dimensions: body.dimensions !== undefined ? (body.dimensions ? sanitizeString(body.dimensions, 200) : null) : existing.dimensions,
+      isPublished: body.isPublished !== undefined ? sanitizeBoolean(body.isPublished) : existing.isPublished,
+      sortOrder: body.sortOrder !== undefined ? sanitizeNumber(body.sortOrder, 0, 9999) : existing.sortOrder,
       updatedAt: new Date().toISOString(),
     };
 
     const ok = await saveProduct(updated);
     if (!ok) {
       return NextResponse.json(
-        { error: "Failed to update product (GitHub commit failed)" },
+        { error: "Failed to update product" },
         { status: 500 }
       );
     }
