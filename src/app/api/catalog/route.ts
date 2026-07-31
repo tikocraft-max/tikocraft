@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   getAllProducts,
   getAllCategories,
@@ -6,12 +6,21 @@ import {
   type StoredProduct,
   type StoredCategory,
 } from "@/lib/github-db";
+import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/sanitize";
 
 // GET /api/catalog — returns all published categories + products
-// Uses GitHub-backed JSON files for permanent storage.
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Rate limit
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`catalog:${ip}`, RATE_LIMITS.read);
+  if (rl.blocked) {
+    return NextResponse.json(
+      { error: "Rate limited" },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   try {
-    // Ensure data files exist (seeds on first run)
     await ensureGitHubSeeded();
 
     const [categories, products] = await Promise.all([

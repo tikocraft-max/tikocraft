@@ -9,6 +9,7 @@ import {
   getClientIp,
 } from "@/lib/security";
 import { getAdmin, ensureGitHubSeeded } from "@/lib/github-db";
+import { sanitizeEmail, sanitizeString, checkRateLimit, RATE_LIMITS } from "@/lib/sanitize";
 
 // POST /api/auth/login — secure login with rate limiting + signed session
 export async function POST(req: NextRequest) {
@@ -19,18 +20,17 @@ export async function POST(req: NextRequest) {
     const ip = getClientIp(req);
 
     // 1. Rate limit check — by IP AND by email (for Vercel where IP varies)
-    if (isIpBlocked(ip)) {
+    const ipLimit = checkRateLimit(`login:ip:${ip}`, RATE_LIMITS.auth);
+    if (ipLimit.blocked) {
       return NextResponse.json(
-        {
-          error: "Too many failed attempts. Please try again in 15 minutes.",
-        },
+        { error: `Too many attempts. Retry in ${ipLimit.retryAfter}s.` },
         { status: 429 }
       );
     }
 
     const body = await req.json();
-    const email = (body?.email || "").toString().trim().toLowerCase();
-    const password = (body?.password || "").toString();
+    const email = sanitizeEmail(body?.email);
+    const password = sanitizeString(body?.password, 1000);
 
     if (!email || !password) {
       return NextResponse.json(
@@ -40,11 +40,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Also rate-limit by email (consistent across Vercel requests)
-    if (isIpBlocked(`email:${email}`)) {
+    const emailLimit = checkRateLimit(`login:email:${email}`, RATE_LIMITS.auth);
+    if (emailLimit.blocked) {
       return NextResponse.json(
-        {
-          error: "Too many failed attempts for this email. Please try again in 15 minutes.",
-        },
+        { error: `Too many attempts for this email. Retry in ${emailLimit.retryAfter}s.` },
         { status: 429 }
       );
     }
@@ -53,8 +52,8 @@ export async function POST(req: NextRequest) {
     const admin = await getAdmin();
 
     if (!admin || admin.email.toLowerCase() !== email) {
-      recordFailedLogin(ip);
-      recordFailedLogin(`email:${email}`);
+      checkRateLimit(`login:ip:${ip}`, { maxRequests: 5, windowMs: 15 * 60 * 1000, blockMs: 15 * 60 * 1000 });
+      checkRateLimit(`login:email:${email}`, { maxRequests: 5, windowMs: 15 * 60 * 1000, blockMs: 15 * 60 * 1000 });
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
@@ -64,15 +63,15 @@ export async function POST(req: NextRequest) {
     // 3. Verify password
     const ok = await bcrypt.compare(password, admin.password);
     if (!ok) {
-      recordFailedLogin(ip);
-      recordFailedLogin(`email:${email}`);
+      checkRateLimit(`login:ip:${ip}`, { maxRequests: 5, windowMs: 15 * 60 * 1000, blockMs: 15 * 60 * 1000 });
+      checkRateLimit(`login:email:${email}`, { maxRequests: 5, windowMs: 15 * 60 * 1000, blockMs: 15 * 60 * 1000 });
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
     }
 
-    // 4. Success
+    // 4. Success — clear rate limit
     recordSuccessfulLogin(ip);
     recordSuccessfulLogin(`email:${email}`);
 

@@ -14,12 +14,8 @@
 //   data/categories.json — array of categories
 // ============================================================
 
-// GitHub token is stored as an env var (GITHUB_TOKEN) — never commit it.
-// Fallback to a default token only in local dev (will be overridden on Vercel).
-const GITHUB_TOKEN =
-  process.env.GITHUB_TOKEN ||
-  process.env.NEXT_PUBLIC_GITHUB_TOKEN ||
-  "";
+// GitHub token must come from env var — never hardcoded.
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
 const REPO_OWNER = "tikocraft-max";
 const REPO_NAME = "tikocraft";
 const BRANCH = "main";

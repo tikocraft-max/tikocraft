@@ -5,8 +5,18 @@ import {
   getAllProducts,
   saveProduct,
   type StoredProduct,
+  ensureGitHubSeeded,
 } from "@/lib/github-db";
-import { ensureGitHubSeeded } from "@/lib/github-db";
+import {
+  sanitizeString,
+  sanitizeEmail,
+  sanitizeSlug,
+  sanitizeNumber,
+  sanitizeUrl,
+  checkRateLimit,
+  getClientIp,
+  RATE_LIMITS,
+} from "@/lib/sanitize";
 
 // ============================================================
 // Custom Clay Figures Orders API
@@ -60,18 +70,27 @@ export async function GET() {
 // POST — public creates a new custom order
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit (public endpoint — stricter)
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(`custom-order:${ip}`, RATE_LIMITS.write);
+    if (rl.blocked) {
+      return NextResponse.json(
+        { error: "Too many orders. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
-    const {
-      customerName,
-      customerEmail,
-      size,
-      priceUSD,
-      referencePhoto, // base64 data URL or GitHub raw URL
-      notes,
-      occasion, // "gift" | "personal" | "memorial" | "other"
-      recipientName,
-    } = body;
+    // Sanitize ALL inputs
+    const customerName = sanitizeString(body?.customerName, 200);
+    const customerEmail = sanitizeEmail(body?.customerEmail);
+    const size = sanitizeString(body?.size, 100);
+    const priceUSD = sanitizeNumber(body?.priceUSD, 0.01, 10000);
+    const referencePhoto = body?.referencePhoto ? String(body.referencePhoto) : "";
+    const notes = body?.notes ? sanitizeString(body?.notes, 2000) : "";
+    const occasion = sanitizeString(body?.occasion, 50);
+    const recipientName = body?.recipientName ? sanitizeString(body?.recipientName, 200) : "";
 
     // Validate required fields
     if (!customerName || !customerEmail || !size || !priceUSD) {
@@ -84,6 +103,22 @@ export async function POST(req: NextRequest) {
     if (!referencePhoto) {
       return NextResponse.json(
         { error: "Reference photo is required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate reference photo format (must be data: or https URL)
+    if (!referencePhoto.startsWith("data:image/") && !referencePhoto.startsWith("https://")) {
+      return NextResponse.json(
+        { error: "Invalid photo format" },
+        { status: 400 }
+      );
+    }
+
+    // Limit photo size (10MB base64 ≈ 14M chars)
+    if (referencePhoto.length > 14 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: "Photo too large (max 10MB)" },
         { status: 400 }
       );
     }

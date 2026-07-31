@@ -7,6 +7,17 @@ import {
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { verifySessionToken } from "@/lib/security";
+import {
+  sanitizeString,
+  sanitizeSlug,
+  sanitizeNumber,
+  sanitizeUrl,
+  sanitizeStringArray,
+  sanitizeBoolean,
+  checkRateLimit,
+  getClientIp,
+  RATE_LIMITS,
+} from "@/lib/sanitize";
 
 // Helper — checks if the current request is from a logged-in admin
 async function requireAdmin() {
@@ -25,6 +36,13 @@ async function requireAdmin() {
 // ============================================================
 export async function GET(req: NextRequest) {
   try {
+    // Rate limit
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(`products:get:${ip}`, RATE_LIMITS.read);
+    if (rl.blocked) {
+      return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+    }
+
     const { searchParams } = new URL(req.url);
     const includeUnpublished = searchParams.get("published") === "false";
 
@@ -89,19 +107,49 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Rate limit
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`products:post:${ip}`, RATE_LIMITS.admin);
+  if (rl.blocked) {
+    return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
-    const parsed = productSchema.safeParse(body);
-    if (!parsed.success) {
+
+    // Sanitize all inputs
+    const name = sanitizeString(body?.name, 200);
+    const slug = sanitizeSlug(body?.slug);
+    const categorySlug = sanitizeSlug(body?.categorySlug);
+    const description = sanitizeString(body?.description, 5000);
+    const priceUSD = sanitizeNumber(body?.priceUSD, 0.01, 100000);
+    const tag = body?.tag ? sanitizeString(body?.tag, 50) : null;
+    const image = sanitizeUrl(body?.image);
+    const images = sanitizeStringArray(body?.images);
+    const videoUrl = body?.videoUrl ? sanitizeUrl(body?.videoUrl) : null;
+    const material = body?.material ? sanitizeString(body?.material, 200) : null;
+    const dimensions = body?.dimensions ? sanitizeString(body?.dimensions, 200) : null;
+    const isPublished = sanitizeBoolean(body?.isPublished);
+    const sortOrder = sanitizeNumber(body?.sortOrder, 0, 9999);
+
+    // Validate required fields
+    if (!name || !slug || !categorySlug || !description || !image) {
       return NextResponse.json(
-        { error: "Invalid product data", details: parsed.error.flatten() },
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (priceUSD <= 0) {
+      return NextResponse.json(
+        { error: "Price must be greater than 0" },
         { status: 400 }
       );
     }
 
     // Check slug uniqueness
     const existing = await getAllProducts();
-    if (existing.find((p) => p.slug === parsed.data.slug)) {
+    if (existing.find((p) => p.slug === slug)) {
       return NextResponse.json(
         { error: "A product with this slug already exists" },
         { status: 400 }
@@ -111,19 +159,19 @@ export async function POST(req: NextRequest) {
     const now = new Date().toISOString();
     const product: StoredProduct = {
       id: `prod_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      name: parsed.data.name,
-      slug: parsed.data.slug,
-      categorySlug: parsed.data.categorySlug,
-      description: parsed.data.description,
-      priceUSD: parsed.data.priceUSD,
-      tag: parsed.data.tag ?? null,
-      isPublished: parsed.data.isPublished ?? true,
-      sortOrder: parsed.data.sortOrder ?? 0,
-      image: parsed.data.image,
-      images: parsed.data.images || [parsed.data.image],
-      videoUrl: parsed.data.videoUrl ?? null,
-      material: parsed.data.material ?? null,
-      dimensions: parsed.data.dimensions ?? null,
+      name,
+      slug,
+      categorySlug,
+      description,
+      priceUSD,
+      tag,
+      isPublished,
+      sortOrder,
+      image,
+      images: images.length > 0 ? images : [image],
+      videoUrl,
+      material,
+      dimensions,
       createdAt: now,
       updatedAt: now,
     };
