@@ -1,0 +1,87 @@
+[
+  {
+    "name": "Rue des Livres — Parisian Alley",
+    "slug": "rue-des-livres-parisian-alley",
+    "categorySlug": "book-nooks",
+    "description": "A hand-cut diorama of a Parisian street at dusk. 84 pieces, warm LED, 8 hours to assemble.",
+    "priceUSD": 142,
+    "tag": "Bestseller",
+    "image": "/images/booknook-1.png",
+    "images": [
+      "/images/booknook-1.png",
+      "/images/booknook-hero.png",
+      "/images/booknook-process.png"
+    ],
+    "videoUrl": null,
+    "material": "Birch plywood, LED, paint",
+    "dimensions": "21 × 11 × 30 cm",
+    "sortOrder": 1,
+    "isPublished": true,
+    "id": "seed_rue-des-livres-parisian-alley",
+    "createdAt": "2026-08-01T18:18:36.808Z",
+    "updatedAt": "2026-08-01T18:18:36.808Z"
+  },
+  {
+    "name": "Sylvan Hollow — Enchanted Forest",
+    "slug": "sylvan-hollow-enchanted-forest",
+    "categorySlug": "book-nooks",
+    "description": "A miniature forest with fairy lights and hand-painted mushrooms. 102 pieces, warm LED included.",
+    "priceUSD": 158,
+    "tag": "New",
+    "image": "/images/booknook-2.png",
+    "images": [
+      "/images/booknook-2.png",
+      "/images/booknook-hero.png"
+    ],
+    "videoUrl": null,
+    "material": "Birch plywood, LED, paint",
+    "dimensions": "21 × 11 × 30 cm",
+    "sortOrder": 2,
+    "isPublished": true,
+    "id": "seed_sylvan-hollow-enchanted-forest",
+    "createdAt": "2026-08-01T18:18:36.808Z",
+    "updatedAt": "2026-08-01T18:18:36.808Z"
+  },
+  {
+    "name": "The Reading Room — Tiny Library",
+    "slug": "the-reading-room-tiny-library",
+    "categorySlug": "book-nooks",
+    "description": "A miniature two-story library with rolling ladder and amber lamp light. 128 pieces.",
+    "priceUSD": 174,
+    "tag": "Limited",
+    "image": "/images/booknook-3.png",
+    "images": [
+      "/images/booknook-3.png",
+      "/images/booknook-hero.png"
+    ],
+    "videoUrl": null,
+    "material": "Birch plywood, LED, paint",
+    "dimensions": "21 × 11 × 30 cm",
+    "sortOrder": 3,
+    "isPublished": true,
+    "id": "seed_the-reading-room-tiny-library",
+    "createdAt": "2026-08-01T18:18:36.808Z",
+    "updatedAt": "2026-08-01T18:18:36.808Z"
+  },
+  {
+    "name": "Tsubaki-en — Zen Garden",
+    "slug": "tsubaki-en-zen-garden",
+    "categorySlug": "book-nooks",
+    "description": "A Japanese garden at twilight with stone lantern and cherry blossom. 96 pieces, warm LED.",
+    "priceUSD": 148,
+    "tag": null,
+    "image": "/images/booknook-4.png",
+    "images": [
+      "/images/booknook-4.png",
+      "/images/booknook-hero.png"
+    ],
+    "videoUrl": null,
+    "material": "Birch plywood, LED, paint",
+    "dimensions": "21 × 11 × 30 cm",
+    "sortOrder": 4,
+    "isPublished": true,
+    "id": "seed_tsubaki-en-zen-garden",
+    "createdAt": "2026-08-01T18:18:36.808Z",
+    "updatedAt": "2026-08-01T18:18:36.808Z"
+  }
+]
