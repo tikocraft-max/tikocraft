@@ -79,25 +79,29 @@ interface GitHubFile {
 
 async function getFile(path: string): Promise<GitHubFile | null> {
   try {
+    // Use cache-busting timestamp to always get fresh data from GitHub API
     const res = await fetch(
-      `${GITHUB_API}/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${BRANCH}`,
+      `${GITHUB_API}/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${BRANCH}&t=${Date.now()}`,
       {
         headers: {
           Authorization: `token ${GITHUB_TOKEN}`,
           Accept: "application/vnd.github.v3+json",
+          "Cache-Control": "no-cache",
         },
+        cache: "no-store",
       }
     );
     if (!res.ok) {
       if (res.status === 404) return null;
-      throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
+      // Don't leak internal error details
+      console.error(`[github] getFile(${path}) failed: ${res.status}`);
+      return null;
     }
     const data = await res.json();
-    // Strip newlines from base64 content
     const content = (data.content || "").replace(/\n/g, "");
     return { content, sha: data.sha, path: data.path };
   } catch (err) {
-    console.error(`[github] getFile(${path}) error:`, err);
+    console.error(`[github] getFile(${path}) error`);
     return null;
   }
 }
