@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "book-nooks",
+    "name": "3D DIY Book Nooks",
+    "subtitle": "Worlds Between Books",
+    "description": "Hand-cut wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
+    "image": "/images/collection-booknooks.png",
+    "categoryType": "booknook",
+    "sortOrder": 1,
+    "id": "seed_book-nooks"
+  },
+  {
+    "slug": "3d-diy-miniature",
+    "name": "3D DIY Miniature",
+    "subtitle": "Build Your World",
+    "description": "Detailed miniature diorama kits you assemble yourself. Precision-cut pieces, warm LED lighting, and hand-painted details bring tiny scenes to life.",
+    "image": "/images/booknook-hero.png",
+    "categoryType": "booknook",
+    "sortOrder": 2,
+    "id": "seed_3d-diy-miniature"
+  },
+  {
+    "slug": "custom-figures",
+    "name": "Custom Figures",
+    "subtitle": "Sculpted From Your Photo",
+    "description": "Turn a photo into a hand-sculpted clay figure. A unique gift for loved ones, a memorial keepsake, or a personal treasure. Each piece is crafted by hand.",
+    "image": "/images/atelier-1.png",
+    "categoryType": "booknook",
+    "sortOrder": 3,
+    "id": "seed_custom-figures"
+  }
+]
