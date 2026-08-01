@@ -3,8 +3,8 @@
 // and lib/github-db.ts (GitHub-backed persistence).
 // ============================================================
 
-export const ADMIN_EMAIL = "tikocraft.com@gmail.com";
-export const ADMIN_PASSWORD = "147Aa1471:/";
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "tikocraft.com@gmail.com";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 
 export interface SeedCategory {
   slug: string;

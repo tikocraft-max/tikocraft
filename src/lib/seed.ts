@@ -124,8 +124,8 @@ async function ensureSchemaExists(): Promise<boolean> {
 // Seed data
 // ============================================================
 
-export const ADMIN_EMAIL = "tikocraft.com@gmail.com";
-export const ADMIN_PASSWORD = "147Aa1471:/";
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "tikocraft.com@gmail.com";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 
 const SEED_CATEGORIES = [
   {

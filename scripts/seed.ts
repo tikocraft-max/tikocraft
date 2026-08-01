@@ -12,10 +12,10 @@ import bcrypt from "bcryptjs";
 const db = new PrismaClient();
 
 // ============================================================
-// ADMIN CREDENTIALS — change these to your own
+// ADMIN CREDENTIALS — read from environment variables for security
 // ============================================================
-const ADMIN_EMAIL = "tikocraft.com@gmail.com";
-const ADMIN_PASSWORD = "147Aa1471:/";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "tikocraft.com@gmail.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const ADMIN_NAME = "Tikocraft Owner";
 
 async function main() {

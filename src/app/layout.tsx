@@ -18,17 +18,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tikocraft — Handcrafted Home Decor | Artisan Objects for Modern Living",
+  title: "Tikocraft — 3D DIY Book Nooks & Custom Clay Figures",
   description:
-    "Tikocraft creates handcrafted home decor objects in earthy browns, beige and natural materials. Discover ceramic vases, woven textiles, sculptural lighting and furniture made by artisans.",
+    "Tikocraft crafts hand-cut book nook dioramas, 3D miniature kits, and bespoke clay figures sculpted from your photos. Each piece is made with patience, one at a time.",
   keywords: [
     "Tikocraft",
-    "handcrafted home decor",
-    "artisan ceramics",
-    "luxury home decor",
-    "woven textiles",
-    "sculptural lighting",
-    "modern craft",
+    "book nooks",
+    "3D DIY book nook",
+    "custom clay figures",
+    "miniature diorama kits",
+    "handcrafted figures",
+    "bookshelf diorama",
   ],
   authors: [{ name: "Tikocraft" }],
   icons: {
@@ -43,16 +43,16 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    title: "Tikocraft — Handcrafted Home Decor",
+    title: "Tikocraft — 3D DIY Book Nooks & Custom Clay Figures",
     description:
-      "Artisan objects for modern living. Discover our collections of ceramics, textiles, lighting and furniture.",
+      "Hand-cut book nook dioramas, 3D miniature kits, and bespoke clay figures sculpted from your photos.",
     siteName: "Tikocraft",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tikocraft — Handcrafted Home Decor",
-    description: "Artisan objects for modern living.",
+    title: "Tikocraft — Book Nooks & Custom Figures",
+    description: "Hand-cut dioramas and custom clay figures, made one at a time.",
   },
 };
 
