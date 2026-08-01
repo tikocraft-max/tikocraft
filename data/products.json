@@ -83,5 +83,25 @@
     "id": "seed_tsubaki-en-zen-garden",
     "createdAt": "2026-08-01T18:18:36.808Z",
     "updatedAt": "2026-08-01T18:18:36.808Z"
+  },
+  {
+    "id": "custom_1785608323164_svbqkc",
+    "name": "Custom Clay Figure — alert(1)",
+    "slug": "custom_1785608323164_svbqkc",
+    "categorySlug": "custom-clay-orders",
+    "description": "Custom Clay Figure Order\nCustomer: alert(1)\nEmail: test@test.com\nSize: Small\nPrice: $85\nOccasion: personal\nOrder Date: 2026-08-01T18:18:43.164Z\nOrder ID: custom_1785608323164_svbqkc\nStatus: pending",
+    "priceUSD": 85,
+    "tag": "Custom Order",
+    "isPublished": false,
+    "sortOrder": 0,
+    "image": "data:image/png;base64,abc",
+    "images": [
+      "data:image/png;base64,abc"
+    ],
+    "videoUrl": null,
+    "material": "{\"customerName\":\"alert(1)\",\"customerEmail\":\"test@test.com\",\"size\":\"Small\",\"occasion\":\"personal\",\"recipientName\":\"\",\"notes\":\"\",\"status\":\"pending\",\"orderDate\":\"2026-08-01T18:18:43.164Z\",\"orderId\":\"custom_1785608323164_svbqkc\"}",
+    "dimensions": "Small",
+    "createdAt": "2026-08-01T18:18:43.252Z",
+    "updatedAt": "2026-08-01T18:18:43.252Z"
   }
 ]
