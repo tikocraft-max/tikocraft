@@ -61,13 +61,30 @@ export default function Hero() {
         className="absolute inset-0 z-0"
       >
         {/* Looping workshop video — muted, autoplay, playsInline for browser compatibility.
-            objectPosition "center 22%" shows the upper portion of the video, which
-            shifts Tiko's face downward into the visible area below the navbar.
+
+            FRAMING FIX: Tiko's face sits at ~45% from the top of the source video,
+            which is exactly where the hero text block lives — so the text was
+            covering his face. Since the video is 16:9 and the viewport is ~16:9,
+            object-position has no effect (no cropping). The only way to shift the
+            face UP on screen is a CSS transform: scale up + translate up.
+
+            transform: translateY(-25%) scale(1.25) with origin 'top center':
+              • scale(1.25) grows the video to 125% of section height (top fixed)
+              • translateY(-25%) shifts it up by 25% of section height
+              • Net: video spans -25% → 100% of section (no bottom gap)
+              • Face at 45% of source → 45% × 1.25 − 25% = 31.25% of screen
+              • Text block starts ~45% → clear 14% gap between face and text
+
             No poster image — section bg-brown-900 is the fallback color. */}
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1.6s] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{ opacity: videoReady ? 1 : 0, objectPosition: "center 22%" }}
+          style={{
+            opacity: videoReady ? 1 : 0,
+            objectPosition: "center top",
+            transform: "translateY(-25%) scale(1.25)",
+            transformOrigin: "top center",
+          }}
           autoPlay
           muted
           loop
@@ -86,12 +103,13 @@ export default function Hero() {
         style={{ opacity: overlayOpacity }}
         className="absolute inset-0 z-10 bg-gradient-to-b from-brown-900/70 via-brown-900/20 to-brown-900/90"
       />
-      {/* Localized scrim behind the hero text block at the bottom — extra
-          readability for the headline without darkening the whole frame. */}
-      <div className="absolute inset-x-0 bottom-0 h-[55%] z-10 pointer-events-none [background:linear-gradient(to_bottom,transparent_0%,rgba(40,28,18,0.35)_45%,rgba(40,28,18,0.78)_80%,rgba(40,28,18,0.92)_100%)]" />
-      {/* Side vignette — biases the radial highlight to ~40% (upper-middle),
-          where Tiko's face now sits. */}
-      <div className="absolute inset-0 z-10 pointer-events-none [background:radial-gradient(120%_90%_at_50%_38%,transparent_55%,rgba(40,28,18,0.5)_100%)]" />
+      {/* Localized scrim behind the hero text block at the bottom — starts
+          at ~38% so Tiko's face (now at ~31% after the transform shift)
+          stays bright and uncovered. Text block starts ~45%. */}
+      <div className="absolute inset-x-0 bottom-0 h-[62%] z-10 pointer-events-none [background:linear-gradient(to_bottom,transparent_0%,rgba(40,28,18,0.0)_15%,rgba(40,28,18,0.35)_40%,rgba(40,28,18,0.78)_75%,rgba(40,28,18,0.92)_100%)]" />
+      {/* Side vignette — biases the radial highlight to ~31% (upper area),
+          where Tiko's face now sits after the transform shift. */}
+      <div className="absolute inset-0 z-10 pointer-events-none [background:radial-gradient(120%_90%_at_50%_31%,transparent_55%,rgba(40,28,18,0.5)_100%)]" />
       <div className="absolute inset-0 z-10 grain-overlay" />
 
       {/* Hero text — anchored to the bottom so the upper half stays
@@ -167,13 +185,13 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* "Live from the atelier" badge — points toward Tiko's face area
-          (upper-middle of the frame after the object-position shift). */}
+      {/* "Live from the atelier" badge — sits in the upper-right area,
+          near Tiko's face (now at ~31% after the transform shift). */}
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: videoReady ? 1 : 0, x: 0 }}
         transition={{ delay: 2.0, duration: 1.0, ease: easeLuxe }}
-        className="absolute top-28 right-6 md:right-10 z-20 hidden md:flex items-center gap-2.5 select-none"
+        className="absolute top-24 right-6 md:right-10 z-20 hidden md:flex items-center gap-2.5 select-none"
       >
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full rounded-full bg-beige/60 animate-ping" />
