@@ -50,8 +50,9 @@ export default function Hero() {
       {/* Video background with iris reveal on load + parallax on scroll.
           object-position biases the framing toward the TOP of the video,
           which pushes Tiko's face DOWN on screen — clear of the navbar.
-          We layer the poster image UNDER the video and crossfade to it
-          so there is never a flash of black while the video buffers. */}
+          The section background is a solid brown-900 — so while the video
+          buffers, the user sees a clean brown screen, NOT a stale poster
+          image. The video then fades in on top of it. */}
       <motion.div
         variants={clipRevealIris}
         initial="hidden"
@@ -59,17 +60,10 @@ export default function Hero() {
         style={{ y: imageY, scale: imageScale }}
         className="absolute inset-0 z-0"
       >
-        {/* Poster fallback (existing hero image) — visible until video plays */}
-        <img
-          src="/images/hero.png"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{ opacity: videoReady ? 0 : 1, objectPosition: "center 22%" }}
-        />
         {/* Looping workshop video — muted, autoplay, playsInline for browser compatibility.
             objectPosition "center 22%" shows the upper portion of the video, which
-            shifts Tiko's face downward into the visible area below the navbar. */}
+            shifts Tiko's face downward into the visible area below the navbar.
+            No poster image — section bg-brown-900 is the fallback color. */}
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1.6s] ease-[cubic-bezier(0.22,1,0.36,1)]"
@@ -79,7 +73,6 @@ export default function Hero() {
           loop
           playsInline
           preload="auto"
-          poster="/images/hero.png"
           aria-label="Tiko at work in his atelier — crafting a custom figure among book nooks, waving to the camera"
         >
           <source src="/videos/tiko-workshop.mp4" type="video/mp4" />
