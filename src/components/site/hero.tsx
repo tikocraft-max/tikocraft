@@ -22,8 +22,43 @@ export default function Hero() {
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.55, 0.85]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
+
+  // TEXT REVEAL ON SCROLL:
+  // The hero text block is HIDDEN on page load — the user sees only the
+  // looping workshop video (Tiko's face, the book nooks behind him, the
+  // waving gesture). As soon as the user starts scrolling down, the text
+  // fades in + slides up into its final position. It stays readable through
+  // most of the hero, then fades out as the hero exits the viewport.
+  //
+  // opacity: 0 → 1 over [0, 0.06] (first 6% of scroll = ~40px on a 700px hero)
+  //          1 → 1 over [0.06, 0.55] (hold while scrolling through hero)
+  //          1 → 0 over [0.55, 0.85] (fade out as hero leaves viewport)
+  // y:       8% → 0% over [0, 0.06] (slide up into position as it fades in)
+  //          0% → 20% over [0.06, 1] (parallax lag — text drifts down as
+  //          section scrolls up, creating depth)
+  const textOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.06, 0.55, 0.85],
+    [0, 1, 1, 0]
+  );
+  const textY = useTransform(scrollYProgress, [0, 0.06, 1], ["8%", "0%", "20%"]);
+
+  // Scroll hint fades out once the user has started scrolling (they've got
+  // the message, no need to keep flashing the chevron at them).
+  const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.04], [1, 0]);
+
+  // hasScrolled flips to true on the first scroll event and stays true. It
+  // triggers the staggered children reveal (eyebrow → headline → copy → CTAs)
+  // inside the text block — so when the user scrolls, the elements don't all
+  // appear at once, they cascade in with a 0.15s stagger for an editorial feel.
+  const [hasScrolled, setHasScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.scrollY > 20 && !hasScrolled) setHasScrolled(true);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [hasScrolled]);
 
   // Detect when video has actually started playing so we can crossfade
   // from the poster image to the live video — no black flash.
@@ -114,15 +149,23 @@ export default function Hero() {
 
       {/* Hero text — anchored to the bottom so the upper half stays
           clear for Tiko's face. The eyebrow / headline / copy / CTAs
-          all sit together as a single editorial block. */}
+          all sit together as a single editorial block.
+
+          OUTER motion.div: scroll-driven opacity + parallax y. At scroll 0
+          this is fully transparent (opacity 0) and shifted down 8% — the
+          text is invisible, only the video shows.
+
+          INNER motion.div: staggered children reveal, triggered by
+          `hasScrolled` (flips true on first scroll > 20px). Children
+          cascade in with a 0.15s stagger for an editorial feel. */}
       <motion.div
         style={{ y: textY, opacity: textOpacity }}
         className="relative z-20 flex h-full flex-col items-center justify-end pb-28 px-6 text-center"
       >
         <motion.div
-          variants={staggerContainer(0.18, 0.6)}
+          variants={staggerContainer(0.15, 0)}
           initial="hidden"
-          animate="visible"
+          animate={hasScrolled ? "visible" : "hidden"}
           className="max-w-5xl"
         >
           <motion.div
@@ -202,22 +245,31 @@ export default function Hero() {
         </span>
       </motion.div>
 
-      {/* Scroll indicator — compact, sits below the hero text (pb-28 leaves
-          a clean strip at the very bottom for it). */}
+      {/* Scroll indicator — the PRIMARY hint on initial load, since the hero
+          text is now hidden. Appears after a 1.5s delay (let the video settle),
+          then fades out as soon as the user starts scrolling. Compact, sits at
+          the very bottom of the hero. */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.2, duration: 1, ease: easeLuxe }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1"
+        style={{ opacity: scrollHintOpacity }}
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5"
       >
-        <span className="font-body text-[10px] tracking-luxe uppercase text-cream/60">
-          Scroll
-        </span>
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        <motion.span
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 1, ease: easeLuxe }}
+          className="font-body text-[10px] tracking-luxe uppercase text-cream/70"
         >
-          <ChevronDown className="h-3.5 w-3.5 text-cream/60" />
+          Scroll to explore
+        </motion.span>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, y: [0, 6, 0] }}
+          transition={{
+            opacity: { delay: 1.5, duration: 1, ease: easeLuxe },
+            y: { delay: 1.5, duration: 2, repeat: Infinity, ease: "easeInOut" },
+          }}
+        >
+          <ChevronDown className="h-4 w-4 text-cream/70" />
         </motion.div>
       </motion.div>
 
