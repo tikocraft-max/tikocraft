@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["bun"]
+nixPkgs = ["bun", "openssl", "openssl_3"]
 
 [phases.install]
 cmds = ["bun install"]
@@ -8,4 +8,4 @@ cmds = ["bun install"]
 cmds = ["bun run db:generate", "bun run next build"]
 
 [start]
-cmd = "bun run start"
+cmd = "next start -p ${PORT:-3000}"

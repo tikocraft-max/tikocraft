@@ -6,7 +6,7 @@
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "vercel-build": "prisma generate && prisma db push --accept-data-loss && bun run scripts/seed.ts && next build",
-    "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
+    "start": "next start -p ${PORT:-3000}",
     "lint": "eslint .",
     "seed": "bun run scripts/seed.ts",
     "db:push": "prisma db push --accept-data-loss",
