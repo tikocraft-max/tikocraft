@@ -1,18 +1,21 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { fadeUp, staggerContainer, easeLuxe, easeExpo, clipRevealIris } from "@/lib/animations";
 import { useRouter } from "@/lib/router";
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const { navigate } = useRouter();
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
   });
-  const { navigate } = useRouter();
 
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
@@ -20,12 +23,31 @@ export default function Hero() {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "60%"]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
+  // Detect when video has actually started playing so we can crossfade
+  // from the poster image to the live video — no black flash.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onPlaying = () => setVideoReady(true);
+    const onCanPlay = () => setVideoReady(true);
+    v.addEventListener("playing", onPlaying);
+    v.addEventListener("canplay", onCanPlay);
+    // Safety: if the video is already ready (cached), mark it.
+    if (v.readyState >= 3) setVideoReady(true);
+    return () => {
+      v.removeEventListener("playing", onPlaying);
+      v.removeEventListener("canplay", onCanPlay);
+    };
+  }, []);
+
   return (
     <section
       ref={ref}
-      className="relative h-screen min-h-[680px] w-full overflow-hidden"
+      className="relative h-screen min-h-[680px] w-full overflow-hidden bg-brown-900"
     >
-      {/* Image with iris reveal on load + parallax on scroll */}
+      {/* Video background with iris reveal on load + parallax on scroll.
+          We layer the poster image UNDER the video and crossfade to it
+          so there is never a flash of black while the video buffers. */}
       <motion.div
         variants={clipRevealIris}
         initial="hidden"
@@ -33,17 +55,38 @@ export default function Hero() {
         style={{ y: imageY, scale: imageScale }}
         className="absolute inset-0 z-0"
       >
+        {/* Poster fallback (existing hero image) — visible until video plays */}
         <img
           src="/images/hero.png"
-          alt="Tikocraft luxury living room interior with handcrafted decor"
-          className="h-full w-full object-cover"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={{ opacity: videoReady ? 0 : 1 }}
         />
+        {/* Looping workshop video — muted, autoplay, playsInline for browser compatibility */}
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1.6s] ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={{ opacity: videoReady ? 1 : 0 }}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/images/hero.png"
+          aria-label="Tiko at work in his atelier — crafting a custom figure among book nooks, waving to the camera"
+        >
+          <source src="/videos/tiko-workshop.mp4" type="video/mp4" />
+        </video>
       </motion.div>
 
+      {/* Cinematic gradient overlays — top + bottom + side vignette for text legibility */}
       <motion.div
         style={{ opacity: overlayOpacity }}
         className="absolute inset-0 z-10 bg-gradient-to-b from-brown-900/60 via-brown-900/40 to-brown-900/80"
       />
+      {/* Side vignette for a more "framed" cinematic look */}
+      <div className="absolute inset-0 z-10 pointer-events-none [background:radial-gradient(120%_90%_at_50%_50%,transparent_55%,rgba(40,28,18,0.55)_100%)]" />
       <div className="absolute inset-0 z-10 grain-overlay" />
 
       <motion.div
@@ -114,6 +157,23 @@ export default function Hero() {
             </motion.button>
           </motion.div>
         </motion.div>
+      </motion.div>
+
+      {/* "Live from the atelier" badge — subtle indicator that the background is alive,
+          styled editorially rather than as a generic play button. */}
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: videoReady ? 1 : 0, x: 0 }}
+        transition={{ delay: 2.0, duration: 1.0, ease: easeLuxe }}
+        className="absolute top-28 right-6 md:right-10 z-20 hidden md:flex items-center gap-2.5 select-none"
+      >
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-beige/60 animate-ping" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-beige" />
+        </span>
+        <span className="font-body text-[10px] tracking-luxe uppercase text-beige/80">
+          Live from the atelier
+        </span>
       </motion.div>
 
       <motion.div
