@@ -17,11 +17,13 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  // Slightly reduced parallax — text is now anchored to the bottom,
+  // so a large y-shift would scroll it off too quickly.
+  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.55, 0.85]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "60%"]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
 
   // Detect when video has actually started playing so we can crossfade
   // from the poster image to the live video — no black flash.
@@ -46,6 +48,8 @@ export default function Hero() {
       className="relative h-screen min-h-[680px] w-full overflow-hidden bg-brown-900"
     >
       {/* Video background with iris reveal on load + parallax on scroll.
+          object-position biases the framing toward the TOP of the video,
+          which pushes Tiko's face DOWN on screen — clear of the navbar.
           We layer the poster image UNDER the video and crossfade to it
           so there is never a flash of black while the video buffers. */}
       <motion.div
@@ -61,13 +65,15 @@ export default function Hero() {
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{ opacity: videoReady ? 0 : 1 }}
+          style={{ opacity: videoReady ? 0 : 1, objectPosition: "center 22%" }}
         />
-        {/* Looping workshop video — muted, autoplay, playsInline for browser compatibility */}
+        {/* Looping workshop video — muted, autoplay, playsInline for browser compatibility.
+            objectPosition "center 22%" shows the upper portion of the video, which
+            shifts Tiko's face downward into the visible area below the navbar. */}
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1.6s] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{ opacity: videoReady ? 1 : 0 }}
+          style={{ opacity: videoReady ? 1 : 0, objectPosition: "center 22%" }}
           autoPlay
           muted
           loop
@@ -80,18 +86,27 @@ export default function Hero() {
         </video>
       </motion.div>
 
-      {/* Cinematic gradient overlays — top + bottom + side vignette for text legibility */}
+      {/* Cinematic gradient overlays — heavier at top (for navbar) and
+          bottom (for hero text) so the subject stays visible in the middle.
+          The middle band is kept lighter to keep Tiko's face unobscured. */}
       <motion.div
         style={{ opacity: overlayOpacity }}
-        className="absolute inset-0 z-10 bg-gradient-to-b from-brown-900/60 via-brown-900/40 to-brown-900/80"
+        className="absolute inset-0 z-10 bg-gradient-to-b from-brown-900/70 via-brown-900/20 to-brown-900/90"
       />
-      {/* Side vignette for a more "framed" cinematic look */}
-      <div className="absolute inset-0 z-10 pointer-events-none [background:radial-gradient(120%_90%_at_50%_50%,transparent_55%,rgba(40,28,18,0.55)_100%)]" />
+      {/* Localized scrim behind the hero text block at the bottom — extra
+          readability for the headline without darkening the whole frame. */}
+      <div className="absolute inset-x-0 bottom-0 h-[55%] z-10 pointer-events-none [background:linear-gradient(to_bottom,transparent_0%,rgba(40,28,18,0.35)_45%,rgba(40,28,18,0.78)_80%,rgba(40,28,18,0.92)_100%)]" />
+      {/* Side vignette — biases the radial highlight to ~40% (upper-middle),
+          where Tiko's face now sits. */}
+      <div className="absolute inset-0 z-10 pointer-events-none [background:radial-gradient(120%_90%_at_50%_38%,transparent_55%,rgba(40,28,18,0.5)_100%)]" />
       <div className="absolute inset-0 z-10 grain-overlay" />
 
+      {/* Hero text — anchored to the bottom so the upper half stays
+          clear for Tiko's face. The eyebrow / headline / copy / CTAs
+          all sit together as a single editorial block. */}
       <motion.div
         style={{ y: textY, opacity: textOpacity }}
-        className="relative z-20 flex h-full flex-col items-center justify-center px-6 text-center"
+        className="relative z-20 flex h-full flex-col items-center justify-end pb-28 px-6 text-center"
       >
         <motion.div
           variants={staggerContainer(0.18, 0.6)}
@@ -101,7 +116,7 @@ export default function Hero() {
         >
           <motion.div
             variants={fadeUp}
-            className="flex items-center justify-center gap-4 mb-8"
+            className="flex items-center justify-center gap-4 mb-6"
           >
             <span className="h-px w-12 bg-beige/60" />
             <span className="font-body text-[11px] tracking-luxe uppercase text-beige/80">
@@ -123,7 +138,7 @@ export default function Hero() {
 
           <motion.p
             variants={fadeUp}
-            className="mt-10 mx-auto max-w-xl font-body text-base sm:text-lg text-cream/80 leading-relaxed font-light"
+            className="mt-8 mx-auto max-w-xl font-body text-base sm:text-lg text-cream/80 leading-relaxed font-light"
           >
             Tikocraft is a small atelier of ceramicists, weavers, woodworkers —
             and makers of miniature worlds. Earthy home objects, and 3D DIY book
@@ -132,7 +147,7 @@ export default function Hero() {
 
           <motion.div
             variants={fadeUp}
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <motion.button
               whileHover={{ scale: 1.03 }}
@@ -159,8 +174,8 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* "Live from the atelier" badge — subtle indicator that the background is alive,
-          styled editorially rather than as a generic play button. */}
+      {/* "Live from the atelier" badge — points toward Tiko's face area
+          (upper-middle of the frame after the object-position shift). */}
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: videoReady ? 1 : 0, x: 0 }}
@@ -176,20 +191,22 @@ export default function Hero() {
         </span>
       </motion.div>
 
+      {/* Scroll indicator — compact, sits below the hero text (pb-28 leaves
+          a clean strip at the very bottom for it). */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.2, duration: 1, ease: easeLuxe }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1"
       >
         <span className="font-body text-[10px] tracking-luxe uppercase text-cream/60">
           Scroll
         </span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
+          animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <ChevronDown className="h-4 w-4 text-cream/60" />
+          <ChevronDown className="h-3.5 w-3.5 text-cream/60" />
         </motion.div>
       </motion.div>
 
