@@ -20,15 +20,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Tikocraft — 3D DIY Book Nooks & Custom Clay Figures",
   description:
-    "Tikocraft crafts hand-cut book nook dioramas, 3D miniature kits, and bespoke clay figures sculpted from your photos. Each piece is made with patience, one at a time.",
+    "Tikocraft is a curated online studio offering 3D DIY book nook kits, miniature dioramas, and bespoke clay figures made to order from your photos. Shipped worldwide.",
   keywords: [
     "Tikocraft",
     "book nooks",
     "3D DIY book nook",
     "custom clay figures",
     "miniature diorama kits",
-    "handcrafted figures",
     "bookshelf diorama",
+    "DIY miniature kits",
   ],
   authors: [{ name: "Tikocraft" }],
   icons: {
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Tikocraft — 3D DIY Book Nooks & Custom Clay Figures",
     description:
-      "Hand-cut book nook dioramas, 3D miniature kits, and bespoke clay figures sculpted from your photos.",
+      "3D DIY book nook kits, miniature dioramas, and bespoke clay figures made to order from your photos. Shipped worldwide.",
     siteName: "Tikocraft",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Tikocraft — Book Nooks & Custom Figures",
-    description: "Hand-cut dioramas and custom clay figures, made one at a time.",
+    description: "3D DIY book nook kits and custom clay figures, curated with care and shipped worldwide.",
   },
 };
 

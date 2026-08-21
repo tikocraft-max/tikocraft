@@ -12,44 +12,44 @@ import {
 import { useRouter } from "@/lib/router";
 
 const stats = [
-  { value: "2018", label: "Year founded" },
-  { value: "12", label: "Resident artisans" },
-  { value: "2", label: "Crafts practiced" },
-  { value: "1", label: "Piece at a time" },
+  { value: "2018", label: "Year established" },
+  { value: "2", label: "Curated crafts" },
+  { value: "100%", label: "Selected with care" },
+  { value: "1", label: "Order at a time" },
 ];
 
 const values = [
   {
-    title: "Slow Hands",
+    title: "Slow Selection",
     description:
-      "We measure work in seasons, not shifts. A single vessel can pass through six hands and four kiln firings before it leaves us.",
+      "We measure a piece by how it ages, not how fast it ships. Every item in our catalog is chosen because we believe it will look quieter and better ten years from now.",
   },
   {
     title: "Honest Material",
     description:
-      "Local clay, regional wool, FSC-certified birch ply. We let the material speak first, then shape our form around its grain.",
+      "Birch plywood, natural finishes, warm LEDs. We let the material speak first — and we describe it accurately, so you know exactly what you are buying.",
   },
   {
     title: "Built to Outlive",
     description:
-      "Every object is finished to be repaired, not replaced. We send care notes with every order and mend what we make, for life.",
+      "Every product we carry is finished to be repaired, not replaced. We share care notes with every order and stand behind what we ship, for the long run.",
   },
 ];
 
 const decorSteps = [
-  ["Sourcing", "Clay dug from local riverbeds, wool sheared from regional flocks, oak felled within 200km."],
-  ["Wedging & spinning", "Material prepared by hand — no pug mills. Two days of resting before any forming begins."],
-  ["Forming", "Wheel-thrown, slab-built, or hand-carved. Every object carries the trace of its maker."],
-  ["Drying & firing", "Slow air-drying for ten days, then three kiln firings peaking at 1280°C."],
-  ["Finishing", "Hand-sanding, oiling, or glazing. Surfaces meant to be touched as well as seen."],
-  ["Signing & shipping", "Each piece dated and signed. Wrapped in undyed linen and shipped from the atelier."],
+  ["Curation", "We source from designers and makers whose work we have followed for years. Each piece earns a place in the catalog on its own merits."],
+  ["Quality check", "Every item is inspected against our materials and finish standards before it is listed. Anything that falls short is returned at our cost."],
+  ["Photography", "We photograph what you see, in natural light. No stylized set dressing — the images match the object you receive."],
+  ["Honest copy", "Dimensions, materials, and assembly time are stated plainly. If something takes 8 hours to assemble, that is what we tell you."],
+  ["Secure packaging", "Each order is packed in protective, recyclable materials strong enough to survive international shipping."],
+  ["Tracked shipping", "A confirmation and tracking link is sent the moment your order leaves the fulfillment partner, so you can follow it to your door."],
 ];
 
 const booknookSteps = [
   ["Design", "Each diorama is drawn at scale on paper — every window, lamp, and cobblestone planned before any cut."],
-  ["Cutting", "Pieces laser-cut from 3mm birch plywood, then hand-sanded and inspected piece by piece."],
-  ["Painting", "Facades, trees, and tiny interiors hand-painted with miniature brushes. Two coats, two days."],
-  ["Wiring", "Warm LED strips threaded through hidden channels, soldered by hand to a USB power lead."],
+  ["Cutting", "Pieces laser-cut from 3mm birch plywood, then sanded and inspected piece by piece."],
+  ["Painting", "Facades, trees, and tiny interiors painted with miniature brushes. Two coats, two days."],
+  ["Wiring", "Warm LED strips threaded through hidden channels, soldered to a USB power lead."],
   ["Kitting", "Pieces sorted into labelled compartments with an illustrated assembly guide."],
   ["Assembly", "You slot the pieces together — no glue. 8 to 12 hours of slow, focused work."],
 ];
@@ -83,19 +83,20 @@ export default function AtelierPage() {
               variants={fadeUp}
               className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-brown-900 leading-[1.02] mb-8 text-balance max-w-4xl"
             >
-              A workshop built
+              A studio built
               <br />
-              around the <span className="italic font-light text-brown-500">hand</span>,
-              not the machine.
+              around the <span className="italic font-light text-brown-500">piece</span>,
+              not the trend.
             </motion.h1>
             <motion.p
               variants={fadeUp}
               className="max-w-2xl font-body text-base sm:text-lg text-brown-700/80 leading-relaxed font-light"
             >
-              Tikocraft began in a converted stable outside Marrakech, with a
-              single kiln and three potters. Today, twelve artisans share the
-              same roof — and two crafts: shaping earthy home objects, and
-              cutting the tiny wooden pieces that become our book nooks.
+              Tikocraft began in 2018 as a small online studio curating earthy
+              home objects and DIY miniature kits. Today we focus on two crafts
+              — sourcing considered decor pieces, and designing book nook kits
+              that you assemble at home. Every item in the catalog is selected
+              with the same patience it asks of you.
             </motion.p>
           </motion.div>
         </div>
@@ -156,7 +157,7 @@ export default function AtelierPage() {
               <div className="relative aspect-[4/5] sm:aspect-[5/4] overflow-hidden">
                 <motion.img
                   src="/images/atelier-1.png"
-                  alt="Artisan shaping clay"
+                  alt="Tikocraft studio"
                   style={{ y: imageY }}
                   className="absolute inset-0 h-[115%] w-full object-cover -top-[8%]"
                 />
@@ -169,10 +170,10 @@ export default function AtelierPage() {
                 className="absolute -bottom-6 -right-4 sm:right-8 bg-cream border border-beige px-6 py-5 max-w-[260px] shadow-[0_20px_50px_-20px_rgba(74,46,26,0.3)]"
               >
                 <span className="font-display text-3xl text-brown-800 block leading-none">
-                  72 hours
+                  8 hours
                 </span>
                 <span className="font-body text-xs text-brown-600 mt-2 block leading-relaxed">
-                  of patient shaping — from raw clay to finished vessel.
+                  of patient assembly — from flat-pack kit to glowing world.
                 </span>
               </motion.div>
             </motion.div>
@@ -188,16 +189,17 @@ export default function AtelierPage() {
                 variants={fadeUp}
                 className="font-display text-3xl sm:text-4xl md:text-5xl text-brown-900 leading-[1.1] mb-8 text-balance"
               >
-                Two crafts under one roof — clay in the morning, ply in the afternoon.
+                Two crafts under one roof — curated decor, designed kits.
               </motion.h2>
               <motion.p
                 variants={fadeUp}
                 className="font-body text-base text-brown-700/80 leading-relaxed mb-6 font-light"
               >
-                Our mornings belong to clay. The wheels spin by 7, the kiln
-                fires by 9, and by noon the drying shelves are full of vessels
-                waiting their second firing. The afternoon light, gentler, is
-                for the book nooks — painting tiny facades and threading LEDs.
+                Our mornings belong to research — reviewing submissions,
+                checking finishes, answering your questions about materials and
+                assembly. The afternoon light, gentler, is for the book nooks
+                themselves: photographing kits, updating guides, and writing
+                the little notes that ship with each order.
               </motion.p>
               <motion.p
                 variants={fadeUp}
@@ -212,7 +214,7 @@ export default function AtelierPage() {
                 onClick={() => navigate("contact")}
                 className="group inline-flex items-center gap-3 bg-brown-800 text-cream px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-all duration-500 hover:bg-brown-900"
               >
-                Write to the Atelier
+                Write to Tikocraft
                 <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
               </motion.button>
             </motion.div>
@@ -265,22 +267,22 @@ export default function AtelierPage() {
               <motion.div variants={fadeUp} className="flex items-center gap-3 mb-6">
                 <span className="h-px w-8 bg-brown-400" />
                 <span className="font-body text-[11px] tracking-luxe uppercase text-brown-500">
-                  Process · Handmade Decor
+                  Process · Home Decor
                 </span>
               </motion.div>
               <motion.h3
                 variants={fadeUp}
                 className="font-display text-3xl sm:text-4xl md:text-5xl text-brown-900 leading-[1.1] mb-8 text-balance"
               >
-                From raw earth to your table — six slow steps.
+                From selection to your door — six careful steps.
               </motion.h3>
               <motion.p
                 variants={fadeUp}
                 className="font-body text-base text-brown-700/80 leading-relaxed font-light mb-8"
               >
-                Every ceramic, textile, and piece of furniture in our decor
-                collection passes through the same patient rhythm. No
-                shortcuts, no machines — only hands and time.
+                Every piece in our decor collection passes through the same
+                patient rhythm of curation, inspection, and dispatch. No
+                shortcuts — only attention, at every step.
               </motion.p>
             </motion.div>
 

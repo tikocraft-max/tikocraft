@@ -29,7 +29,7 @@ export default function Products() {
                 <span className="italic font-light text-brown-500">a quiet presence</span>
               </>
             }
-            description="A rotating selection of finished pieces from the atelier — each one signed, dated, and ready to ship."
+            description="A rotating selection of pieces from our catalog — curated for quality, ready to ship, and backed by our support team."
           />
           <motion.button
             variants={fadeUp}

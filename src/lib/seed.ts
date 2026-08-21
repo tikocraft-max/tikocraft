@@ -163,7 +163,7 @@ const SEED_CATEGORIES = [
     name: "Furniture & Seating",
     subtitle: "Solid Ground",
     description:
-      "Oak, walnut and ash joined by hand — no metal, no shortcuts. Furniture built to outlive trend cycles and to carry the patina of a life well-used.",
+      "Oak, walnut and ash, joined with care — built to outlive trend cycles and to carry the patina of a life well-used.",
     image: "/images/collection-furniture.png",
     categoryType: "decor",
     sortOrder: 4,
@@ -173,7 +173,7 @@ const SEED_CATEGORIES = [
     name: "3D DIY Book Nooks",
     subtitle: "Worlds Between Books",
     description:
-      "Hand-cut wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
+      "Wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
     image: "/images/collection-booknooks.png",
     categoryType: "booknook",
     sortOrder: 5,
@@ -295,7 +295,7 @@ const SEED_PRODUCTS = [
     slug: "rue-des-livres-parisian-alley",
     categorySlug: "book-nooks",
     description:
-      "A hand-cut diorama of a Parisian street at dusk. 84 pieces, warm LED, 8 hours to assemble.",
+      "A diorama of a Parisian street at dusk. 84 pieces, warm LED, 8 hours to assemble.",
     priceUSD: 142,
     tag: "Bestseller",
     image: "/images/booknook-1.png",
@@ -314,7 +314,7 @@ const SEED_PRODUCTS = [
     slug: "sylvan-hollow-enchanted-forest",
     categorySlug: "book-nooks",
     description:
-      "A miniature forest with fairy lights and hand-painted mushrooms. 102 pieces, warm LED included.",
+      "A miniature forest with fairy lights and painted mushrooms. 102 pieces, warm LED included.",
     priceUSD: 158,
     tag: "New",
     image: "/images/booknook-2.png",

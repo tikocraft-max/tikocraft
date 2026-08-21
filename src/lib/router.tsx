@@ -28,6 +28,7 @@ const VALID_PAGES: PageId[] = [
   "custom-clay",
   "contact",
   "product",
+  "legal",
 ];
 
 function readHashState(): { page: PageId; param: string | null } {

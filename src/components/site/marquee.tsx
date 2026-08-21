@@ -3,11 +3,11 @@
 import { motion } from "framer-motion";
 
 const phrases = [
-  "Handcrafted in small batches",
-  "Natural materials only",
+  "Curated with care",
+  "Honest materials only",
   "Made to last a lifetime",
-  "Shipped from our atelier",
-  "One piece at a time",
+  "Shipped directly to you",
+  "Selected with intention",
 ];
 
 export default function Marquee() {

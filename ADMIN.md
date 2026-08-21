@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
 2. **Test cards:** Use `4242 4242 4242 4242` for testing.
 3. **No PCI compliance needed:** Stripe Checkout hosts the payment form — card data never touches your server.
 4. **Fees:** ~2.9% + 30¢ per transaction (varies by country).
-5. **Morocco note:** Stripe is NOT directly available in Morocco. Register via a supported country (France, UK, US) with a bank account there. Alternatives: CMI (local), PayPal, Paystack.
+5. **Entity note:** Tikocraft is operated by Wenov8 LLC, a Wyoming (USA) company. Stripe is fully supported in the United States — register the Stripe account under Wenov8 LLC with a US bank account.
 
 ---
 

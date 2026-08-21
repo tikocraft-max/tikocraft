@@ -1743,7 +1743,7 @@ function CategoryForm({
                 onChange={(e) => setForm({ ...form, categoryType: e.target.value as "decor" | "booknook" })}
                 className="w-full bg-white border border-beige px-4 py-3 font-body text-sm text-brown-900 focus:outline-none focus:border-brown-700"
               >
-                <option value="decor">Handmade Decor</option>
+                <option value="decor">Home Decor</option>
                 <option value="booknook">Book Nook</option>
               </select>
             </div>

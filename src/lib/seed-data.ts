@@ -40,7 +40,7 @@ export const SEED_CATEGORIES: SeedCategory[] = [
     name: "3D DIY Book Nooks",
     subtitle: "Worlds Between Books",
     description:
-      "Hand-cut wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
+      "Wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
     image: "/images/collection-booknooks.png",
     categoryType: "booknook",
     sortOrder: 1,
@@ -50,7 +50,7 @@ export const SEED_CATEGORIES: SeedCategory[] = [
     name: "3D DIY Miniature",
     subtitle: "Build Your World",
     description:
-      "Detailed miniature diorama kits you assemble yourself. Precision-cut pieces, warm LED lighting, and hand-painted details bring tiny scenes to life.",
+      "Detailed miniature diorama kits you assemble yourself. Precision-cut pieces, warm LED lighting, and fine-painted details bring tiny scenes to life.",
     image: "/images/booknook-hero.png",
     categoryType: "booknook",
     sortOrder: 2,
@@ -60,7 +60,7 @@ export const SEED_CATEGORIES: SeedCategory[] = [
     name: "Custom Figures",
     subtitle: "Sculpted From Your Photo",
     description:
-      "Turn a photo into a hand-sculpted clay figure. A unique gift for loved ones, a memorial keepsake, or a personal treasure. Each piece is crafted by hand.",
+      "Turn a photo into a sculpted clay figure. A unique gift for loved ones, a memorial keepsake, or a personal treasure. Each piece is made to order.",
     image: "/images/atelier-1.png",
     categoryType: "booknook",
     sortOrder: 3,
@@ -76,7 +76,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
     slug: "rue-des-livres-parisian-alley",
     categorySlug: "book-nooks",
     description:
-      "A hand-cut diorama of a Parisian street at dusk. 84 pieces, warm LED, 8 hours to assemble.",
+      "A diorama of a Parisian street at dusk. 84 pieces, warm LED, 8 hours to assemble.",
     priceUSD: 142,
     tag: "Bestseller",
     image: "/images/booknook-1.png",
@@ -91,7 +91,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
     slug: "sylvan-hollow-enchanted-forest",
     categorySlug: "book-nooks",
     description:
-      "A miniature forest with fairy lights and hand-painted mushrooms. 102 pieces, warm LED included.",
+      "A miniature forest with fairy lights and painted mushrooms. 102 pieces, warm LED included.",
     priceUSD: 158,
     tag: "New",
     image: "/images/booknook-2.png",

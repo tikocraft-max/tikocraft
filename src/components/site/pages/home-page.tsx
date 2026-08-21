@@ -32,7 +32,7 @@ export default function HomePage() {
       <section className="bg-cream py-24 md:py-32 px-6 lg:px-12">
         <div className="mx-auto max-w-7xl">
           <SectionHeading
-            eyebrow="Crafted With Care"
+            eyebrow="Curated With Care"
             title={
               <>
                 From tiny worlds
@@ -40,7 +40,7 @@ export default function HomePage() {
                 to <span className="italic font-light text-brown-500">custom figures</span>.
               </>
             }
-            description="Tikocraft crafts hand-cut book nook dioramas, 3D miniature kits, and bespoke clay figures sculpted from your photos. Each piece is made with patience, one at a time."
+            description="Tikocraft curates 3D DIY book nook kits, miniature dioramas, and bespoke clay figures made to order from your photos. Each piece is selected with patience and shipped directly to you."
           />
 
           <motion.div
@@ -118,7 +118,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
             <SectionHeading
-              eyebrow="Four Hands, Four Crafts"
+              eyebrow="Studio Picks"
               align="left"
               title={
                 <>
@@ -218,7 +218,7 @@ export default function HomePage() {
                   <span className="italic font-light text-beige">glow between books</span>
                 </>
               }
-              description="Hand-cut wooden kits you assemble into dioramas — a Parisian alley, an enchanted forest, a tiny library. Slot them between books; they glow."
+              description="Wooden kits you assemble into dioramas — a Parisian alley, an enchanted forest, a tiny library. Slot them between books; they glow."
             />
             <motion.button
               variants={fadeUp}
@@ -261,23 +261,23 @@ export default function HomePage() {
               <motion.div variants={fadeUp} className="flex items-center gap-3 mb-6">
                 <span className="h-px w-8 bg-brown-400" />
                 <span className="font-body text-[11px] tracking-luxe uppercase text-brown-500">
-                  The Atelier
+                  The Studio
                 </span>
               </motion.div>
               <motion.h2
                 variants={fadeUp}
                 className="font-display text-4xl sm:text-5xl md:text-6xl text-brown-900 leading-[1.05] mb-8 text-balance"
               >
-                A workshop built around the hand, not the machine.
+                A studio built around the piece, not the trend.
               </motion.h2>
               <motion.p
                 variants={fadeUp}
                 className="font-body text-base text-brown-700/80 leading-relaxed mb-10 font-light"
               >
-                Tikocraft began in a converted stable outside Marrakech, with a
-                single kiln and three potters. Today, twelve artisans share the
-                same roof — and a second craft: cutting the tiny wooden pieces
-                that become our book nooks.
+                Tikocraft began in 2018 as a small online studio curating earthy
+                home objects and DIY miniature kits. Today we focus on two
+                crafts — sourcing considered decor pieces, and designing book
+                nook kits that you assemble at home.
               </motion.p>
               <motion.button
                 variants={fadeUp}
@@ -300,7 +300,7 @@ export default function HomePage() {
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img
                   src="/images/atelier-1.png"
-                  alt="Artisan shaping clay on a pottery wheel"
+                  alt="Tikocraft studio"
                   className="h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-brown-900/20 transition-opacity duration-700 group-hover:bg-brown-900/30" />
@@ -347,7 +347,7 @@ export default function HomePage() {
           >
             Letters from
             <br />
-            <span className="italic font-light text-beige">the atelier.</span>
+            <span className="italic font-light text-beige">Tikocraft.</span>
           </motion.h2>
           <motion.p
             variants={fadeUp}

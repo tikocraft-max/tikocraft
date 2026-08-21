@@ -16,6 +16,7 @@ import AtelierPage from "@/components/site/pages/atelier-page";
 import ShowroomPage from "@/components/site/pages/showroom-page";
 import CustomClayPage from "@/components/site/pages/custom-clay-page";
 import ContactPage from "@/components/site/pages/contact-page";
+import LegalPage from "@/components/site/pages/legal-page";
 import { pageTransition } from "@/lib/animations";
 import type { PageId } from "@/lib/content";
 
@@ -67,6 +68,8 @@ function renderPage(page: PageId, param: string | null) {
       return <CustomClayPage />;
     case "contact":
       return <ContactPage />;
+    case "legal":
+      return param ? <LegalPage slug={param} /> : <LegalPage slug="terms" />;
     default:
       return <HomePage />;
   }

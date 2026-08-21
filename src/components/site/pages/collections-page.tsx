@@ -46,9 +46,9 @@ export default function CollectionsPage() {
               variants={fadeUp}
               className="max-w-2xl font-body text-base sm:text-lg text-brown-700/80 leading-relaxed font-light"
             >
-              From hand-cut book nook dioramas to custom clay figures sculpted
-              from your photos — each collection is crafted with patience, one
-              piece at a time.
+              From 3D DIY book nook kits to custom clay figures made from your
+              photos — each collection is curated with patience and shipped
+              directly to you.
             </motion.p>
           </motion.div>
         </div>

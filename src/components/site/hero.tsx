@@ -174,7 +174,7 @@ export default function Hero() {
           >
             <span className="h-px w-12 bg-beige/60" />
             <span className="font-body text-[11px] tracking-luxe uppercase text-beige/80">
-              Handcrafted Decor · 3D DIY Book Nooks · Est. 2018
+              Home Decor · 3D DIY Book Nooks · Est. 2018
             </span>
             <span className="h-px w-12 bg-beige/60" />
           </motion.div>
@@ -194,9 +194,9 @@ export default function Hero() {
             variants={fadeUp}
             className="mt-8 mx-auto max-w-xl font-body text-base sm:text-lg text-cream/80 leading-relaxed font-light"
           >
-            Tikocraft is a small atelier of ceramicists, weavers, woodworkers —
-            and makers of miniature worlds. Earthy home objects, and 3D DIY book
-            nook kits, shaped one piece at a time.
+            Tikocraft is a small studio curating earthy home objects and
+            miniature worlds — 3D DIY book nook kits and bespoke clay
+            figures, sourced and shipped with intention.
           </motion.p>
 
           <motion.div

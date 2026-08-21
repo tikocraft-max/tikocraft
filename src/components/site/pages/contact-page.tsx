@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Mail, MapPin, Clock, Send } from "lucide-react";
 import SectionHeading from "../section-heading";
 import {
   fadeUp,
@@ -16,24 +16,20 @@ import { toast } from "sonner";
 
 const contactInfo = [
   {
-    icon: MapPin,
-    label: "Atelier & Showroom",
-    value: "Route de l'Ourika, Km 12\nMarrakech 40000, Morocco",
-  },
-  {
     icon: Mail,
-    label: "Correspondence",
-    value: "hello@tikocraft.studio\norders@tikocraft.studio",
+    label: "Email",
+    value: "contact@wenov8.online",
   },
   {
-    icon: Phone,
-    label: "Telephone",
-    value: "+212 524 38 92 17\nMon — Sat, 10:00 — 18:00",
+    icon: MapPin,
+    label: "Legal Business Address",
+    value:
+      "30 N Gould St Ste N\nSheridan, WY 82801\nUnited States",
   },
   {
     icon: Clock,
-    label: "Visiting Hours",
-    value: "Tuesday — Saturday\nBy appointment only",
+    label: "Support Hours",
+    value: "Monday — Friday\n24 — 48 hour reply",
   },
 ];
 
@@ -86,7 +82,7 @@ export default function ContactPage() {
                 <span className="italic font-light text-beige">a slow hello.</span>
               </>
             }
-            description="Whether you are commissioning a piece, asking about a book nook kit, or planning to visit the atelier — we read every message and write back, by hand if we can."
+            description="Whether you are commissioning a piece, asking about a book nook kit, or checking on an order — we read every message and write back within two working days."
           />
         </div>
 
@@ -183,9 +179,9 @@ export default function ContactPage() {
                 <div className="flex flex-wrap gap-3">
                   {[
                     "General enquiry",
-                    "Commission a piece",
+                    "Custom figure order",
                     "Book nook kits",
-                    "Visit the showroom",
+                    "Order support",
                   ].map((subject) => (
                     <button
                       key={subject}
@@ -235,8 +231,8 @@ export default function ContactPage() {
               </button>
 
               <p className="font-body text-[11px] text-brown-500 font-light leading-relaxed">
-                We reply by hand within two working days. For commissions,
-                expect a longer conversation — usually over several letters.
+                We reply within two working days. For custom figure orders,
+                expect a longer conversation about your photo and preferences.
               </p>
             </form>
           </motion.div>

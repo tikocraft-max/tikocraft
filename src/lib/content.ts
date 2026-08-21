@@ -29,7 +29,7 @@ export const collections: Collection[] = [
     title: "3D DIY Book Nooks",
     subtitle: "Worlds Between Books",
     description:
-      "Hand-cut wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
+      "Wooden kits that assemble into miniature worlds — a Parisian alley, an enchanted forest, a tiny library. Slotted between books on a shelf, they glow.",
     image: "/images/collection-booknooks.png",
     items: "4 kits",
     category: "booknook",
@@ -39,7 +39,7 @@ export const collections: Collection[] = [
     title: "3D DIY Miniature",
     subtitle: "Build Your World",
     description:
-      "Detailed miniature diorama kits you assemble yourself. Precision-cut pieces, warm LED lighting, and hand-painted details bring tiny scenes to life.",
+      "Detailed miniature diorama kits you assemble yourself. Precision-cut pieces, warm LED lighting, and fine-painted details bring tiny scenes to life.",
     image: "/images/booknook-hero.png",
     items: "Coming soon",
     category: "booknook",
@@ -49,7 +49,7 @@ export const collections: Collection[] = [
     title: "Custom Figures",
     subtitle: "Sculpted From Your Photo",
     description:
-      "Turn a photo into a hand-sculpted clay figure. A unique gift for loved ones, a memorial keepsake, or a personal treasure. Each piece is crafted by hand.",
+      "Turn a photo into a sculpted clay figure. A unique gift for loved ones, a memorial keepsake, or a personal treasure. Each piece is made to order.",
     image: "/images/atelier-1.png",
     items: "Made to order",
     category: "booknook",
@@ -64,7 +64,7 @@ export const products: Product[] = [
     price: "$142",
     image: "/images/booknook-1.png",
     description:
-      "A hand-cut diorama of a Parisian street at dusk. 84 pieces, warm LED, 8 hours to assemble.",
+      "A diorama of a Parisian street at dusk. 84 pieces, warm LED, 8 hours to assemble.",
     tag: "Bestseller",
     categoryType: "booknook",
   },
@@ -75,7 +75,7 @@ export const products: Product[] = [
     price: "$158",
     image: "/images/booknook-2.png",
     description:
-      "A miniature forest with fairy lights and hand-painted mushrooms. 102 pieces, warm LED included.",
+      "A miniature forest with fairy lights and painted mushrooms. 102 pieces, warm LED included.",
     tag: "New",
     categoryType: "booknook",
   },
@@ -116,7 +116,8 @@ export type PageId =
   | "showroom"
   | "custom-clay"
   | "contact"
-  | "product";
+  | "product"
+  | "legal";
 
 export const navItems: NavItem[] = [
   { label: "Home", href: "home", page: "home" },
@@ -129,8 +130,8 @@ export const navItems: NavItem[] = [
 
 // Brand essence lines
 export const brandLines = {
-  tagline: "Handcrafted Home Decor & 3D DIY Book Nooks",
+  tagline: "Home Decor & 3D DIY Book Nooks",
   hero: "Objects made slowly, to be lived with long.",
   essence:
-    "A small atelier shaping earthy home objects and miniature worlds — one piece, one kit, at a time.",
+    "A curated studio of earthy home objects and miniature worlds — sourced and shipped with intention.",
 };

@@ -429,7 +429,7 @@ export default function CustomClayPage() {
           >
             <span className="h-px w-12 bg-beige/60" />
             <span className="font-body text-[11px] tracking-luxe uppercase text-beige/80">
-              Bespoke · Hand-sculpted · One of a kind
+              Bespoke · Made to order · One of a kind
             </span>
             <span className="h-px w-12 bg-beige/60" />
           </motion.div>
@@ -447,9 +447,9 @@ export default function CustomClayPage() {
             variants={fadeUp}
             className="max-w-xl mx-auto font-body text-base text-cream/80 leading-relaxed font-light mb-8"
           >
-            Turn a photo into a hand-sculpted clay figure. A unique gift for
+            Turn a photo into a sculpted clay figure. A unique gift for
             loved ones, a memorial keepsake, or a personal treasure. Each piece
-            is crafted by hand with attention to every detail.
+            is made to order with attention to every detail.
           </motion.p>
         </motion.div>
       </section>
@@ -489,7 +489,7 @@ export default function CustomClayPage() {
                 {
                   num: "03",
                   title: "We Sculpt & Ship",
-                  desc: "Our artisan hand-sculpts your figure in clay, fires it, and ships it to your door in 2–3 weeks.",
+                  desc: "Your figure is sculpted in clay, fired, and shipped to your door in 2–3 weeks.",
                 },
               ].map((step, i) => (
                 <motion.div
@@ -557,8 +557,8 @@ export default function CustomClayPage() {
                 1. Upload a Photo *
               </h3>
               <p className="font-body text-[11px] text-brown-500 mb-4">
-                A clear, front-facing photo with good lighting. This is what our
-                artisan will sculpt from.
+                A clear, front-facing photo with good lighting. This is the
+                reference our sculptor will work from.
               </p>
 
               <input
@@ -630,7 +630,7 @@ export default function CustomClayPage() {
                 2. Pick a Size
               </h3>
               <p className="font-body text-[11px] text-brown-500 mb-4">
-                Price includes sculpting, firing, and hand-painting.
+                Price includes sculpting, firing, and painting.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SIZE_TIERS.map((tier) => (

@@ -16,20 +16,20 @@ export default function ShowroomPage() {
 
   const info = [
     {
-      label: "Address",
-      value: "Route de l'Ourika, Km 12\nMarrakech 40000, Morocco",
+      label: "Online Store",
+      value: "tikocraft.com\nOpen 24/7, worldwide",
     },
     {
-      label: "Visiting Hours",
-      value: "Tuesday — Saturday\n10:00 — 18:00",
-    },
-    {
-      label: "Appointment",
-      value: "By appointment only\nBook 48 hours ahead",
+      label: "Support Hours",
+      value: "Monday — Friday\n24 — 48 hour reply",
     },
     {
       label: "Languages",
       value: "English · French\nArabic · Spanish",
+    },
+    {
+      label: "Response",
+      value: "Email & contact form\nWithin two working days",
     },
   ];
 
@@ -46,7 +46,7 @@ export default function ShowroomPage() {
         >
           <img
             src="/images/showroom.png"
-            alt="Tikocraft showroom"
+            alt="Tikocraft online shop"
             className="h-full w-full object-cover"
           />
         </motion.div>
@@ -65,7 +65,7 @@ export default function ShowroomPage() {
           >
             <span className="h-px w-12 bg-beige/60" />
             <span className="font-body text-xs tracking-luxe uppercase text-beige/80">
-              The Showroom
+              The Shop
             </span>
             <span className="h-px w-12 bg-beige/60" />
           </motion.div>
@@ -74,19 +74,20 @@ export default function ShowroomPage() {
             variants={fadeUp}
             className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-cream leading-[1.02] mb-8 text-balance"
           >
-            Come sit with the
+            Take your time,
             <br />
-            <span className="italic font-light text-beige">objects</span> before
-            you choose.
+            <span className="italic font-light text-beige">browse</span> the
+            collections.
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
             className="max-w-xl mx-auto font-body text-base text-cream/80 leading-relaxed font-light mb-12"
           >
-            Our showroom is a quiet room above the workshop. No music, no sales
-            staff — only the pieces, the light from a north-facing window, and
-            tea if you stay a while.
+            Our shop is online — open any hour, from anywhere. No queues,
+            no closing times, no pressure. Browse the collections at your own
+            pace and write to us with any question; we reply within two
+            working days.
           </motion.p>
 
           <motion.button
@@ -94,7 +95,7 @@ export default function ShowroomPage() {
             onClick={() => navigate("contact")}
             className="group inline-flex items-center gap-3 bg-cream text-brown-900 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-colors duration-500 hover:bg-beige"
           >
-            Book a Visit
+            Send a Message
             <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
           </motion.button>
         </motion.div>
@@ -120,7 +121,7 @@ export default function ShowroomPage() {
               variants={fadeUp}
               className="font-display text-4xl sm:text-5xl md:text-6xl text-cream leading-[1.05] text-balance"
             >
-              How to find us — and what to expect.
+              How to shop with us — and what to expect.
             </motion.h2>
           </motion.div>
 
@@ -162,15 +163,15 @@ export default function ShowroomPage() {
             {[
               {
                 title: "A slow look",
-                body: "Plan for an hour, not ten minutes. The pieces reward a second and third look — you will see things you missed at first glance.",
+                body: "Plan for a long browse, not a quick buy. Each piece rewards a second and third look — take your time, open the product pages, read the materials.",
               },
               {
-                title: "A working atelier",
-                body: "The showroom opens directly onto the workshop. You can watch pieces being thrown, sanded, painted, and packed as you browse.",
+                title: "Clear information",
+                body: "Dimensions, materials, assembly time, and what is included are stated plainly on every product page. No marketing puff — just the facts you need.",
               },
               {
-                title: "Tea, always",
-                body: "We pour mint tea on arrival. It is not a sales tactic — it is how we work. Stay as long as you like; the kettle is always on.",
+                title: "Always available",
+                body: "The shop is open around the clock, from anywhere in the world. Place an order at 3am on a Sunday — we will see it on Monday morning and confirm within hours.",
               },
             ].map((item, i) => (
               <motion.div
@@ -206,7 +207,7 @@ export default function ShowroomPage() {
             variants={fadeUp}
             className="font-display text-4xl sm:text-5xl md:text-6xl text-cream leading-[1.05] mb-8 text-balance"
           >
-            Ready to come?
+            Ready to begin?
             <br />
             <span className="italic font-light text-beige">Write to us first.</span>
           </motion.h2>
@@ -214,15 +215,16 @@ export default function ShowroomPage() {
             variants={fadeUp}
             className="max-w-xl mx-auto font-body text-base text-cream/70 leading-relaxed font-light mb-10"
           >
-            We see visitors by appointment only — it lets us give each visit the
-            attention it deserves. Drop us a letter; we'll suggest a time.
+            Whether you are commissioning a custom figure, asking about a
+            book nook kit, or checking on an order — we read every message
+            and write back within two working days.
           </motion.p>
           <motion.button
             variants={fadeUp}
             onClick={() => navigate("contact")}
             className="group inline-flex items-center gap-3 bg-cream text-brown-900 px-8 py-4 font-body text-xs tracking-luxe-sm uppercase transition-colors duration-500 hover:bg-beige"
           >
-            Book Your Visit
+            Send a Message
             <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
           </motion.button>
         </motion.div>

@@ -12,27 +12,27 @@ import {
 } from "@/lib/animations";
 
 const stats = [
-  { value: "2018", label: "Year founded" },
-  { value: "12", label: "Resident artisans" },
-  { value: "100%", label: "Natural materials" },
-  { value: "1", label: "Piece at a time" },
+  { value: "2018", label: "Year established" },
+  { value: "2", label: "Curated crafts" },
+  { value: "100%", label: "Selected with care" },
+  { value: "1", label: "Order at a time" },
 ];
 
 const values = [
   {
-    title: "Slow Hands",
+    title: "Slow Selection",
     description:
-      "We measure work in seasons, not shifts. A single vessel can pass through six hands and four kiln firings before it leaves us.",
+      "We measure a piece by how it ages, not how fast it ships. Every item in our catalog is chosen because we believe it will look quieter and better ten years from now.",
   },
   {
     title: "Honest Material",
     description:
-      "Local clay, regional wool, FSC-certified hardwood. We let the material speak first, then shape our form around its grain.",
+      "Birch plywood, natural finishes, warm LEDs. We let the material speak first — and we describe it accurately, so you know exactly what you are buying.",
   },
   {
     title: "Built to Outlive",
     description:
-      "Every object is finished to be repaired, not replaced. We send care notes with every order and mend what we make, for life.",
+      "Every product we carry is finished to be repaired, not replaced. We share care notes with every order and stand behind what we ship, for the long run.",
   },
 ];
 
@@ -66,7 +66,7 @@ export default function Atelier() {
             <div className="relative aspect-[4/5] sm:aspect-[5/4] overflow-hidden">
               <motion.img
                 src="/images/atelier-1.png"
-                alt="Artisan shaping clay on a pottery wheel in the Tikocraft atelier"
+                alt="Tikocraft studio"
                 style={{ y: imageY }}
                 className="absolute inset-0 h-[115%] w-full object-cover -top-[8%]"
               />
@@ -80,10 +80,10 @@ export default function Atelier() {
               className="absolute -bottom-6 -right-4 sm:right-8 bg-cream border border-beige px-6 py-5 max-w-[260px] shadow-[0_20px_50px_-20px_rgba(74,46,26,0.3)]"
             >
               <span className="font-display text-3xl text-brown-800 block leading-none">
-                72 hours
+                8 hours
               </span>
               <span className="font-body text-xs text-brown-600 mt-2 block leading-relaxed">
-                of patient shaping — from raw clay to finished vessel.
+                of patient assembly — from flat-pack kit to glowing world.
               </span>
             </motion.div>
           </motion.div>
@@ -110,23 +110,23 @@ export default function Atelier() {
               variants={fadeUp}
               className="font-display text-4xl sm:text-5xl md:text-6xl text-brown-900 leading-[1.05] mb-8 text-balance"
             >
-              A workshop built
+              A studio built
               <br />
               <span className="italic font-light text-brown-500">
-                around the hand
+                around the piece
               </span>
-              , not the machine.
+              , not the trend.
             </motion.h2>
 
             <motion.p
               variants={fadeUp}
               className="font-body text-base text-brown-700/80 leading-relaxed mb-6 font-light"
             >
-              Tikocraft began in a converted stable outside Marrakech, with a
-              single kiln and three potters. Today, twelve artisans share the
-              same roof — ceramicists, weavers, joiners, and a bronze caster —
-              working in full view of one another, learning from each other&apos;s
-              material.
+              Tikocraft began in 2018 as a small online studio curating earthy
+              home objects and DIY miniature kits. Today we focus on two crafts
+              — sourcing considered decor pieces, and designing book nook kits
+              that you assemble at home. Every item in the catalog is selected
+              with the same patience it asks of you.
             </motion.p>
 
             <motion.p
@@ -208,7 +208,7 @@ export default function Atelier() {
               variants={fadeUp}
               className="font-display text-3xl sm:text-4xl md:text-5xl text-brown-900 leading-[1.1] mb-8 text-balance"
             >
-              From raw earth to your table — six slow steps.
+              From selection to your door — six careful steps.
             </motion.h3>
 
             <motion.ol
@@ -216,12 +216,12 @@ export default function Atelier() {
               className="space-y-5 font-body text-sm text-brown-700/80 font-light"
             >
               {[
-                ["Sourcing", "Clay dug from local riverbeds, wool sheared from regional flocks, oak felled within 200km."],
-                ["Wedging & spinning", "Material prepared by hand — no pug mills. Two days of resting before any forming begins."],
-                ["Forming", "Wheel-thrown, slab-built, or hand-carved. Every object carries the trace of its maker."],
-                ["Drying & firing", "Slow air-drying for ten days, then three kiln firings peaking at 1280°C."],
-                ["Finishing", "Hand-sanding, oiling, or glazing. Surfaces meant to be touched as well as seen."],
-                ["Signing & shipping", "Each piece dated and signed. Wrapped in undyed linen and shipped from the atelier."],
+                ["Curation", "We source from designers and makers whose work we have followed for years. Each piece earns a place in the catalog on its own merits."],
+                ["Quality check", "Every item is inspected against our materials and finish standards before it is listed."],
+                ["Photography", "We photograph what you see, in natural light. The images match the object you receive."],
+                ["Honest copy", "Dimensions, materials, and assembly time are stated plainly. If something takes 8 hours to assemble, that is what we tell you."],
+                ["Secure packaging", "Each order is packed in protective, recyclable materials strong enough to survive international shipping."],
+                ["Tracked shipping", "A confirmation and tracking link is sent the moment your order leaves the fulfillment partner, so you can follow it to your door."],
               ].map(([step, desc], i) => (
                 <li key={step} className="flex gap-5">
                   <span className="font-display text-lg text-brown-400 shrink-0 w-6">
@@ -251,7 +251,7 @@ export default function Atelier() {
             <div className="relative aspect-[4/3] overflow-hidden">
               <motion.img
                 src="/images/atelier-2.png"
-                alt="Tikocraft workshop interior with workbench and ceramic pieces"
+                alt="Tikocraft studio interior"
                 style={{ y: imageY }}
                 className="absolute inset-0 h-[115%] w-full object-cover -top-[8%]"
               />

@@ -12,17 +12,17 @@ const footerLinks: { title: string; items: { label: string; page?: PageId; param
     { label: "3D DIY Miniature", page: "products", param: "booknooks" },
     { label: "Custom Figures", page: "custom-clay" },
   ],
-  Atelier: [
+  Studio: [
     { label: "Our Story", page: "atelier" },
     { label: "Process & Materials", page: "atelier" },
     { label: "The Two Crafts", page: "atelier" },
     { label: "Sustainability", page: "atelier" },
   ],
-  Contact: [
-    { label: "Trade Enquiries", page: "contact" },
-    { label: "Press Kit", page: "contact" },
-    { label: "Wholesale", page: "contact" },
-    { label: "Get in Touch", page: "contact" },
+  Legal: [
+    { label: "Terms & Conditions", page: "legal", param: "terms" },
+    { label: "Privacy Policy", page: "legal", param: "privacy" },
+    { label: "Refund Policy", page: "legal", param: "refund" },
+    { label: "Shipping Policy", page: "legal", param: "shipping" },
   ],
 };
 
@@ -75,9 +75,9 @@ export default function Footer() {
                 isDarkPage ? "text-cream/70" : "text-brown-700/80"
               }`}
             >
-              A small atelier of ceramicists, weavers, woodworkers — and makers
-              of miniature worlds. Earthy home objects, and 3D DIY book nook
-              kits, shaped one piece at a time, since 2018.
+              A curated studio of earthy home objects, 3D DIY book nook
+              kits, and bespoke clay figures. Sourced and shipped with
+              intention, since 2018.
             </p>
 
             {/* Newsletter signup */}
@@ -87,7 +87,7 @@ export default function Footer() {
                   isDarkPage ? "text-beige/60" : "text-brown-600"
                 }`}
               >
-                Letters from the atelier
+                Letters from Tikocraft
               </label>
               <form
                 onSubmit={(e) => e.preventDefault()}
@@ -203,39 +203,51 @@ export default function Footer() {
           viewport={viewportOnce}
           className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4"
         >
-          <p
-            className={`font-body text-[11px] font-light tracking-wide ${
+          <div
+            className={`font-body text-[11px] font-light tracking-wide text-center md:text-left ${
               isDarkPage ? "text-beige/60" : "text-brown-600"
             }`}
           >
-            © {new Date().getFullYear()} Tikocraft Atelier · Marrakech · All
-            objects signed and dated.
-          </p>
+            <p>
+              © {new Date().getFullYear()} Tikocraft. All rights reserved.
+            </p>
+            <p className="mt-1">
+              Tikocraft is operated by Wenov8 LLC.
+            </p>
+          </div>
           <div className="flex items-center gap-6">
-            <a
-              href="#"
-              className={`font-body text-[11px] transition-colors ${
-                isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
-              }`}
-            >
-              Privacy
-            </a>
-            <a
-              href="#"
+            <button
+              onClick={() => navigate("legal", "terms")}
               className={`font-body text-[11px] transition-colors ${
                 isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
               }`}
             >
               Terms
-            </a>
-            <a
-              href="#"
+            </button>
+            <button
+              onClick={() => navigate("legal", "privacy")}
+              className={`font-body text-[11px] transition-colors ${
+                isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
+              }`}
+            >
+              Privacy
+            </button>
+            <button
+              onClick={() => navigate("legal", "refund")}
+              className={`font-body text-[11px] transition-colors ${
+                isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
+              }`}
+            >
+              Refund
+            </button>
+            <button
+              onClick={() => navigate("legal", "shipping")}
               className={`font-body text-[11px] transition-colors ${
                 isDarkPage ? "text-beige/60 hover:text-cream" : "text-brown-600 hover:text-brown-900"
               }`}
             >
               Shipping
-            </a>
+            </button>
             <button
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
